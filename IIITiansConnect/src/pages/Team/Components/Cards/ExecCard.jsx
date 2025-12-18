@@ -1,0 +1,90 @@
+import { motion } from "framer-motion";
+import {
+  Linkedin,
+  Github,
+  Instagram,
+  Twitter,
+  Globe,
+} from "lucide-react";
+
+export default function ExecCard({ member }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: "easeOut" }}
+      whileHover={{ y: -4 }}
+      className="group relative bg-white rounded-2xl p-5
+                 border border-gray-100 hover:shadow-xl transition-shadow"
+    >
+      {/* TOP ACCENT */}
+      <div className="absolute inset-x-0 top-0 h-1 rounded-t-2xl bg-indigo-600/80" />
+
+      <div className="flex items-start gap-5">
+        {/* IMAGE */}
+        <div className="relative w-40 aspect-[3/4] rounded-xl overflow-hidden flex-shrink-0">
+          <img
+            src={member.photo?.url}
+            alt={member.name}
+            className="w-full h-full object-cover transition-transform duration-300
+                       group-hover:scale-[1.03]"
+          />
+        </div>
+
+        {/* CONTENT */}
+        <div className="flex-1 pt-1 min-w-0">
+          <h3 className="text-lg font-semibold text-gray-900 leading-tight">
+            {member.name}
+          </h3>
+
+          <p className="text-sm text-indigo-600 font-medium mt-1">
+            {member.role} · {member.iiit}
+          </p>
+
+          {/* SOCIALS */}
+          <div className="flex gap-3 mt-4 flex-wrap">
+            {member.linkedin && (
+              <Social href={member.linkedin}>
+                <Linkedin size={16} />
+              </Social>
+            )}
+            {member.github && (
+              <Social href={member.github}>
+                <Github size={16} />
+              </Social>
+            )}
+            {member.instagram && (
+              <Social href={member.instagram}>
+                <Instagram size={16} />
+              </Social>
+            )}
+            {member.twitter && (
+              <Social href={member.twitter}>
+                <Twitter size={16} />
+              </Social>
+            )}
+            {member.website && (
+              <Social href={member.website}>
+                <Globe size={16} />
+              </Social>
+            )}
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+function Social({ href, children }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      className="p-2 rounded-full border border-gray-200 text-gray-600
+                 hover:text-indigo-600 hover:border-indigo-600 transition"
+    >
+      {children}
+    </a>
+  );
+}

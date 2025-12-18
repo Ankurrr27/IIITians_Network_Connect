@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../api/axios";
-import EventCard from "../ui/EventCard";
+import api from "../../../api/axios";
+
+import EventCard from "../../../ui/EventCard";
 
 const Index2_2 = () => {
   const [events, setEvents] = useState([]);

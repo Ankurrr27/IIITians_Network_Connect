@@ -1,5 +1,5 @@
-import BlobWithLogo from "../ui/BlobWithLogo";
-import TopWaves from "../ui/TopWaves";
+import BlobWithLogo from "../../../ui/BlobWithLogo";
+import TopWaves from "../../../ui/TopWaves";
 import { useNavigate } from "react-router-dom";
 
 const Index1 = () => {

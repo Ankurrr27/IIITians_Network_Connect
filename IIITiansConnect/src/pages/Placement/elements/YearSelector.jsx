@@ -2,8 +2,8 @@ import { Calendar } from "lucide-react";
 
 export default function YearSelector({
   years = [],
-  value,      // number | null
-  onChange,   // (number | null) => void
+  value, // number | null
+  onChange,
 }) {
   if (!years.length) return null;
 
@@ -11,9 +11,18 @@ export default function YearSelector({
   const latestYear = sortedYears[0];
 
   return (
-    <div className="flex items-center gap-3 bg-white border rounded-xl px-4 py-2 shadow-sm">
+    <div
+      className="
+        flex items-center gap-3
+        bg-white border rounded-xl
+        px-4 py-2 shadow-sm
+        hover:border-indigo-400
+        focus-within:ring-2 focus-within:ring-indigo-500
+        transition
+      "
+    >
       {/* Icon */}
-      <Calendar size={18} className="text-indigo-600" />
+      <Calendar size={18} className="text-indigo-600 shrink-0" />
 
       {/* Label */}
       <span className="text-sm font-medium text-gray-700">
@@ -29,24 +38,30 @@ export default function YearSelector({
         }}
         className="
           bg-transparent
-          text-sm font-medium
+          text-sm font-semibold
           text-gray-900
           outline-none
           cursor-pointer
         "
       >
-        {/* Latest first */}
-        {sortedYears.map((y) => (
-          <option key={y} value={y}>
-            {y} {y === latestYear && "• Latest"}
-          </option>
-        ))}
+        {/* Latest Year */}
+        <option value={latestYear}>
+          {latestYear} • Latest
+        </option>
 
-        {/* Divider-like option */}
-        <option disabled>──────────</option>
+        {/* Older Years */}
+        {sortedYears
+          .filter((y) => y !== latestYear)
+          .map((y) => (
+            <option key={y} value={y}>
+              {y}
+            </option>
+          ))}
 
         {/* All Years */}
-        <option value="all">All Years</option>
+        <option value="all">
+          All Years
+        </option>
       </select>
     </div>
   );

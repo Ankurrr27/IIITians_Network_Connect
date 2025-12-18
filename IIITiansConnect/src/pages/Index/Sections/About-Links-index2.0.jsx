@@ -19,28 +19,28 @@ const projects = [
     description:
       "Transparent and structured placement statistics across all IIITs to help students make informed career decisions.",
     icon: <Database size={28} />,
-    route: "/placements",
+    route: "/placement",
   },
   {
     title: "News & Events Across IIITs",
     description:
       "A unified feed of technical, cultural, and academic events happening across all IIIT campuses.",
     icon: <Newspaper size={28} />,
-    route: "/news-events",
+    route: "/events",
   },
   {
     title: "Competitions & Hackathons",
     description:
       "Discover, participate, and collaborate in hackathons and competitions conducted nationwide.",
     icon: <Trophy size={28} />,
-    route: "/competitions-hackathons",
+    route: "/events",
   },
   {
     title: "Alumni Achievements",
     description:
       "Highlighting impactful career journeys, achievements, and contributions of IIIT alumni across domains.",
     icon: <Award size={28} />,
-    route: "/alumni-achievements",
+    route: "/alumni",
   },
 ];
 

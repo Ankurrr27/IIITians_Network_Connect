@@ -13,10 +13,12 @@ const Navigation = () => {
 
   const navItems = [
     { name: "Home", href: "#home" },
-    { name: "JEE Counselling", href: "#jee-counselling" },
-    { name: "IIIT Placements", href: "/placements" },
+    { name: "Colleges", href: "/colleges" },
+
+    { name: "JEE Counselling", href: "/jeecounselling" },
+    { name: "IIIT Placements", href: "/placement" },
     { name: "Our Team", href: "/team" },
-    { name: "Contact", href: "#contact" },
+    { name: "Contact", href: "/contact" },
   ];
 
   useEffect(() => {

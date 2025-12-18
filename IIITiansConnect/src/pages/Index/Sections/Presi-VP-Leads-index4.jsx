@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import BigTeamCard from "../ui/BigTeamCard";
-import SmallTeamCard from "../ui/SmallTeamCard";
+import BigTeamCard from "../../../ui/BigTeamCard";
+import SmallTeamCard from "../../../ui/SmallTeamCard";
 
 const Index3 = ({ showViewMore = false }) => {
   const navigate = useNavigate();

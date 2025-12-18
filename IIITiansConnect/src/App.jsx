@@ -1,56 +1,61 @@
 import { useEffect, useState } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
+import TeamPage from "./pages/Team/TeamPage";
 
 import Navigation from "./components/Navigation";
 import Footer from "./components/Footer";
 import Loader from "./components/Loader";
-import PlacementPage from "./pages/Placement/PlacementPage";
-import Index from "./pages";
-import Colleges from "./pages/Colleges";
+
+import Index from "./pages/Index/index.jsx";
+import Colleges from "./pages/Colleges/Colleges.jsx";
 import Users from "./pages/Users";
-// import Clubs from "./pages/Clubs";
-import Events from "./pages/Events";
-// import Index3 from "./sub-pages/index3";
-import Team from "./pages/FullTeam";
-// import PlacementInsights from "./pages/Placement/PlacementInsights";
-import PlacementSearch from "./pages/Placement/PlacementSearch";
+import Events from "./pages/Events/Events.jsx";
+
+import Placement from "./pages/Placement/Placement.jsx";
+import NotFound from "./pages/NotFound.jsx";
+import TeamAdmin from "./pages/Team/Admin/TeamAdmin.jsx";
+import PlacementPage from "./pages/Placement/PlacementPage.jsx";
 
 function App() {
   const [loading, setLoading] = useState(true);
+  const location = useLocation();
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
     }, 1200);
+
     return () => clearTimeout(timer);
   }, []);
 
+  if (loading) {
+    return <Loader />;
+  }
+
   return (
-    <AnimatePresence>
-      {loading ? (
-        <Loader key="loader" />
-      ) : (
-        <>
-          <Navigation />
+    <>
+      <Navigation />
 
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/colleges" element={<Colleges />} />
-            <Route path="/users" element={<Users />} />
-            {/* <Route path="/clubs" element={<Clubs />} /> */}
-            <Route path="/events" element={<Events />} />
-            <Route path="/team" element={<Team />} />
-            <Route path="/placements" element={<PlacementSearch/>}/>
-            <Route path="/placements/update" element={<PlacementSearch />} />
+      <AnimatePresence mode="wait">
+        <Routes location={location} key={location.pathname}>
+          <Route path="/" element={<Index />} />
+          <Route path="/colleges" element={<Colleges />} />
+          <Route path="/users" element={<Users />} />
+          <Route path="/events" element={<Events />} />
+          
+          <Route path="/placement" element={<Placement />} />
+          <Route path="/placement/admin" element={<PlacementPage />} />
 
+          <Route path="*" element={<NotFound />} />
+          <Route path="/team/admin" element={<TeamAdmin />} />
 
-          </Routes>
+          <Route path="/team" element={<TeamPage />} />
+        </Routes>
+      </AnimatePresence>
 
-          <Footer />
-        </>
-      )}
-    </AnimatePresence>
+      <Footer />
+    </>
   );
 }
 
