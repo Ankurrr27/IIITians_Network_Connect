@@ -5,14 +5,16 @@ import { AnimatePresence } from "framer-motion";
 import Navigation from "./components/Navigation";
 import Footer from "./components/Footer";
 import Loader from "./components/Loader";
-
+import PlacementPage from "./pages/Placement/PlacementPage";
 import Index from "./pages";
 import Colleges from "./pages/Colleges";
 import Users from "./pages/Users";
-import Clubs from "./pages/Clubs";
+// import Clubs from "./pages/Clubs";
 import Events from "./pages/Events";
 // import Index3 from "./sub-pages/index3";
 import Team from "./pages/FullTeam";
+// import PlacementInsights from "./pages/Placement/PlacementInsights";
+import PlacementSearch from "./pages/Placement/PlacementSearch";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -36,9 +38,12 @@ function App() {
             <Route path="/" element={<Index />} />
             <Route path="/colleges" element={<Colleges />} />
             <Route path="/users" element={<Users />} />
-            <Route path="/clubs" element={<Clubs />} />
+            {/* <Route path="/clubs" element={<Clubs />} /> */}
             <Route path="/events" element={<Events />} />
             <Route path="/team" element={<Team />} />
+            <Route path="/placements" element={<PlacementSearch/>}/>
+            <Route path="/placements/update" element={<PlacementSearch />} />
+
 
           </Routes>
 

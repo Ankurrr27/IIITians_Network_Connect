@@ -8,7 +8,7 @@ console.log(
 import express from "express";
 import cors from "cors";
 import connectDB from "./db/index.js";
-
+import placementRoutes from "./routes/placement.routes.js";
 import userRoutes from "./routes/user.routes.js";
 import collegeRoutes from "./routes/college.routes.js";
 import clubRoutes from "./routes/club.routes.js";
@@ -26,6 +26,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/colleges", collegeRoutes);
 app.use("/api/clubs", clubRoutes);
 app.use("/api/events", eventRoutes);
+app.use("/api/placements", placementRoutes);
 
 connectDB().then(() => {
   app.listen(PORT, () =>

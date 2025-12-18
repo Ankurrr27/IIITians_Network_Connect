@@ -7,7 +7,7 @@ const Index3 = ({ showViewMore = false }) => {
   const navigate = useNavigate();
 
   return (
-    <section className="py-10 bg-white">
+    <section className="pt-10 bg-white">
       <div className="max-w-7xl mx-auto px-6">
 
         {/* TITLE */}
@@ -24,9 +24,9 @@ const Index3 = ({ showViewMore = false }) => {
             links={{
               linkedin: "https://linkedin.com/in/username",
               instagram: "https://instagram.com/username",
-              twitter: "https://twitter.com/username",
-              website: "https://iiitians.network",
-              github: "https://github.com/lokesh",
+              // twitter: "https://twitter.com/username",
+              // website: "https://iiitians.network",
+              // github: "https://github.com/lokesh",
             }}
           />
 
@@ -39,8 +39,8 @@ const Index3 = ({ showViewMore = false }) => {
             links={{
               linkedin: "https://linkedin.com/in/lokesh",
               instagram: "https://instagram.com/lokesh",
-              twitter: "https://twitter.com/lokesh",
-              github: "https://github.com/lokesh",
+              // twitter: "https://twitter.com/lokesh",
+              // github: "https://github.com/lokesh",
             }}
           />
         </div>
@@ -56,8 +56,8 @@ const Index3 = ({ showViewMore = false }) => {
             links={{
               linkedin: "https://linkedin.com/in/ankur",
               instagram: "https://instagram.com/ankur",
-              twitter: "https://twitter.com/ankur",
-              github: "https://github.com/rahul",
+              // twitter: "https://twitter.com/ankur",
+              // github: "https://github.com/rahul",
             }}
           />
 
@@ -70,8 +70,8 @@ const Index3 = ({ showViewMore = false }) => {
             links={{
               linkedin: "https://linkedin.com/in/ankur",
               instagram: "https://instagram.com/ankur",
-              twitter: "https://twitter.com/ankur",
-              github: "https://github.com/rahul",
+              // twitter: "https://twitter.com/ankur",
+              // github: "https://github.com/rahul",
             }}
           />
 
@@ -84,8 +84,8 @@ const Index3 = ({ showViewMore = false }) => {
             links={{
               linkedin: "https://linkedin.com/in/ankur",
               instagram: "https://instagram.com/ankur",
-              twitter: "https://twitter.com/ankur",
-              github: "https://github.com/rahul",
+              // twitter: "https://twitter.com/ankur",
+              // github: "https://github.com/rahul",
             }}
           />
         </div>

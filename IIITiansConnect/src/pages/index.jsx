@@ -1,9 +1,9 @@
 import { useNavigate } from "react-router-dom";
-import Index1 from "../sub-pages/index1";
-import Index2 from "../sub-pages/index2.0";
-import Index2_2 from "../sub-pages/index2.1";
-import Index3 from "../sub-pages/index3";
-import Index4 from "../sub-pages/index4";
+import Index1 from "../sub-pages/First-Home-index1";
+import Index2 from "../sub-pages/About-Links-index2.0";
+import Index2_2 from "../sub-pages/Events-index3";
+import Index3 from "../sub-pages/Presi-VP-Leads-index4";
+import Index4 from "../sub-pages/Jossa-Csab-index5";
 
 const Index = () => {
   const navigate = useNavigate();

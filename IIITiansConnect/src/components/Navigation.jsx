@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
+import logoBlue from "/IIITians-Network-Logo-Blue.png";
+import logoLight from "/IIITians-Network-Logo-Light.png";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -12,7 +14,7 @@ const Navigation = () => {
   const navItems = [
     { name: "Home", href: "#home" },
     { name: "JEE Counselling", href: "#jee-counselling" },
-    { name: "IIIT Placements", href: "#iiit-placements" },
+    { name: "IIIT Placements", href: "/placements" },
     { name: "Our Team", href: "/team" },
     { name: "Contact", href: "#contact" },
   ];
@@ -69,16 +71,11 @@ const Navigation = () => {
     >
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
         {/* Logo */}
-        <a href="/" className="flex items-center gap-3">
+        <a href="/"  className="flex items-center gap-3">
           <img
-            src={
-              isScrolled
-                ? "IIITians-Network-Logo-Blue.png"
-                : "IIITians-Network-Logo-Light.png"
-            }
-            alt="IIITians Network Logo"
-            className="w-14 md:w-16 h-auto object-contain"
-          />
+  src={isScrolled ? logoBlue : logoLight}
+  className="w-14 md:w-16 h-auto object-contain"
+/>
           <span className="text-lg font-semibold tracking-wide hidden sm:inline">
             IIITians Network
           </span>
