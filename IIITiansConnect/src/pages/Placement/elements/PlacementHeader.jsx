@@ -10,12 +10,12 @@ export default function PlacementHeader() {
         </span>
       </div> */}
 
-      <h1 className="text-4xl md:text-4xl font-bold text-gray-900 leading-tight mt-14 pt-5">
+      <h1 className="text-2xl sm:text-4xl font-bold text-gray-900 leading-tight mt-14 pt-5">
         Placement Insights
       </h1>
       
 
-      <p className="text-gray-600 max-w-3xl text-lg">
+      <p className="text-gray-600 max-w-3xl text-sm sm:text-lg">
         Explore branch-wise placement performance, trends, and
         outcomes across IIITs — designed to help you understand
         the bigger picture, not just numbers.

@@ -2,7 +2,7 @@ import { Calendar } from "lucide-react";
 
 export default function YearSelector({
   years = [],
-  value, // number | null
+  value,
   onChange,
 }) {
   if (!years.length) return null;
@@ -13,21 +13,25 @@ export default function YearSelector({
   return (
     <div
       className="
-        flex items-center gap-3
-        bg-white border rounded-xl
-        px-4 py-2 shadow-sm
-        hover:border-indigo-400
+        bg-white border rounded-xl shadow-sm
+        hover:border-indigo-400 transition
         focus-within:ring-2 focus-within:ring-indigo-500
-        transition
+        p-3 sm:px-4 sm:py-2
+        flex flex-col sm:flex-row
+        gap-2 sm:gap-3
+        w-full sm:w-auto
       "
     >
-      {/* Icon */}
-      <Calendar size={18} className="text-indigo-600 shrink-0" />
-
-      {/* Label */}
-      <span className="text-sm font-medium text-gray-700">
-        Year
-      </span>
+      {/* Header (mobile) */}
+      <div className="flex items-center gap-2">
+        <Calendar
+          size={18}
+          className="text-indigo-600 shrink-0"
+        />
+        <span className="text-xs sm:text-sm font-medium text-gray-700">
+          Year
+        </span>
+      </div>
 
       {/* Select */}
       <select
@@ -37,19 +41,19 @@ export default function YearSelector({
           onChange(v === "all" ? null : Number(v));
         }}
         className="
+          w-full sm:w-auto
           bg-transparent
-          text-sm font-semibold
+          text-sm sm:text-sm font-semibold
           text-gray-900
           outline-none
           cursor-pointer
+          py-1 sm:py-0
         "
       >
-        {/* Latest Year */}
         <option value={latestYear}>
           {latestYear} • Latest
         </option>
 
-        {/* Older Years */}
         {sortedYears
           .filter((y) => y !== latestYear)
           .map((y) => (
@@ -58,10 +62,7 @@ export default function YearSelector({
             </option>
           ))}
 
-        {/* All Years */}
-        <option value="all">
-          All Years
-        </option>
+        <option value="all">All Years</option>
       </select>
     </div>
   );

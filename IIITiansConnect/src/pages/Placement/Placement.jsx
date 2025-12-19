@@ -38,7 +38,7 @@ export default function Placement() {
     : null;
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-6 space-y-12">
+    <div className="max-w-7xl mx-auto px-6 pt-4 pb-0 sm:py-6 sm:space-y-12">
       {/* Search */}
       <PlacementSearchBar
         college={college}

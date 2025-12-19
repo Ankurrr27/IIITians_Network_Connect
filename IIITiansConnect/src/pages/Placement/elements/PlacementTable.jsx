@@ -8,18 +8,17 @@ import {
 } from "recharts";
 
 const COLORS = [
-  "#4F46E5", // indigo
-  "#10B981", // emerald
-  "#F59E0B", // amber
-  "#EF4444", // red
-  "#06B6D4", // cyan
-  "#8B5CF6", // violet
+  "#4F46E5",
+  "#10B981",
+  "#F59E0B",
+  "#EF4444",
+  "#06B6D4",
+  "#8B5CF6",
 ];
 
 export default function PlacementTable({ placements = [] }) {
   if (!placements.length) return null;
 
-  // sort by placement %
   const sorted = [...placements].sort(
     (a, b) => b.placementPercentage - a.placementPercentage
   );
@@ -32,28 +31,29 @@ export default function PlacementTable({ placements = [] }) {
   const topBranch = sorted[0];
 
   return (
-    <div className="bg-white border rounded-2xl shadow-sm overflow-hidden">
+    <div className="bg-white sm:border rounded-2xl shadow-sm overflow-hidden">
       {/* HEADER */}
-      <div className="px-6 py-4 border-b">
-        <h3 className="text-lg font-semibold text-gray-800">
+      <div className="px-4 sm:px-6 py-4 border-b">
+        <h3 className="text-base sm:text-lg font-semibold text-gray-800">
           Branch-wise Placement Details
         </h3>
-        <p className="text-sm text-gray-500 mt-1">
+        <p className="text-xs sm:text-sm text-gray-500 mt-1">
           Ranked by placement percentage
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6 p-6">
+      {/* CONTENT */}
+      <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6 p-4 sm:p-6">
         {/* TABLE */}
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="min-w-[640px] w-full text-xs sm:text-sm">
             <thead className="bg-gray-50 text-gray-600">
               <tr>
-                <th className="p-4 text-left font-medium">#</th>
-                <th className="p-4 text-left font-medium">Branch</th>
-                <th className="p-4 text-right font-medium">Highest</th>
-                <th className="p-4 text-right font-medium">Average</th>
-                <th className="p-4 text-right font-medium">Placed %</th>
+                <th className="p-3 text-left font-medium">#</th>
+                <th className="p-3 text-left font-medium">Branch</th>
+                <th className="p-3 text-right font-medium">Highest</th>
+                <th className="p-3 text-right font-medium">Average</th>
+                <th className="p-3 text-right font-medium">Placed %</th>
               </tr>
             </thead>
 
@@ -68,30 +68,30 @@ export default function PlacementTable({ placements = [] }) {
                       isTop ? "bg-indigo-50/40" : "hover:bg-gray-50"
                     }`}
                   >
-                    <td className="p-4 font-semibold text-gray-500">
+                    <td className="p-3 font-semibold text-gray-500">
                       {i + 1}
                     </td>
 
-                    <td className="p-4 font-medium text-gray-900 flex items-center gap-2">
+                    <td className="p-3 font-medium text-gray-900 flex items-center gap-1">
                       {p.branch}
                       {isTop && (
                         <span className="text-indigo-600">
-                          <Award size={14} />
+                          <Award size={12} />
                         </span>
                       )}
                     </td>
 
-                    <td className="p-4 text-right font-semibold text-indigo-600">
+                    <td className="p-3 text-right font-semibold text-indigo-600">
                       {p.highestPackage} LPA
                     </td>
 
-                    <td className="p-4 text-right text-gray-800">
+                    <td className="p-3 text-right text-gray-800">
                       {p.averagePackage} LPA
                     </td>
 
-                    <td className="p-4 text-right">
+                    <td className="p-3 text-right">
                       <span
-                        className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+                        className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-[11px] font-medium ${
                           p.placementPercentage >= 90
                             ? "bg-green-100 text-green-700"
                             : p.placementPercentage >= 70
@@ -101,7 +101,7 @@ export default function PlacementTable({ placements = [] }) {
                       >
                         {p.placementPercentage}%
                         {p.placementPercentage >= 90 && (
-                          <ArrowUpRight size={12} />
+                          <ArrowUpRight size={11} />
                         )}
                       </span>
                     </td>
@@ -113,11 +113,11 @@ export default function PlacementTable({ placements = [] }) {
         </div>
 
         {/* PIE */}
-        <div className="h-[320px] flex flex-col items-center justify-center">
-          <p className="text-sm font-semibold text-gray-700 mb-1">
+        <div className="h-[220px] sm:h-[260px] lg:h-[320px] flex flex-col items-center justify-center">
+          <p className="text-xs sm:text-sm font-semibold text-gray-700 mb-1">
             Placement Distribution
           </p>
-          <p className="text-xs text-gray-500 mb-3">
+          <p className="text-[11px] sm:text-xs text-gray-500 mb-2 sm:mb-3">
             Highest share: {topBranch.branch}
           </p>
 
@@ -127,8 +127,8 @@ export default function PlacementTable({ placements = [] }) {
                 data={pieData}
                 dataKey="value"
                 nameKey="name"
-                innerRadius={55}
-                outerRadius={95}
+                innerRadius={45}
+                outerRadius={80}
                 paddingAngle={3}
               >
                 {pieData.map((_, i) => (

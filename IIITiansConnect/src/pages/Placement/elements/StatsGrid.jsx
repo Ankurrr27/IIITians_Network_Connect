@@ -18,7 +18,7 @@ function calculateMetrics(placements) {
   };
 }
 
-/* Stable year → color mapping (NOT index-based) */
+/* Stable year → color mapping */
 const YEAR_COLORS = {
   2021: "border-indigo-500",
   2022: "border-emerald-500",
@@ -34,7 +34,7 @@ export default function StatsGrid({ yearData, allYearsData }) {
     const metrics = calculateMetrics(yearData.placements);
 
     return (
-      <div className="grid sm:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
         <Stat
           title="Highest Package"
           value={`${metrics.highest} LPA`}
@@ -58,32 +58,32 @@ export default function StatsGrid({ yearData, allYearsData }) {
   if (!allYearsData?.length) return null;
 
   return (
-    <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-gray-800">
+    <div className="space-y-3 sm:space-y-4">
+      <h3 className="text-base sm:text-lg font-semibold text-gray-800">
         Year-wise Placement Comparison
       </h3>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {allYearsData.map((yearBlock) => {
           const metrics = calculateMetrics(yearBlock.placements);
-
           const accent =
-            YEAR_COLORS[yearBlock.year] ??
-            "border-gray-300";
+            YEAR_COLORS[yearBlock.year] ?? "border-gray-300";
 
           return (
             <div
               key={yearBlock.year}
               className={`
                 bg-white border-l-4 ${accent}
-                rounded-xl p-5 shadow-sm
+                rounded-xl
+                p-4 sm:p-5
+                shadow-sm
               `}
             >
-              <p className="text-sm font-medium text-gray-500 mb-2">
+              <p className="text-xs sm:text-sm font-medium text-gray-500 mb-2">
                 {yearBlock.year}
               </p>
 
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 <StatRow
                   label="Highest"
                   value={`${metrics.highest} LPA`}
@@ -106,17 +106,21 @@ export default function StatsGrid({ yearData, allYearsData }) {
 }
 
 /* ================= UI Primitives ================= */
-
 function Stat({ title, value, accent }) {
   return (
     <div
       className={`
         bg-white border-l-4 ${accent}
-        rounded-xl p-6 shadow-sm
+        rounded-lg sm:rounded-xl
+        p-3 sm:p-6
+        shadow-sm
+        text-center sm:text-left
       `}
     >
-      <p className="text-sm text-gray-500">{title}</p>
-      <h3 className="text-3xl font-bold mt-1 text-gray-900">
+      <p className="text-[10px] sm:text-sm text-gray-500 leading-tight">
+        {title}
+      </p>
+      <h3 className="text-base sm:text-3xl font-bold mt-0.5 sm:mt-1 text-gray-900">
         {value}
       </h3>
     </div>
@@ -125,7 +129,7 @@ function Stat({ title, value, accent }) {
 
 function StatRow({ label, value }) {
   return (
-    <div className="flex justify-between text-sm">
+    <div className="flex justify-between text-xs sm:text-sm">
       <span className="text-gray-600">{label}</span>
       <span className="font-medium text-gray-900">
         {value}
