@@ -126,7 +126,7 @@ const Navigation = () => {
       {/* SIDEBAR */}
       <aside
         className={`
-          fixed top-0 right-0 h-full w-72 bg-white z-50
+          fixed top-0 right-0 h-full w-42 bg-white z-50
           transform transition-transform duration-300
           ${isOpen ? "translate-x-0" : "translate-x-full"}
         `}

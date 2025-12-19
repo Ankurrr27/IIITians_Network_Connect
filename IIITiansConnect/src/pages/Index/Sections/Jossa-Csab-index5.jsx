@@ -28,11 +28,11 @@ const Index4 = () => {
 
         {/* ================= HEADING ================= */}
         <div className="text-center mb-10 sm:mb-16">
-          <h2 className="text-2xl sm:text-4xl font-extrabold text-gray-900 mb-3">
+          <h2 className="text-2xl sm:text-4xl text-left pl-1 sm:text-center sm:pl-0 font-extrabold text-gray-900 mb-3">
             JEE Counselling Guidance
           </h2>
 
-          <p className="text-sm sm:text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-sm text-left sm:text-center sm:text-lg text-gray-600 max-w-2xl mx-auto">
             Practical, experience-backed support for JoSAA and CSAB counselling —
             designed to help aspirants make confident, informed choices.
           </p>

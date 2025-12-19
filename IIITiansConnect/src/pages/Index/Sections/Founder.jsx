@@ -12,10 +12,10 @@ const Index3 = () => {
         {/* ================= HEADER ================= */}
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-12">
           <div>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900">
+            <h2 className="text-2xl sm:text-4xl font-extrabold text-gray-900">
               Founders
             </h2>
-            <p className="mt-2 text-gray-600 max-w-2xl">
+            <p className="mt-2 text-gray-600 max-w-2xl text-sm sm:text-lg">
               The students who initiated IIITians Network to build a unified,
               transparent, and student-first platform for IIITs.
             </p>
