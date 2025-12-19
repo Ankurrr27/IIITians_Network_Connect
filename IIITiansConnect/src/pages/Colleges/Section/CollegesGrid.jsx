@@ -1,4 +1,4 @@
-import CollegeCard from "../../../ui/CollegeCard";
+import CollegeCard from "./CollegeCard";
 
 export default function CollegesGrid({ colleges, onUpdated }) {
   if (colleges.length === 0) {

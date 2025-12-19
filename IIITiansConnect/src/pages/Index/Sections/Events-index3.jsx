@@ -22,19 +22,19 @@ const Index2_2 = () => {
   const visibleEvents = events.slice(0, LIMIT);
 
   return (
-    <section className="py-24 bg-white">
+    <section className=" py-10 sm:py-24 bg-white">
       <div className="max-w-6xl mx-auto px-6">
 
         {/* HEADER */}
         <div className="flex items-center justify-between mb-10">
-          <h2 className="text-4xl font-extrabold">Events</h2>
+          <h2 className="text-2xl sm:text-4xl font-extrabold">Events</h2>
 
           {/* VIEW MORE LINK */}
           <button
             onClick={() => navigate("/events")}
             className="
               text-indigo-600 font-medium
-              hover:underline
+              hover:underline text-sm sm:text-xl 
             "
           >
             View More →

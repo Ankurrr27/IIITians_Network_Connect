@@ -1,14 +1,15 @@
 import logo from "../assets/iiitians-logo.png";
 
-const BlobWithLogo = ({
-  logoSrc = logo,
-  blobSize = 480,
-  logoSize = 430,
-}) => {
+const BlobWithLogo = ({ logoSrc = logo }) => {
   return (
     <div
-      className="relative flex items-center justify-center"
-      style={{ width: blobSize, height: blobSize }}
+      className="
+        relative flex items-center justify-center
+        w-[260px] h-[260px]
+        sm:w-[340px] sm:h-[340px]
+        md:w-[420px] md:h-[420px]
+        lg:w-[480px] lg:h-[480px]
+      "
     >
       {/* Blob */}
       <svg
@@ -41,8 +42,14 @@ const BlobWithLogo = ({
       <img
         src={logoSrc}
         alt="Logo"
-        className="relative z-10 drop-shadow-xl"
-        style={{ width: blobSize+0.9 }}
+        className="
+          relative z-10
+          w-[200px]
+          sm:w-[260px]
+          md:w-[320px]
+          lg:w-[360px]
+          drop-shadow-xl
+        "
       />
     </div>
   );

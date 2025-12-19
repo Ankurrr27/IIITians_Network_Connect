@@ -1,6 +1,6 @@
 import { ExternalLink, Pencil, Save, X, Upload } from "lucide-react";
 import { useState } from "react";
-import api from "../api/axios";
+import api from "../../../api/axios";
 
 const CollegeCard = ({ college, onUpdated }) => {
   const { _id, name, logo, description, website } = college;
@@ -61,7 +61,7 @@ const CollegeCard = ({ college, onUpdated }) => {
   return (
     <div
       className="
-        bg-white border rounded-2xl p-6 flex flex-col
+        bg-white border rounded-lg sm:rounded-2xl p-2 sm:p-6 flex flex-col
         transition-all duration-300 ease-out
         hover:-translate-y-1 hover:shadow-xl
         group
@@ -112,7 +112,7 @@ const CollegeCard = ({ college, onUpdated }) => {
       </div>
 
       {/* NAME */}
-      <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">
+      <h3 className=" text-sm sm:text-lg font-semibold text-gray-900 mb-2">
         {name}
       </h3>
 
@@ -123,7 +123,7 @@ const CollegeCard = ({ college, onUpdated }) => {
           value={form.description}
           onChange={handleChange}
           className="
-            text-sm border rounded p-2 mb-3
+            text-xs sm:text-sm border rounded p-2 mb-3
             focus:outline-none focus:ring-2 focus:ring-indigo-500
           "
           rows={3}
