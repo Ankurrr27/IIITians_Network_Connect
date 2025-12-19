@@ -8,52 +8,92 @@ export default function LeadCard({ member }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
       whileHover={{ y: -3 }}
-      className="group relative bg-white rounded-2xl p-5
-                 border border-gray-100 hover:shadow-lg transition-shadow"
+      className="
+        group relative bg-white rounded-2xl
+        p-3 md:p-4
+        border border-gray-100
+        hover:shadow-lg transition-shadow
+      "
     >
       {/* ACCENT STRIP */}
-      <div className="absolute top-0 left-0 h-1 w-full rounded-l-2xl bg-indigo-500/90" />
+      <div className="absolute top-0 left-0 h-0.5 sm:h-1  w-full rounded-l-2xl bg-indigo-500/90" />
 
-      <div className="flex items-start gap-4">
+      <div className="flex items-center gap-3 md:gap-5">
         {/* IMAGE */}
-        <div className="relative w-28 aspect-[3/4] rounded-xl overflow-hidden flex-shrink-0">
+        <div
+          className="
+            relative
+            w-20 md:w-32
+            aspect-[3/4]
+            rounded-lg md:rounded-xl
+            overflow-hidden
+            flex-shrink-0
+          "
+        >
           <img
             src={member.photo?.url}
             alt={member.name}
-            className="w-full h-full object-cover transition-transform duration-300
-                       group-hover:scale-[1.03]"
+            className="
+              w-full h-full object-cover
+              transition-transform duration-300
+              group-hover:scale-[1.03]
+            "
           />
         </div>
 
         {/* CONTENT */}
         <div className="flex-1 min-w-0">
-          <h3 className="text-base font-semibold text-gray-900 leading-tight">
-            {member.name}
-          </h3>
+          <div className="flex items-start justify-between gap-2 md:block">
+            <div>
+              <h3 className="text-sm md:text-lg font-semibold text-gray-900 leading-tight">
+                {member.name}
+              </h3>
 
-          <p className="text-sm text-indigo-600 font-medium mt-0.5">
-            {member.role}
-          </p>
+              <p className="text-[11px] md:text-sm text-indigo-600 font-medium">
+                {member.role}
+              </p>
 
-          <p className="text-xs text-gray-500 mt-1">
-            {member.iiit}
-          </p>
+              {/* College only on laptop */}
+              <p className="hidden md:block text-sm text-gray-500 mt-1">
+                {member.iiit}
+              </p>
+            </div>
 
-          {/* SOCIALS */}
-          <div className="flex gap-3 mt-4">
+            {/* SOCIALS — mobile */}
+            <div className="flex gap-2 md:hidden flex-shrink-0">
+              {member.linkedin && (
+                <Icon href={member.linkedin}>
+                  <Linkedin size={14} />
+                </Icon>
+              )}
+              {member.instagram && (
+                <Icon href={member.instagram}>
+                  <Instagram size={14} />
+                </Icon>
+              )}
+              {member.twitter && (
+                <Icon href={member.twitter}>
+                  <Twitter size={14} />
+                </Icon>
+              )}
+            </div>
+          </div>
+
+          {/* SOCIALS — laptop */}
+          <div className="hidden md:flex gap-3 mt-5">
             {member.linkedin && (
               <Social href={member.linkedin}>
-                <Linkedin size={14} />
+                <Linkedin size={16} />
               </Social>
             )}
             {member.instagram && (
               <Social href={member.instagram}>
-                <Instagram size={14} />
+                <Instagram size={16} />
               </Social>
             )}
             {member.twitter && (
               <Social href={member.twitter}>
-                <Twitter size={14} />
+                <Twitter size={16} />
               </Social>
             )}
           </div>
@@ -63,7 +103,7 @@ export default function LeadCard({ member }) {
   );
 }
 
-/* ---------------- SOCIAL ---------------- */
+/* ---------------- SOCIALS ---------------- */
 
 function Social({ href, children }) {
   return (
@@ -71,8 +111,32 @@ function Social({ href, children }) {
       href={href}
       target="_blank"
       rel="noreferrer"
-      className="p-2 rounded-full border border-gray-200 text-gray-600
-                 hover:text-indigo-600 hover:border-indigo-600 transition"
+      className="
+        p-2.5 rounded-full
+        border border-gray-200
+        text-gray-600
+        hover:text-indigo-600
+        hover:border-indigo-600
+        transition
+      "
+    >
+      {children}
+    </a>
+  );
+}
+
+function Icon({ href, children }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      className="
+        p-1.5 rounded-full
+        border border-gray-200
+        text-gray-600
+        hover:text-indigo-600
+      "
     >
       {children}
     </a>

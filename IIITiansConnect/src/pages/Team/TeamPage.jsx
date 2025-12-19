@@ -21,13 +21,13 @@ export default function TeamPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  // 🔹 derive years dynamically
+  // derive years dynamically
   const years = useMemo(() => {
     const set = new Set(members.map((m) => m.year).filter(Boolean));
     return ["ALL", ...Array.from(set).sort()];
   }, [members]);
 
-  // 🔹 filter members
+  // filter members
   const filteredMembers = useMemo(() => {
     return members.filter((m) => {
       const matchesSearch =
@@ -45,33 +45,42 @@ export default function TeamPage() {
   return (
     <div className="bg-gradient-to-b from-gray-50 to-white min-h-screen">
       {/* HERO */}
-      <section className="max-w-7xl mx-auto px-6 pt-24 pb-10 text-center">
-        <h1 className="text-4xl md:text-4xl font-bold text-gray-900 tracking-tight">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-20 sm:pt-24 pb-6 sm:pb-10 text-center">
+        <h1 className="text-2xl sm:text-4xl font-bold text-gray-900 tracking-tight">
           Meet the Team
         </h1>
-        <p className="mt-2 max-w-2xl mx-auto text-gray-600 text-base md:text-lg">
+        <p className="mt-1 sm:mt-2 max-w-2xl mx-auto text-xs sm:text-base md:text-lg text-gray-600">
           The people driving vision, execution, and impact across the IIITians
           Network.
         </p>
       </section>
 
-      {/* SEARCH + YEAR FILTER */}
-      <section className="max-w-7xl mx-auto px-6 mb-6">
-        <div className="flex flex-col sm:flex-row gap-4 justify-between">
+      {/* SEARCH + YEAR FILTER (same row on mobile) */}
+      <section className="max-w-5xl sm:mx-auto px-2 mx-3 sm:px-6 mb-6">
+        <div className="flex items-center gap-3 sm:gap-4 justify-between">
           <input
             type="text"
             placeholder="Search by name, role or IIIT"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full sm:max-w-sm px-4 py-2.5 rounded-xl border
-                       focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="
+              flex-1
+              sm:max-w-sm
+              px-4 py-2.5
+              rounded-xl border
+              focus:outline-none focus:ring-2 focus:ring-indigo-500
+            "
           />
 
           <select
             value={year}
             onChange={(e) => setYear(e.target.value)}
-            className="px-4 py-2.5 rounded-xl border bg-white
-                       focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="
+              w-10 sm:w-auto
+              px-4 py-2.5 
+              rounded-xl border bg-white
+              focus:outline-none focus:ring-2 focus:ring-indigo-500
+            "
           >
             {years.map((y) => (
               <option key={y} value={y}>
@@ -82,9 +91,9 @@ export default function TeamPage() {
         </div>
       </section>
 
-      {/* ROLE FILTER (TEAM MATES) */}
-      <section className="max-w-7xl mx-auto px-6 mb-12">
-        <div className="flex flex-wrap gap-3">
+      {/* ROLE FILTER */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 mb-10 sm:mb-12">
+        <div className="flex flex-wrap gap-2 sm:gap-3">
           {[
             { label: "All", value: "ALL" },
             { label: "Executives", value: "EXEC" },
@@ -95,7 +104,8 @@ export default function TeamPage() {
               key={item.value}
               onClick={() => setRole(item.value)}
               className={`
-                px-4 py-2 rounded-full text-sm font-medium border transition
+                px-3 sm:px-4 py-1.5 sm:py-2
+                rounded-full text-xs sm:text-sm font-medium border transition
                 ${
                   role === item.value
                     ? "bg-indigo-600 text-white border-indigo-600"
@@ -110,7 +120,7 @@ export default function TeamPage() {
       </section>
 
       {/* CONTENT */}
-      <section className="max-w-7xl mx-auto px-6 pb-24">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-16 sm:pb-24">
         {loading ? (
           <SkeletonGrid />
         ) : filteredMembers.length === 0 ? (
@@ -132,13 +142,13 @@ export default function TeamPage() {
 
 function SkeletonGrid() {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
       {Array.from({ length: 10 }).map((_, i) => (
         <div
           key={i}
-          className="animate-pulse rounded-xl border bg-white p-4"
+          className="animate-pulse rounded-xl border bg-white p-3 sm:p-4"
         >
-          <div className="aspect-[3/4] bg-gray-200 rounded-lg mb-4" />
+          <div className="aspect-[3/4] bg-gray-200 rounded-lg mb-3 sm:mb-4" />
           <div className="h-3 bg-gray-200 rounded w-3/4 mb-2" />
           <div className="h-3 bg-gray-100 rounded w-1/2" />
         </div>
