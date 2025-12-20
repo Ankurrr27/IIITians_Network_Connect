@@ -93,19 +93,9 @@ export default function Index2() {
                   <Github size={16} />
                 </Social>
 
-                <Social
-                  href="https://twitter.com/iiitiansnetwork"
-                  label="X (Twitter)"
-                >
-                  <Twitter size={16} />
-                </Social>
+            
 
-                <Social
-                  href="https://iiitians.network"
-                  label="Website"
-                >
-                  <Globe size={16} />
-                </Social>
+                
               </div>
             </div>
           </div>
