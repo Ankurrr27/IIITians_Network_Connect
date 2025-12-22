@@ -9,7 +9,7 @@ const Index2_2 = () => {
   const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
-  const LIMIT = 3;
+  const LIMIT = 5;
 
   useEffect(() => {
     api
@@ -46,7 +46,7 @@ const Index2_2 = () => {
         ) : events.length === 0 ? (
           <p className="text-gray-500">No events available.</p>
         ) : (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-8">
             {visibleEvents.map((event) => (
               <EventCard
                 key={event._id}

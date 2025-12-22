@@ -5,7 +5,7 @@ const BlobWithLogo = ({ logoSrc = logo }) => {
     <div
       className="
         relative flex items-center justify-center
-        w-[260px] h-[260px]
+        w-[280px] h-[280px]
         sm:w-[340px] sm:h-[340px]
         md:w-[420px] md:h-[420px]
         lg:w-[480px] lg:h-[480px]
@@ -44,7 +44,7 @@ const BlobWithLogo = ({ logoSrc = logo }) => {
         alt="Logo"
         className="
           relative z-10
-          w-[200px]
+          w-[240px]
           sm:w-[260px]
           md:w-[320px]
           lg:w-[360px]

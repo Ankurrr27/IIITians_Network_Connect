@@ -29,47 +29,55 @@ const EventCard = ({ event, isAdmin = false, onEdit }) => {
       "
     >
       {/* ================= MOBILE LAYOUT ================= */}
-      <div className="flex sm:hidden h-24 rounded-lg overflow-hidden">
-        {/* IMAGE */}
-        <div className="relative w-[60%] bg-gray-200">
-          <img
-            src={banner?.url || "/event-placeholder.jpg"}
-            alt={title}
-            className="w-full h-full object-cover"
-          />
+      <div className="flex sm:hidden h-24 rounded-xl overflow-hidden bg-white shadow-sm ring-1 ring-black/5">
+  {/* IMAGE */}
+  <div className="relative w-[60%] bg-gray-200">
+    <img
+      src={banner?.url || "/event-placeholder.jpg"}
+      alt={title}
+      className="w-full h-full object-cover"
+    />
 
-          {/* WHITE GRADIENT OVERLAY */}
-          <div className="absolute inset-y-0 right-0 w-10 white" />
-        </div>
+    {/* PROPER GRADIENT OVERLAY */}
+    <div
+      className="
+        absolute inset-y-0 right-0 w-12
+      
+      "
+    />
+  </div>
 
-        {/* CONTENT */}
-        <div className="relative w-[40%] p-2 bg-white">
-          <h3 className="text-xs font-semibold text-gray-900 leading-tight line-clamp-2">
-            {title}
-          </h3>
+  {/* CONTENT */}
+  <div className="relative w-[40%] p-2 bg-white">
+    <h3 className="text-[11px] font-semibold text-gray-900 leading-snug line-clamp-2">
+      {title}
+    </h3>
 
-          <div className="mt-1 flex items-center gap-1 text-[10px] text-gray-500">
-            <CalendarDays size={10} />
-            {formattedDate}
-          </div>
+    <div className="mt-1 flex items-center gap-1 text-[9px] text-gray-500">
+      <CalendarDays size={10} />
+      {formattedDate}
+    </div>
 
-          <div className="mt-0.5 flex items-center gap-1 text-[10px] text-gray-500">
-            <MapPin size={10} />
-            {collegeName || "College"}
-          </div>
+    <div className="mt-0.5 flex items-center gap-1 text-[9px] text-gray-500">
+      <MapPin size={10} />
+      {collegeName || "College"}
+    </div>
 
-          <button
-            onClick={() => setExpanded(true)}
-            className="
-              absolute bottom-1 right-2
-              text-[10px] font-medium
-              text-indigo-600
-            "
-          >
-            Details →
-          </button>
-        </div>
-      </div>
+    <button
+      onClick={() => setExpanded(true)}
+      className="
+        absolute bottom-1 right-2
+        text-[10px] font-medium text-indigo-600
+        hover:text-indigo-700
+        active:scale-95
+        transition
+      "
+    >
+      Details →
+    </button>
+  </div>
+</div>
+
 
       {/* ================= MOBILE EXPANDED ================= */}
       {expanded && (

@@ -15,7 +15,7 @@ export default function TopWavesMobile({
       <svg
         className="relative block w-[calc(140%+1.3px)] h-[120px]"
         xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 1200 120"
+        viewBox="30 0 900 180"
         preserveAspectRatio="none"
       >
         {/* Back wave */}
