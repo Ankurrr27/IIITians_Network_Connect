@@ -50,7 +50,7 @@ export default function TeamGrid({ members = [] }) {
       {/* MEMBERS */}
       {team.length > 0 && (
         <section>
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4 max-w-7xl mx-auto">
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-4 max-w-7xl mx-auto">
             {team.map((m) => (
               <MemberCard key={m._id} member={m} />
             ))}
