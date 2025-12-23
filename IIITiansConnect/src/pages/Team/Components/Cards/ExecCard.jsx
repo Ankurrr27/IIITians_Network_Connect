@@ -24,10 +24,7 @@ export default function ExecCard({ member }) {
       {/* TOP ACCENT */}
       <div className="absolute inset-x-0 top-0 h-0.5 sm:h-1 rounded-t-2xl bg-indigo-600/80" />
 
-      <div className="
-        flex items-center gap-3
-        sm:flex-row sm:items-start sm:gap-5
-      ">
+      <div className="flex items-center gap-3 sm:flex-row sm:items-start sm:gap-5">
         {/* IMAGE */}
         <div
           className="
@@ -51,10 +48,7 @@ export default function ExecCard({ member }) {
 
         {/* CONTENT */}
         <div className="flex-1 min-w-0">
-          <div className="
-            flex items-start justify-between gap-2
-            sm:block
-          ">
+          <div className="flex items-start justify-between gap-2 sm:block">
             <div>
               <h3 className="text-sm sm:text-lg font-semibold text-gray-900 leading-tight">
                 {member.name}
@@ -71,37 +65,62 @@ export default function ExecCard({ member }) {
               </p>
             </div>
 
-            {/* SOCIALS — mobile inline */}
-            <div className="
-              flex gap-2
-              sm:hidden
-              flex-shrink-0
-            ">
+            {/* SOCIALS — MOBILE */}
+            <div className="flex gap-2 sm:hidden flex-shrink-0">
               {member.linkedin && (
-                <Icon href={member.linkedin}><Linkedin size={14} /></Icon>
+                <Icon href={member.linkedin}>
+                  <Linkedin size={14} />
+                </Icon>
               )}
               {member.github && (
-                <Icon href={member.github}><Github size={14} /></Icon>
+                <Icon href={member.github}>
+                  <Github size={14} />
+                </Icon>
+              )}
+              {member.instagram && (
+                <Icon href={member.instagram}>
+                  <Instagram size={14} />
+                </Icon>
+              )}
+              {member.twitter && (
+                <Icon href={member.twitter}>
+                  <Twitter size={14} />
+                </Icon>
+              )}
+              {member.website && (
+                <Icon href={member.website}>
+                  <Globe size={14} />
+                </Icon>
               )}
             </div>
           </div>
 
-          {/* SOCIALS — desktop */}
+          {/* SOCIALS — DESKTOP */}
           <div className="hidden sm:flex gap-3 mt-4">
             {member.linkedin && (
-              <Social href={member.linkedin}><Linkedin size={16} /></Social>
+              <Social href={member.linkedin}>
+                <Linkedin size={16} />
+              </Social>
             )}
             {member.github && (
-              <Social href={member.github}><Github size={16} /></Social>
+              <Social href={member.github}>
+                <Github size={16} />
+              </Social>
             )}
             {member.instagram && (
-              <Social href={member.instagram}><Instagram size={16} /></Social>
+              <Social href={member.instagram}>
+                <Instagram size={16} />
+              </Social>
             )}
             {member.twitter && (
-              <Social href={member.twitter}><Twitter size={16} /></Social>
+              <Social href={member.twitter}>
+                <Twitter size={16} />
+              </Social>
             )}
             {member.website && (
-              <Social href={member.website}><Globe size={16} /></Social>
+              <Social href={member.website}>
+                <Globe size={16} />
+              </Social>
             )}
           </div>
         </div>

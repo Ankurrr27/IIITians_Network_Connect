@@ -9,7 +9,7 @@ const Index2_2 = () => {
   const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
-  const LIMIT = 5;
+  const LIMIT = 6;
 
   useEffect(() => {
     api
@@ -34,7 +34,7 @@ const Index2_2 = () => {
             onClick={() => navigate("/events")}
             className="
               text-indigo-600 font-medium
-              hover:underline text-sm sm:text-xl 
+              hover:underline text-sm sm:text-md 
             "
           >
             View More →

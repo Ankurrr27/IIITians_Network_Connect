@@ -56,8 +56,8 @@ export default function TeamPage() {
       </section>
 
       {/* SEARCH + YEAR FILTER (same row on mobile) */}
-      <section className="max-w-5xl sm:mx-auto px-2 mx-3 sm:px-6 mb-6">
-        <div className="flex items-center gap-3 sm:gap-4 justify-between">
+      <section className="max-w-5xl md:7xl px-2 mx-3 md:ml-12 md:pl-24 mb-6">
+        <div className="flex items-center gap-3 sm:gap-4 justify-start">
           <input
             type="text"
             placeholder="Search by name, role or IIIT"
@@ -72,16 +72,27 @@ export default function TeamPage() {
             "
           />
 
-          <select
-            value={year}
-            onChange={(e) => setYear(e.target.value)}
-            className="
-              w-10 sm:w-auto
-              px-4 py-2.5 
-              rounded-xl border bg-white
-              focus:outline-none focus:ring-2 focus:ring-indigo-500
-            "
-          >
+       <select
+  value={year}
+  onChange={(e) => setYear(e.target.value)}
+  className="
+    w-10 sm:w-auto
+    pl-4 pr-8 py-2.5
+    rounded-xl border bg-white
+    text-sm font-medium text-gray-700
+
+    transition-all duration-300 ease-out
+    hover:shadow-md hover:-translate-y-[1px]
+
+    focus:outline-none
+    focus:ring-2 focus:ring-indigo-500
+    focus:shadow-lg focus:scale-[1.02]
+
+    active:scale-[0.98]
+    cursor-pointer
+  "
+>
+
             {years.map((y) => (
               <option key={y} value={y}>
                 {y === "ALL" ? "All Years" : y}

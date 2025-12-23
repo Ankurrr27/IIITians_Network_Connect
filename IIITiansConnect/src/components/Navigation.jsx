@@ -17,7 +17,7 @@ const Navigation = () => {
   const navItems = [
     { name: "Home", href: "#home" },
     { name: "Colleges", href: "/colleges" },
-    { name: "JEE Counselling", href: "/jeecounselling" },
+    // { name: "JEE Counselling", href: "/jeecounselling" },
     { name: "IIIT Placements", href: "/placement" },
     { name: "Our Team", href: "/team" },
     { name: "Contact", href: "/contact" },
@@ -109,9 +109,14 @@ const Navigation = () => {
                 key={item.name}
                 href={item.href}
                 onClick={(e) => handleNavClick(e, item.href)}
-                className={`text-sm font-medium ${
-                  isScrolled ? "text-indigo-600" : "text-white"
-                }`}
+                className={`relative text-sm font-medium
+  after:absolute after:left-0 after:-bottom-1
+  after:h-[2px] after:w-full after:scale-x-0
+  after:origin-center after:transition-transform after:duration-300
+  hover:after:scale-x-100
+  ${isScrolled ? "text-indigo-600 after:bg-indigo-600" : "text-white after:bg-white"}
+`}
+
               >
                 {item.name}
               </a>

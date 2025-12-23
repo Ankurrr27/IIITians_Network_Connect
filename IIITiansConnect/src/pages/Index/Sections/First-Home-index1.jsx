@@ -49,7 +49,7 @@ const Index1 = () => {
       text-2xl sm:text-3xl md:text-5xl
       font-extrabold
       leading-tight
-      tracking-tight
+      tracking-tight text-left 
       text-slate-900
     "
           >
