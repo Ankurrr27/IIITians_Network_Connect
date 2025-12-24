@@ -17,7 +17,7 @@ const Navigation = () => {
   const navItems = [
     { name: "Home", href: "#home" },
     { name: "Colleges", href: "/colleges" },
-    // { name: "JEE Counselling", href: "/jeecounselling" },
+    { name: "Events", href: "/events" },
     { name: "IIIT Placements", href: "/placement" },
     { name: "Our Team", href: "/team" },
     { name: "Contact", href: "/contact" },

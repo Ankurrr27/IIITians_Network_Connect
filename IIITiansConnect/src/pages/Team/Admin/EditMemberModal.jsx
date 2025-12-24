@@ -1,6 +1,7 @@
 import { useState } from "react";
 import api from "../../../api/axios";
 import { X } from "lucide-react";
+import ImageCropModal from "../../../components/ImageCropModal";
 
 export default function EditMemberModal({ member, onClose, onUpdated }) {
   const [form, setForm] = useState({
@@ -19,6 +20,7 @@ export default function EditMemberModal({ member, onClose, onUpdated }) {
 
   const [photo, setPhoto] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [rawPhoto, setRawPhoto] = useState(null);
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -47,7 +49,6 @@ export default function EditMemberModal({ member, onClose, onUpdated }) {
   return (
     <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center px-4">
       <div className="bg-white w-full max-w-3xl rounded-2xl flex flex-col max-h-[90vh]">
-
         {/* HEADER */}
         <div className="flex items-center justify-between px-6 py-4 border-b">
           <h2 className="text-lg font-semibold text-gray-900">
@@ -184,7 +185,7 @@ export default function EditMemberModal({ member, onClose, onUpdated }) {
           <input
             type="file"
             accept="image/*"
-            onChange={(e) => setPhoto(e.target.files[0])}
+            onChange={(e) => setRawPhoto(e.target.files[0])}
             className="text-sm text-gray-700
                        file:mr-4 file:py-2 file:px-3
                        file:rounded-lg file:border
@@ -203,8 +204,19 @@ export default function EditMemberModal({ member, onClose, onUpdated }) {
             >
               {loading ? "Updating..." : "Save Changes"}
             </button>
+       
           </div>
         </form>
+             {rawPhoto && (
+              <ImageCropModal
+                file={rawPhoto}
+                onClose={() => setRawPhoto(null)}
+                onCrop={(croppedFile) => {
+                  setPhoto(croppedFile);
+                  setRawPhoto(null);
+                }}
+              />
+            )}
       </div>
     </div>
   );

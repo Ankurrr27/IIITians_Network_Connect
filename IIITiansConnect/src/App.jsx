@@ -20,6 +20,8 @@ import ContactPage from "./pages/Contact.jsx";
 import AdminLogin from "./pages/AdminLogin.jsx";
 import RequireAdmin from "./components/RequireAdmin";
 import PublicEvents from "./pages/Events/Events.jsx";
+import ScrollToTop from "./components/ScrollToTop.jsx";
+import Alumni from "./pages/AlumniPage.jsx";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -42,8 +44,10 @@ function App() {
       <Navigation />
 
       <AnimatePresence mode="wait">
+        <ScrollToTop/>
         <Routes location={location} key={location.pathname}>
           {/* PUBLIC ROUTES */}
+           <Route path="/alumni" element={<Alumni />} />
           <Route path="/" element={<Index />} />
           <Route path="/colleges" element={<Colleges />} />
           <Route path="/events" element={<PublicEvents />} />
@@ -60,6 +64,7 @@ function App() {
             <Route path="/placement/admin" element={<PlacementPage />} />
             <Route path="/events/admin" element={<Events />} />
           </Route>
+          
 
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -58,9 +58,7 @@ export default function PlacementPreview() {
               <p className="font-semibold text-gray-900 text-sm sm:text-base leading-tight">
                 {c.name}
               </p>
-              <p className="text-xs sm:text-sm text-gray-600">
-                Avg {c.avg} · Highest {c.highest}
-              </p>
+           
               <p className="text-[11px] sm:text-xs text-green-600 mt-0.5">
                 {c.placed} placed
               </p>

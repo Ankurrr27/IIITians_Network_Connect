@@ -44,6 +44,7 @@ export default function Initiatives() {
           <Link
             key={index}
             to={project.route}
+            preventScrollReset
             className="
               bg-gradient-to-br from-white to-indigo-50
               rounded-xl sm:rounded-2xl

@@ -1,11 +1,5 @@
 import React, { useState } from "react";
-import {
-  Instagram,
-  Linkedin,
-  Globe,
-  MessageCircle,
-} from "lucide-react";
-
+import { Instagram, Linkedin, Globe, MessageCircle } from "lucide-react";
 
 import Initiatives from "./Initiatives";
 
@@ -86,22 +80,16 @@ export default function Index2() {
                   <Linkedin size={16} />
                 </Social>
 
-               
+                <Social
+                  href="https://www.reddit.com/r/iiitiansnetwork_/s/raoRbgEdX6"
+                  label="Reddit"
+                >
+                  <Globe size={16} />
+                </Social>
 
-<Social
-  href="https://www.reddit.com/r/iiitiansnetwork_/s/raoRbgEdX6"
-  label="Reddit"
->
-  <Globe size={16} />
-</Social>
-
-<Social
-  href="https://discord.gg/88AnpuNc6E"
-  label="Discord"
->
-  <MessageCircle size={16} />
-</Social>
-
+                <Social href="https://discord.gg/88AnpuNc6E" label="Discord">
+                  <MessageCircle size={16} />
+                </Social>
               </div>
             </div>
           </div>
