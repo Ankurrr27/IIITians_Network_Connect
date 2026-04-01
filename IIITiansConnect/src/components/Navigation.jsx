@@ -3,13 +3,12 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import logoBlue from "/IIITians-Network-Logo-Blue.png";
 import logoLight from "/IIITians-Network-Logo-Light.png";
-import ThemeToggle from "./ThemeToggle";
 import useThemeMode from "../hooks/useThemeMode.jsx";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const { isDarkMode, toggleThemeMode } = useThemeMode();
+  const { isDarkMode } = useThemeMode();
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -127,17 +126,6 @@ const Navigation = () => {
               </a>
             ))}
 
-            <ThemeToggle
-              isDarkMode={isDarkMode}
-              onToggle={toggleThemeMode}
-              className={
-                isDarkMode
-                  ? "border-slate-700 bg-slate-900 text-slate-100 hover:bg-slate-800"
-                  : isSolidNav
-                    ? "border-indigo-100 bg-white text-indigo-600 hover:bg-indigo-50"
-                    : "border-white/20 bg-white/10 text-white hover:bg-white/20"
-              }
-            />
           </div>
 
           <button onClick={() => setIsOpen(true)} className="md:hidden">
@@ -184,16 +172,6 @@ const Navigation = () => {
         </div>
 
         <div className="flex flex-col gap-2 p-4">
-          <ThemeToggle
-            isDarkMode={isDarkMode}
-            onToggle={toggleThemeMode}
-            className={
-              isDarkMode
-                ? "border-slate-700 bg-slate-900 text-slate-100 hover:bg-slate-800"
-                : "border-indigo-100 bg-white text-indigo-600 hover:bg-indigo-50"
-            }
-          />
-
           {navItems.map((item) => (
             <a
               key={item.name}

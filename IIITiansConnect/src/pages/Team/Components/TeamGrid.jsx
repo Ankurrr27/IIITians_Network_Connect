@@ -4,55 +4,72 @@ import MemberCard from "./Cards/MemberCard";
 
 export default function TeamGrid({ members = [] }) {
   const execs = members
-    .filter((m) => m.roleType === "EXEC")
+    .filter((member) => member.roleType === "EXEC")
     .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
   const leads = members
-    .filter((m) => m.roleType === "LEAD")
+    .filter((member) => member.roleType === "LEAD")
     .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
   const team = members
-    .filter((m) => m.roleType === "MEMBER")
+    .filter((member) => member.roleType === "MEMBER")
     .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
   if (!members.length) {
-    return (
-      <div className="text-center py-20 text-gray-500">
-        No team members found.
-      </div>
-    );
+    return <div className="py-20 text-center text-slate-500">No team members found.</div>;
   }
 
   return (
-    <div className="space-y-12">
-      {/* EXEC */}
+    <div className="space-y-14">
       {execs.length > 0 && (
         <section>
-          <div className="grid md:grid-cols-2 gap-5 max-w-5xl mx-auto">
-            {execs.map((m) => (
-              <ExecCard key={m._id} member={m} />
+          <div className="mb-5 text-center">
+            <p className="text-sm font-semibold uppercase tracking-[0.24em] text-indigo-600">
+              Leadership
+            </p>
+            <h2 className="mt-2 text-3xl font-semibold text-slate-900">
+              Executive Team
+            </h2>
+          </div>
+          <div className="mx-auto grid max-w-5xl gap-5 md:grid-cols-2">
+            {execs.map((member) => (
+              <ExecCard key={member._id} member={member} />
             ))}
           </div>
         </section>
       )}
 
-      {/* LEADS */}
       {leads.length > 0 && (
         <section>
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-5 max-w-6xl mx-auto">
-            {leads.map((m) => (
-              <LeadCard key={m._id} member={m} />
+          <div className="mb-5 text-center">
+            <p className="text-sm font-semibold uppercase tracking-[0.24em] text-indigo-600">
+              Coordination
+            </p>
+            <h2 className="mt-2 text-3xl font-semibold text-slate-900">
+              Team Leads
+            </h2>
+          </div>
+          <div className="mx-auto grid max-w-6xl gap-5 sm:grid-cols-2 md:grid-cols-3">
+            {leads.map((member) => (
+              <LeadCard key={member._id} member={member} />
             ))}
           </div>
         </section>
       )}
 
-      {/* MEMBERS */}
       {team.length > 0 && (
         <section>
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-4 max-w-7xl mx-auto">
-            {team.map((m) => (
-              <MemberCard key={m._id} member={m} />
+          <div className="mb-5 text-center">
+            <p className="text-sm font-semibold uppercase tracking-[0.24em] text-indigo-600">
+              Core Team
+            </p>
+            <h2 className="mt-2 text-3xl font-semibold text-slate-900">
+              Members
+            </h2>
+          </div>
+          <div className="mx-auto grid max-w-7xl grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6">
+            {team.map((member) => (
+              <MemberCard key={member._id} member={member} />
             ))}
           </div>
         </section>

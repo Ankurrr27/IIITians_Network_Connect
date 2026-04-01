@@ -1,5 +1,5 @@
-import api from "../../../api/axios";
 import { Pencil, Trash2 } from "lucide-react";
+import api from "../../../api/axios";
 
 export default function TeamMemberList({ members, reload, onEdit }) {
   const remove = async (id) => {
@@ -16,49 +16,44 @@ export default function TeamMemberList({ members, reload, onEdit }) {
   };
 
   return (
-    <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
-      {members.map((m) => (
+    <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3">
+      {members.map((member) => (
         <div
-          key={m._id}
-          className="relative bg-white border rounded-xl p-4 hover:shadow-md transition"
+          key={member._id}
+          className="relative rounded-2xl border border-slate-200 bg-slate-50 p-4 transition hover:-translate-y-0.5 hover:bg-white hover:shadow-md"
         >
-          {/* ACTION BUTTONS */}
-          <div className="absolute top-3 right-3 flex gap-2">
+          <div className="absolute right-3 top-3 flex gap-2">
             <button
-              onClick={() => onEdit(m)}
+              onClick={() => onEdit(member)}
               title="Edit member"
-              className="p-2 rounded-full border bg-white
-                         hover:bg-gray-100 transition"
+              className="rounded-full border border-slate-200 bg-white p-2 transition hover:bg-slate-100"
             >
               <Pencil size={14} />
             </button>
 
             <button
-              onClick={() => remove(m._id)}
+              onClick={() => remove(member._id)}
               title="Delete member"
-              className="p-2 rounded-full border bg-white text-red-600
-                         hover:bg-red-50 transition"
+              className="rounded-full border border-slate-200 bg-white p-2 text-red-600 transition hover:bg-red-50"
             >
               <Trash2 size={14} />
             </button>
           </div>
 
-          {/* IMAGE */}
           <img
-            src={m.photo?.url}
-            alt={m.name}
-            className="w-24 h-24 object-cover rounded-lg mb-3"
+            src={member.photo?.url}
+            alt={member.name}
+            className="mb-3 h-24 w-24 rounded-xl object-cover"
           />
 
-          {/* INFO */}
-          <h3 className="font-semibold text-gray-900">{m.name}</h3>
+          <h3 className="font-semibold text-slate-900">{member.name}</h3>
 
-          <p className="text-sm text-gray-600">
-            {m.role} · {m.iiit}
+          <p className="text-sm text-slate-600">
+            {member.role} · {member.iiit}
           </p>
 
-          <p className="text-xs text-gray-500 mt-1">
-            {m.team} · {m.year}
+          <p className="mt-1 text-xs text-slate-500">
+            {member.team} · {member.year}
           </p>
         </div>
       ))}

@@ -3,6 +3,7 @@ import { Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import TeamPage from "./pages/Team/TeamPage";
 
+import AdminLayout from "./components/AdminLayout";
 import Navigation from "./components/Navigation";
 import Footer from "./components/Footer";
 import Loader from "./components/Loader";
@@ -21,11 +22,14 @@ import AdminLogin from "./pages/AdminLogin.jsx";
 import RequireAdmin from "./components/RequireAdmin";
 import PublicEvents from "./pages/Events/Events.jsx";
 import ScrollToTop from "./components/ScrollToTop.jsx";
+import AlumniAdminPage from "./pages/AlumniAdminPage.jsx";
 import Alumni from "./pages/AlumniPage.jsx";
 
 function App() {
   const [loading, setLoading] = useState(true);
   const location = useLocation();
+  const isAdminPage =
+    location.pathname === "/admin" || location.pathname.endsWith("/admin");
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -41,7 +45,7 @@ function App() {
 
   return (
     <>
-      <Navigation />
+      {!isAdminPage && <Navigation />}
       <ScrollToTop />
 
       <AnimatePresence mode="wait">
@@ -60,9 +64,13 @@ function App() {
 
           {/* 🔐 ADMIN PROTECTED ROUTES */}
           <Route element={<RequireAdmin />}>
-            <Route path="/team/admin" element={<TeamAdmin />} />
-            <Route path="/placement/admin" element={<PlacementPage />} />
-            <Route path="/events/admin" element={<Events />} />
+            <Route element={<AdminLayout />}>
+              <Route path="/alumni/admin" element={<AlumniAdminPage />} />
+              <Route path="/alumni/admin/:status" element={<AlumniAdminPage />} />
+              <Route path="/team/admin" element={<TeamAdmin />} />
+              <Route path="/placement/admin" element={<PlacementPage />} />
+              <Route path="/events/admin" element={<Events />} />
+            </Route>
           </Route>
           
 
@@ -70,7 +78,7 @@ function App() {
         </Routes>
       </AnimatePresence>
 
-      <Footer />
+      {!isAdminPage && <Footer />}
     </>
   );
 }

@@ -1,15 +1,54 @@
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { LockKeyhole, ShieldCheck } from "lucide-react";
+import {
+  ArrowRight,
+  LockKeyhole,
+  ShieldCheck,
+  UserPlus,
+  Users,
+} from "lucide-react";
 import api from "../api/axios";
 import useThemeMode from "../hooks/useThemeMode.jsx";
+
+const initialCreateAdminForm = {
+  email: "",
+  password: "",
+};
+
+const infoCards = [
+  {
+    title: "Admin access",
+    description: "Secure sign-in for moderation, events, team, and placement updates.",
+  },
+  {
+    title: "Super admin tools",
+    description: "Create and manage other admins directly from the same console.",
+  },
+  {
+    title: "Direct control",
+    description: "Jump into the protected dashboard as soon as your session is active.",
+  },
+];
+
+function StatusMessage({ tone = "neutral", children }) {
+  const styles = {
+    success: "border-emerald-200 bg-emerald-50 text-emerald-800",
+    error: "border-rose-200 bg-rose-50 text-rose-700",
+    neutral: "border-slate-200 bg-slate-50 text-slate-700",
+  };
+
+  return (
+    <div className={`rounded-2xl border px-4 py-3 text-sm ${styles[tone]}`}>
+      {children}
+    </div>
+  );
+}
 
 export default function AdminLogin() {
   const navigate = useNavigate();
   const { isDarkMode } = useThemeMode();
-  const isAdminLoggedIn = useMemo(
-    () => Boolean(localStorage.getItem("adminToken")),
-    []
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(
+    Boolean(localStorage.getItem("adminToken"))
   );
 
   const [form, setForm] = useState({
@@ -18,6 +57,67 @@ export default function AdminLogin() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const [currentAdmin, setCurrentAdmin] = useState(null);
+  const [admins, setAdmins] = useState([]);
+  const [adminPanelLoading, setAdminPanelLoading] = useState(isAdminLoggedIn);
+  const [adminPanelError, setAdminPanelError] = useState("");
+  const [adminListNotice, setAdminListNotice] = useState("");
+  const [createAdminForm, setCreateAdminForm] = useState(initialCreateAdminForm);
+  const [createAdminState, setCreateAdminState] = useState({
+    loading: false,
+    error: "",
+    success: "",
+  });
+
+  const loadAdminPanel = async () => {
+    const token = localStorage.getItem("adminToken");
+    if (!token) {
+      setCurrentAdmin(null);
+      setAdmins([]);
+      setAdminPanelLoading(false);
+      return;
+    }
+
+    setAdminPanelLoading(true);
+    setAdminPanelError("");
+    setAdminListNotice("");
+
+    try {
+      const meResponse = await api.get("/admin/me");
+      setCurrentAdmin(meResponse.data);
+
+      if (meResponse.data.role === "super_admin") {
+        try {
+          const adminsResponse = await api.get("/admin");
+          setAdmins(adminsResponse.data);
+        } catch (err) {
+          if (err.response?.status === 404) {
+            setAdmins([meResponse.data]);
+            setAdminListNotice(
+              "This deployed backend is missing the latest admin list route. You can still use the page, but the backend should be redeployed to unlock the full admin list."
+            );
+          } else {
+            throw err;
+          }
+        }
+      } else {
+        setAdmins([]);
+      }
+    } catch (err) {
+      setAdminPanelError(
+        err.response?.data?.message || "Could not load admin session details."
+      );
+    } finally {
+      setAdminPanelLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isAdminLoggedIn) {
+      loadAdminPanel();
+    }
+  }, [isAdminLoggedIn]);
 
   const handleChange = (event) => {
     setForm((prev) => ({
@@ -36,11 +136,12 @@ export default function AdminLogin() {
     try {
       const response = await api.post("/admin/login", form);
       localStorage.setItem("adminToken", response.data.token);
-      navigate("/events/admin", { replace: true });
+      setIsAdminLoggedIn(true);
+      setCurrentAdmin(response.data.admin || null);
+      await loadAdminPanel();
     } catch (err) {
       setError(
-        err.response?.data?.message ||
-          "Invalid credentials. Please try again."
+        err.response?.data?.message || "Invalid credentials. Please try again."
       );
     } finally {
       setLoading(false);
@@ -49,196 +150,465 @@ export default function AdminLogin() {
 
   const handleLogout = () => {
     localStorage.removeItem("adminToken");
+    setIsAdminLoggedIn(false);
+    setCurrentAdmin(null);
+    setAdmins([]);
+    setAdminPanelError("");
+    setAdminListNotice("");
     navigate("/admin", { replace: true });
     window.location.reload();
   };
 
+  const handleCreateAdminChange = (event) => {
+    setCreateAdminForm((prev) => ({
+      ...prev,
+      [event.target.name]: event.target.value,
+    }));
+  };
+
+  const handleCreateAdmin = async (event) => {
+    event.preventDefault();
+    if (createAdminState.loading) return;
+
+    setCreateAdminState({
+      loading: true,
+      error: "",
+      success: "",
+    });
+
+    try {
+      try {
+        await api.post("/admin/create-by-super-admin", createAdminForm);
+      } catch (err) {
+        if (err.response?.status === 404) {
+          await api.post("/admin/create", createAdminForm);
+          setAdminListNotice(
+            "Admin was added using the older create route on the deployed backend. Redeploy the backend to restore the protected super-admin route."
+          );
+        } else {
+          throw err;
+        }
+      }
+
+      setCreateAdminForm(initialCreateAdminForm);
+      setCreateAdminState({
+        loading: false,
+        error: "",
+        success: "New admin added successfully.",
+      });
+      await loadAdminPanel();
+    } catch (err) {
+      setCreateAdminState({
+        loading: false,
+        success: "",
+        error: err.response?.data?.message || "Could not add admin right now.",
+      });
+    }
+  };
+
+  const isSuperAdmin = currentAdmin?.role === "super_admin";
+
   return (
     <section
-      className={`relative min-h-screen overflow-hidden px-4 py-24 sm:px-6 ${
+      className={`relative min-h-screen overflow-hidden px-4 py-20 sm:px-6 ${
         isDarkMode
-          ? "bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950"
-          : "bg-gradient-to-b from-indigo-100 via-indigo-50 to-white"
+          ? "bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.14),_transparent_38%),linear-gradient(180deg,#020617_0%,#0f172a_52%,#020617_100%)]"
+          : "bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.12),_transparent_34%),linear-gradient(180deg,#eef2ff_0%,#f8fafc_42%,#ffffff_100%)]"
       }`}
     >
       <div
-        className={`absolute left-[-8rem] top-28 h-56 w-56 rounded-full blur-3xl ${
-          isDarkMode ? "bg-indigo-500/15" : "bg-indigo-200/50"
+        className={`absolute left-[-7rem] top-16 h-56 w-56 rounded-full blur-3xl ${
+          isDarkMode ? "bg-indigo-500/15" : "bg-indigo-300/40"
         }`}
       />
       <div
-        className={`absolute bottom-10 right-[-4rem] h-64 w-64 rounded-full blur-3xl ${
-          isDarkMode ? "bg-indigo-400/10" : "bg-indigo-300/35"
+        className={`absolute bottom-10 right-[-4rem] h-72 w-72 rounded-full blur-3xl ${
+          isDarkMode ? "bg-cyan-400/10" : "bg-sky-200/45"
         }`}
       />
 
-      <div className="relative mx-auto max-w-6xl">
-        <div className="grid min-h-[78vh] items-center gap-10 lg:grid-cols-[1.05fr_0.95fr]">
-          <div className={isDarkMode ? "text-slate-100" : "text-slate-900"}>
+      <div className="relative mx-auto max-w-7xl">
+        <div className="grid gap-8 xl:grid-cols-[1.05fr_0.95fr]">
+          <section
+            className={`rounded-[2.25rem] border p-8 sm:p-10 ${
+              isDarkMode
+                ? "border-slate-800/80 bg-slate-950/70 text-slate-100 shadow-[0_30px_100px_rgba(2,6,23,0.5)] backdrop-blur"
+                : "border-white/80 bg-white/85 text-slate-900 shadow-[0_30px_100px_rgba(99,102,241,0.12)] backdrop-blur"
+            }`}
+          >
             <div
-              className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs uppercase tracking-[0.28em] ${
+              className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.28em] ${
                 isDarkMode
                   ? "border-slate-700 bg-slate-900 text-indigo-300"
-                  : "border-indigo-100 bg-white text-indigo-600 shadow-sm"
+                  : "border-indigo-100 bg-indigo-50 text-indigo-700"
               }`}
             >
               <ShieldCheck className="h-4 w-4" />
-              Restricted Console
+              Admin Console
             </div>
 
-            <h1 className="mt-6 max-w-xl text-4xl font-extrabold leading-tight sm:text-5xl">
-              Manage the IIITians Network from one protected workspace.
+            <h1 className="mt-6 max-w-2xl text-4xl font-extrabold leading-tight sm:text-5xl">
+              Secure control panel for the IIITians Network team.
             </h1>
 
             <p
-              className={`mt-5 max-w-xl text-base leading-7 sm:text-lg ${
+              className={`mt-5 max-w-2xl text-base leading-8 sm:text-lg ${
                 isDarkMode ? "text-slate-300" : "text-slate-600"
               }`}
             >
-              Direct route access stays available, but this page is now a cleaner
-              private entry point for event, placement, and team administration.
+              Sign in to access protected admin routes. If your account is a
+              super admin, you can also create and monitor other admin accounts
+              from the same page.
             </p>
 
-            <div className="mt-8 grid max-w-2xl gap-4 sm:grid-cols-3">
-              {[
-                "Protected by token-based access",
-                "One place for content operations",
-                "Faster path into admin routes",
-              ].map((item) => (
+            <div className="mt-10 grid gap-4 sm:grid-cols-3">
+              {infoCards.map((card) => (
                 <div
-                  key={item}
-                  className={`rounded-2xl border px-4 py-4 text-sm ${
+                  key={card.title}
+                  className={`rounded-3xl border p-5 ${
                     isDarkMode
-                      ? "border-slate-800 bg-slate-900 text-slate-300"
-                      : "border-indigo-100 bg-white text-slate-700 shadow-sm"
+                      ? "border-slate-800 bg-slate-900/80"
+                      : "border-indigo-100 bg-white"
                   }`}
                 >
-                  {item}
+                  <div className="text-sm font-semibold text-indigo-600">
+                    {card.title}
+                  </div>
+                  <div
+                    className={`mt-3 text-sm leading-7 ${
+                      isDarkMode ? "text-slate-300" : "text-slate-600"
+                    }`}
+                  >
+                    {card.description}
+                  </div>
                 </div>
               ))}
             </div>
-          </div>
-
-          <div
-            className={`rounded-[2rem] border p-6 sm:p-8 ${
-              isDarkMode
-                ? "border-slate-800 bg-slate-900 shadow-[0_30px_90px_rgba(15,23,42,0.38)]"
-                : "border-indigo-100 bg-white shadow-[0_30px_90px_rgba(99,102,241,0.12)]"
-            }`}
-          >
-            <div className="mb-6 flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-600 text-white shadow-lg shadow-indigo-100">
-                <LockKeyhole className="h-5 w-5" />
-              </div>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-indigo-600">
-                  Admin Access
-                </p>
-                <h2
-                  className={`text-2xl font-semibold ${
-                    isDarkMode ? "text-slate-100" : "text-slate-900"
-                  }`}
-                >
-                  Sign in
-                </h2>
-              </div>
-            </div>
 
             {isAdminLoggedIn && (
-              <div className="mb-5 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-4 text-sm text-emerald-800">
-                You already have an active admin session.
-                <div className="mt-3 flex gap-3">
-                  <button
-                    type="button"
-                    onClick={() => navigate("/events/admin")}
-                    className="rounded-xl bg-emerald-600 px-4 py-2 font-medium text-white transition hover:bg-emerald-700"
-                  >
-                    Open dashboard
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleLogout}
-                    className="rounded-xl border border-emerald-300 px-4 py-2 font-medium text-emerald-700 transition hover:bg-emerald-100"
-                  >
-                    Logout
-                  </button>
+              <div
+                className={`mt-10 rounded-[2rem] border p-6 ${
+                  isDarkMode
+                    ? "border-emerald-900/60 bg-emerald-950/30"
+                    : "border-emerald-200 bg-emerald-50"
+                }`}
+              >
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                  <div>
+                    <div className="text-sm font-semibold text-emerald-600">
+                      Active session
+                    </div>
+                    <div
+                      className={`mt-1 text-lg font-semibold ${
+                        isDarkMode ? "text-slate-100" : "text-slate-900"
+                      }`}
+                    >
+                      {adminPanelLoading
+                        ? "Checking your admin session..."
+                        : currentAdmin?.email || "Admin"}
+                    </div>
+                    {!adminPanelLoading && currentAdmin?.role && (
+                      <div
+                        className={`mt-1 text-sm ${
+                          isDarkMode ? "text-slate-300" : "text-slate-600"
+                        }`}
+                      >
+                        Role: {currentAdmin.role.replace("_", " ")}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex flex-wrap gap-3">
+                    <button
+                      type="button"
+                      onClick={() => navigate("/alumni/admin")}
+                      className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700"
+                    >
+                      Open dashboard
+                      <ArrowRight className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      className={`rounded-full px-5 py-3 text-sm font-semibold transition ${
+                        isDarkMode
+                          ? "border border-slate-700 bg-slate-900 text-slate-100 hover:bg-slate-800"
+                          : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                      }`}
+                    >
+                      Logout
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
+          </section>
 
-            <form onSubmit={submit} className="space-y-5">
-              {error && (
-                <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-                  {error}
-                </div>
-              )}
-
-              <div>
-                <label
-                  className={`mb-2 block text-sm font-medium ${
-                    isDarkMode ? "text-slate-300" : "text-slate-700"
-                  }`}
-                >
-                  Email
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="admin@iiitians.in"
-                  value={form.email}
-                  onChange={handleChange}
-                  disabled={loading}
-                  required
-                  className={`w-full rounded-2xl border px-4 py-3 outline-none transition disabled:opacity-70 ${
-                    isDarkMode
-                      ? "border-slate-700 bg-slate-950 text-slate-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20"
-                      : "border-slate-200 bg-white text-slate-900 focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100"
-                  }`}
-                />
-              </div>
-
-              <div>
-                <label
-                  className={`mb-2 block text-sm font-medium ${
-                    isDarkMode ? "text-slate-300" : "text-slate-700"
-                  }`}
-                >
-                  Password
-                </label>
-                <input
-                  type="password"
-                  name="password"
-                  placeholder="Enter your password"
-                  value={form.password}
-                  onChange={handleChange}
-                  disabled={loading}
-                  required
-                  className={`w-full rounded-2xl border px-4 py-3 outline-none transition disabled:opacity-70 ${
-                    isDarkMode
-                      ? "border-slate-700 bg-slate-950 text-slate-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20"
-                      : "border-slate-200 bg-white text-slate-900 focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100"
-                  }`}
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full rounded-2xl bg-indigo-600 px-4 py-3 font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {loading ? "Signing in..." : "Continue to admin"}
-              </button>
-            </form>
-
-            <p
-              className={`mt-5 text-xs leading-6 ${
-                isDarkMode ? "text-slate-400" : "text-slate-500"
+          <section className="space-y-6">
+            <div
+              className={`rounded-[2.25rem] border p-6 sm:p-8 ${
+                isDarkMode
+                  ? "border-slate-800/80 bg-slate-950/75 shadow-[0_30px_100px_rgba(2,6,23,0.5)] backdrop-blur"
+                  : "border-white/80 bg-white/90 shadow-[0_30px_100px_rgba(99,102,241,0.12)] backdrop-blur"
               }`}
             >
-              Direct route only. This page is intentionally not linked from the
-              public navbar.
-            </p>
-          </div>
+                <div className="mb-6 flex items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-600 text-white">
+                    <LockKeyhole className="h-5 w-5" />
+                </div>
+                <div>
+                  <div className="text-xs font-semibold uppercase tracking-[0.24em] text-indigo-600">
+                    Access
+                  </div>
+                  <h2
+                    className={`text-2xl font-semibold ${
+                      isDarkMode ? "text-slate-100" : "text-slate-900"
+                    }`}
+                  >
+                    Sign in to continue
+                  </h2>
+                </div>
+              </div>
+
+              {adminPanelError && <StatusMessage tone="error">{adminPanelError}</StatusMessage>}
+              {adminListNotice && <StatusMessage>{adminListNotice}</StatusMessage>}
+              {error && <StatusMessage tone="error">{error}</StatusMessage>}
+
+              <form onSubmit={submit} className="mt-5 space-y-5">
+                <div>
+                  <label
+                    className={`mb-2 block text-sm font-medium ${
+                      isDarkMode ? "text-slate-300" : "text-slate-700"
+                    }`}
+                  >
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    placeholder="admin@iiitians.in"
+                    value={form.email}
+                    onChange={handleChange}
+                    disabled={loading}
+                    required
+                    className={`w-full rounded-2xl border px-4 py-3 outline-none transition disabled:opacity-70 ${
+                      isDarkMode
+                        ? "border-slate-700 bg-slate-950 text-slate-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20"
+                        : "border-slate-200 bg-slate-50 text-slate-900 focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100"
+                    }`}
+                  />
+                </div>
+
+                <div>
+                  <label
+                    className={`mb-2 block text-sm font-medium ${
+                      isDarkMode ? "text-slate-300" : "text-slate-700"
+                    }`}
+                  >
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    name="password"
+                    placeholder="Enter your password"
+                    value={form.password}
+                    onChange={handleChange}
+                    disabled={loading}
+                    required
+                    className={`w-full rounded-2xl border px-4 py-3 outline-none transition disabled:opacity-70 ${
+                      isDarkMode
+                        ? "border-slate-700 bg-slate-950 text-slate-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20"
+                        : "border-slate-200 bg-slate-50 text-slate-900 focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100"
+                    }`}
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full rounded-2xl bg-indigo-600 px-4 py-3 font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {loading ? "Signing in..." : "Continue to admin"}
+                </button>
+              </form>
+
+              <div
+                className={`mt-6 grid gap-3 sm:grid-cols-2 ${
+                  isDarkMode ? "text-slate-300" : "text-slate-600"
+                }`}
+              >
+                <button
+                  type="button"
+                  onClick={() => navigate("/alumni/admin")}
+                  className={`rounded-2xl border px-4 py-4 text-left transition ${
+                    isDarkMode
+                      ? "border-slate-800 bg-slate-900/80 hover:border-indigo-500/60"
+                      : "border-slate-200 bg-slate-50 hover:border-indigo-300 hover:bg-white"
+                  }`}
+                >
+                  <div className="text-sm font-semibold text-indigo-600">
+                    Alumni requests
+                  </div>
+                  <div className="mt-1 text-sm">
+                    Review pending, approved, and rejected alumni entries.
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => navigate("/placement/admin")}
+                  className={`rounded-2xl border px-4 py-4 text-left transition ${
+                    isDarkMode
+                      ? "border-slate-800 bg-slate-900/80 hover:border-indigo-500/60"
+                      : "border-slate-200 bg-slate-50 hover:border-indigo-300 hover:bg-white"
+                  }`}
+                >
+                  <div className="text-sm font-semibold text-indigo-600">
+                    Placement data
+                  </div>
+                  <div className="mt-1 text-sm">
+                    Jump into placement updates after choosing a college.
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            {isAdminLoggedIn && isSuperAdmin && (
+              <div className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
+                <div
+                  className={`rounded-[2.25rem] border p-6 sm:p-8 ${
+                    isDarkMode
+                      ? "border-slate-800/80 bg-slate-950/75 shadow-[0_30px_100px_rgba(2,6,23,0.5)] backdrop-blur"
+                      : "border-white/80 bg-white/90 shadow-[0_30px_100px_rgba(99,102,241,0.12)] backdrop-blur"
+                  }`}
+                >
+                  <div className="mb-5 flex items-center gap-3">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-600 text-white">
+                      <UserPlus className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-semibold uppercase tracking-[0.24em] text-indigo-600">
+                        Super Admin
+                      </div>
+                      <h2
+                        className={`text-2xl font-semibold ${
+                          isDarkMode ? "text-slate-100" : "text-slate-900"
+                        }`}
+                      >
+                        Add admin
+                      </h2>
+                    </div>
+                  </div>
+
+                  {createAdminState.error && (
+                    <StatusMessage tone="error">
+                      {createAdminState.error}
+                    </StatusMessage>
+                  )}
+                  {createAdminState.success && (
+                    <StatusMessage tone="success">
+                      {createAdminState.success}
+                    </StatusMessage>
+                  )}
+
+                  <form onSubmit={handleCreateAdmin} className="mt-5 space-y-4">
+                    <input
+                      type="email"
+                      name="email"
+                      placeholder="newadmin@iiitians.in"
+                      value={createAdminForm.email}
+                      onChange={handleCreateAdminChange}
+                      required
+                      className={`w-full rounded-2xl border px-4 py-3 outline-none transition ${
+                        isDarkMode
+                          ? "border-slate-700 bg-slate-950 text-slate-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20"
+                          : "border-slate-200 bg-slate-50 text-slate-900 focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100"
+                      }`}
+                    />
+
+                    <input
+                      type="password"
+                      name="password"
+                      placeholder="Set a password"
+                      value={createAdminForm.password}
+                      onChange={handleCreateAdminChange}
+                      required
+                      className={`w-full rounded-2xl border px-4 py-3 outline-none transition ${
+                        isDarkMode
+                          ? "border-slate-700 bg-slate-950 text-slate-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20"
+                          : "border-slate-200 bg-slate-50 text-slate-900 focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100"
+                      }`}
+                    />
+
+                    <button
+                      type="submit"
+                      disabled={createAdminState.loading}
+                      className="w-full rounded-2xl bg-indigo-600 px-4 py-3 font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {createAdminState.loading ? "Adding admin..." : "Add admin"}
+                    </button>
+                  </form>
+                </div>
+
+                <div
+                  className={`rounded-[2.25rem] border p-6 sm:p-8 ${
+                    isDarkMode
+                      ? "border-slate-800/80 bg-slate-950/75 shadow-[0_30px_100px_rgba(2,6,23,0.5)] backdrop-blur"
+                      : "border-white/80 bg-white/90 shadow-[0_30px_100px_rgba(99,102,241,0.12)] backdrop-blur"
+                  }`}
+                >
+                  <div className="mb-5 flex items-center gap-3">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-900 text-white">
+                      <Users className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-semibold uppercase tracking-[0.24em] text-indigo-600">
+                        Admin List
+                      </div>
+                      <h2
+                        className={`text-2xl font-semibold ${
+                          isDarkMode ? "text-slate-100" : "text-slate-900"
+                        }`}
+                      >
+                        Current admins
+                      </h2>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    {admins.map((admin) => (
+                      <div
+                        key={admin.id}
+                        className={`rounded-2xl border px-4 py-4 ${
+                          isDarkMode
+                            ? "border-slate-800 bg-slate-950 text-slate-200"
+                            : "border-slate-200 bg-slate-50 text-slate-700"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between gap-3">
+                          <div>
+                            <div className="font-semibold">{admin.email}</div>
+                            <div className="mt-1 text-sm capitalize text-indigo-600">
+                              {admin.role.replace("_", " ")}
+                            </div>
+                          </div>
+                          <div
+                            className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] ${
+                              admin.role === "super_admin"
+                                ? "bg-amber-100 text-amber-800"
+                                : "bg-slate-200 text-slate-700"
+                            }`}
+                          >
+                            {admin.role === "super_admin" ? "Owner" : "Admin"}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </section>
         </div>
       </div>
     </section>

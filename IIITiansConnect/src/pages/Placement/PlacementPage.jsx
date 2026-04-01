@@ -1,257 +1,427 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { Building2, LoaderCircle } from "lucide-react";
+import api from "../../api/axios";
 import {
   createPlacement,
-  upsertPlacementYear,
   getPlacementByCollege,
+  upsertPlacementYear,
 } from "../../api/placementApi";
 
-// ⚠️ MUST BE A REAL COLLEGE ID
-const COLLEGE_ID = "id-here";
-
+const createEmptyPlacementRow = () => ({
+  branch: "",
+  highestPackage: "",
+  averagePackage: "",
+  lowestPackage: "",
+  placementPercentage: "",
+  studentsPlaced: "",
+  totalStudents: "",
+});
 
 export default function PlacementPage() {
-  const [loading, setLoading] = useState(true);
+  const [colleges, setColleges] = useState([]);
+  const [selectedCollegeId, setSelectedCollegeId] = useState("");
+  const [loadingColleges, setLoadingColleges] = useState(true);
+  const [loadingPlacement, setLoadingPlacement] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [placementId, setPlacementId] = useState(null);
   const [existingYears, setExistingYears] = useState([]);
-  const [year, setYear] = useState(2024);
+  const [year, setYear] = useState(new Date().getFullYear());
+  const [placements, setPlacements] = useState([createEmptyPlacementRow()]);
 
-  const [placements, setPlacements] = useState([
-    {
-      branch: "",
-      highestPackage: "",
-      averagePackage: "",
-      lowestPackage: "",
-      placementPercentage: "",
-      studentsPlaced: "",
-      totalStudents: "",
-    },
-  ]);
-
-  // ---------------- FETCH PLACEMENT (ONE TIME) ----------------
   useEffect(() => {
-    const fetchPlacement = async () => {
+    const loadColleges = async () => {
+      setLoadingColleges(true);
       try {
-        const res = await getPlacementByCollege(COLLEGE_ID);
-
-        if (res.data?._id) {
-          setPlacementId(res.data._id);
-
-          if (Array.isArray(res.data.yearlyPlacements)) {
-            setExistingYears(
-              res.data.yearlyPlacements.map((y) => y.year)
-            );
-          }
-        }
-      } catch {
-        // placement does not exist yet → OK
+        const response = await api.get("/colleges");
+        const sortedColleges = [...response.data].sort((a, b) =>
+          (a.name || "").localeCompare(b.name || "")
+        );
+        setColleges(sortedColleges);
+      } catch (err) {
+        setError(
+          err.response?.data?.message || "Could not load colleges right now."
+        );
       } finally {
-        setLoading(false);
+        setLoadingColleges(false);
       }
     };
 
-    fetchPlacement();
+    loadColleges();
   }, []);
 
-  // ---------------- CREATE (ONE-TIME ONLY) ----------------
-  const handleCreatePlacement = async () => {
-    setError("");
-    try {
-      const res = await createPlacement(COLLEGE_ID);
-      setPlacementId(res.data._id);
+  useEffect(() => {
+    if (!selectedCollegeId) {
+      setPlacementId(null);
       setExistingYears([]);
-      alert("Placement record initialized (one-time)");
+      setPlacements([createEmptyPlacementRow()]);
+      setSuccess("");
+      return;
+    }
+
+    const loadPlacement = async () => {
+      setLoadingPlacement(true);
+      setError("");
+      setSuccess("");
+      setPlacementId(null);
+      setExistingYears([]);
+      setPlacements([createEmptyPlacementRow()]);
+
+      try {
+        const response = await getPlacementByCollege(selectedCollegeId);
+
+        if (response.data?._id) {
+          setPlacementId(response.data._id);
+
+          if (Array.isArray(response.data.yearlyPlacements)) {
+            setExistingYears(
+              response.data.yearlyPlacements.map((entry) => entry.year)
+            );
+          }
+        }
+      } catch (err) {
+        if (err.response?.status !== 404) {
+          setError(
+            err.response?.data?.message ||
+              "Could not load placement data for this college."
+          );
+        }
+      } finally {
+        setLoadingPlacement(false);
+      }
+    };
+
+    loadPlacement();
+  }, [selectedCollegeId]);
+
+  const selectedCollege = useMemo(
+    () => colleges.find((college) => college._id === selectedCollegeId) || null,
+    [colleges, selectedCollegeId]
+  );
+
+  const handleCreatePlacement = async () => {
+    if (!selectedCollegeId) {
+      setError("Select a college first.");
+      return;
+    }
+
+    setSaving(true);
+    setError("");
+    setSuccess("");
+
+    try {
+      const response = await createPlacement(selectedCollegeId);
+      setPlacementId(response.data._id);
+      setExistingYears([]);
+      setSuccess("Placement record initialized for the selected college.");
     } catch (err) {
-      setError("Placement record already exists for this college");
+      setError(
+        err.response?.data?.message ||
+          "Placement record already exists for this college."
+      );
+    } finally {
+      setSaving(false);
     }
   };
 
-  // ---------------- SAVE / UPDATE YEAR ----------------
   const handleSaveYear = async () => {
-    setError("");
-
-    if (!placementId) {
-      setError("Initialize placement record first");
+    if (!selectedCollegeId) {
+      setError("Select a college first.");
       return;
     }
+
+    if (!placementId) {
+      setError("Initialize the placement record first.");
+      return;
+    }
+
+    setSaving(true);
+    setError("");
+    setSuccess("");
 
     try {
       const payload = {
         year,
-        placements: placements.map((p) => ({
-          branch: p.branch,
-          highestPackage: Number(p.highestPackage),
-          averagePackage: Number(p.averagePackage),
-          lowestPackage: Number(p.lowestPackage),
-          placementPercentage: Number(p.placementPercentage),
-          studentsPlaced: Number(p.studentsPlaced),
-          totalStudents: Number(p.totalStudents),
+        placements: placements.map((row) => ({
+          branch: row.branch,
+          highestPackage: Number(row.highestPackage),
+          averagePackage: Number(row.averagePackage),
+          lowestPackage: Number(row.lowestPackage),
+          placementPercentage: Number(row.placementPercentage),
+          studentsPlaced: Number(row.studentsPlaced),
+          totalStudents: Number(row.totalStudents),
         })),
       };
 
       await upsertPlacementYear(placementId, payload);
 
       if (!existingYears.includes(year)) {
-        setExistingYears([...existingYears, year]);
+        setExistingYears((prev) => [...prev, year]);
       }
 
-      alert(`Placement data saved for ${year}`);
+      setSuccess(`Placement data saved for ${selectedCollege?.name} (${year}).`);
     } catch (err) {
-      setError("Failed to save placement data");
+      setError(
+        err.response?.data?.message || "Failed to save placement data."
+      );
+    } finally {
+      setSaving(false);
     }
   };
 
-  // ---------------- FORM HELPERS ----------------
-  const updateField = (i, field, value) => {
-    const copy = [...placements];
-    copy[i][field] = value;
-    setPlacements(copy);
+  const updateField = (index, field, value) => {
+    setPlacements((prev) =>
+      prev.map((row, rowIndex) =>
+        rowIndex === index ? { ...row, [field]: value } : row
+      )
+    );
   };
 
   const addBranch = () => {
-    setPlacements([
-      ...placements,
-      {
-        branch: "",
-        highestPackage: "",
-        averagePackage: "",
-        lowestPackage: "",
-        placementPercentage: "",
-        studentsPlaced: "",
-        totalStudents: "",
-      },
-    ]);
+    setPlacements((prev) => [...prev, createEmptyPlacementRow()]);
   };
 
-  // ---------------- RENDER ----------------
-  if (loading) {
-    return <div className="p-10">Loading placements…</div>;
+  const removeBranch = (index) => {
+    setPlacements((prev) =>
+      prev.length === 1 ? prev : prev.filter((_, rowIndex) => rowIndex !== index)
+    );
+  };
+
+  if (loadingColleges) {
+    return (
+      <div className="flex min-h-[50vh] items-center justify-center text-slate-500">
+        <LoaderCircle className="mr-3 h-5 w-5 animate-spin" />
+        Loading colleges...
+      </div>
+    );
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-6 py-16">
-      <h1 className="text-3xl font-bold mb-6">
-        Placements Admin
-      </h1>
+    <div className="space-y-8">
+      <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
+        <p className="text-sm font-semibold uppercase tracking-[0.24em] text-indigo-600">
+          Placement workspace
+        </p>
+        <h1 className="mt-2 text-3xl font-semibold text-slate-900">
+          Placements Admin
+        </h1>
+        <p className="mt-2 text-sm text-slate-600">
+          Select a college first, then initialize or update its placement data.
+        </p>
+
+        <div className="mt-6 grid gap-4 lg:grid-cols-[1fr_auto] lg:items-end">
+          <div>
+            <label className="mb-2 block text-sm font-medium text-slate-700">
+              College
+            </label>
+            <select
+              value={selectedCollegeId}
+              onChange={(event) => setSelectedCollegeId(event.target.value)}
+              className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100"
+            >
+              <option value="">Select a college</option>
+              {colleges.map((college) => (
+                <option key={college._id} value={college._id}>
+                  {college.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="rounded-2xl bg-slate-50 px-5 py-4 text-sm text-slate-600">
+            <div className="flex items-center gap-2 font-semibold text-slate-900">
+              <Building2 className="h-4 w-4 text-indigo-600" />
+              Selected college
+            </div>
+            <div className="mt-2">
+              {selectedCollege ? selectedCollege.name : "No college selected yet"}
+            </div>
+          </div>
+        </div>
+      </section>
 
       {error && (
-        <div className="mb-4 text-red-600 font-medium">
+        <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
           {error}
         </div>
       )}
 
-      {!placementId && (
-        <button
-          onClick={handleCreatePlacement}
-          className="mb-6 px-5 py-2 bg-indigo-600 text-white rounded"
-        >
-          Initialize Placement Record (one-time)
-        </button>
-      )}
-
-      {existingYears.length > 0 && (
-        <p className="mb-4 text-sm text-gray-600">
-          Existing years: {existingYears.sort().join(", ")}
-        </p>
-      )}
-
-      <div className="mb-6">
-        <label className="block mb-2 font-medium">
-          Placement Year (Add / Update)
-        </label>
-        <input
-          type="number"
-          value={year}
-          onChange={(e) => setYear(Number(e.target.value))}
-          className="border px-3 py-2 rounded w-40"
-        />
-      </div>
-
-      {placements.map((p, i) => (
-        <div
-          key={i}
-          className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6 border p-4 rounded"
-        >
-          <input
-            placeholder="Branch"
-            value={p.branch}
-            onChange={(e) =>
-              updateField(i, "branch", e.target.value)
-            }
-            className="border px-3 py-2 rounded"
-          />
-          <input
-            type="number"
-            placeholder="Highest Package"
-            value={p.highestPackage}
-            onChange={(e) =>
-              updateField(i, "highestPackage", e.target.value)
-            }
-            className="border px-3 py-2 rounded"
-          />
-          <input
-            type="number"
-            placeholder="Average Package"
-            value={p.averagePackage}
-            onChange={(e) =>
-              updateField(i, "averagePackage", e.target.value)
-            }
-            className="border px-3 py-2 rounded"
-          />
-          <input
-            type="number"
-            placeholder="Lowest Package"
-            value={p.lowestPackage}
-            onChange={(e) =>
-              updateField(i, "lowestPackage", e.target.value)
-            }
-            className="border px-3 py-2 rounded"
-          />
-          <input
-            type="number"
-            placeholder="Placement %"
-            value={p.placementPercentage}
-            onChange={(e) =>
-              updateField(i, "placementPercentage", e.target.value)
-            }
-            className="border px-3 py-2 rounded"
-          />
-          <input
-            type="number"
-            placeholder="Students Placed"
-            value={p.studentsPlaced}
-            onChange={(e) =>
-              updateField(i, "studentsPlaced", e.target.value)
-            }
-            className="border px-3 py-2 rounded"
-          />
-          <input
-            type="number"
-            placeholder="Total Students"
-            value={p.totalStudents}
-            onChange={(e) =>
-              updateField(i, "totalStudents", e.target.value)
-            }
-            className="border px-3 py-2 rounded"
-          />
+      {success && (
+        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+          {success}
         </div>
-      ))}
+      )}
 
-      <div className="flex gap-4">
-        <button
-          onClick={addBranch}
-          className="px-4 py-2 border rounded"
-        >
-          + Add Branch
-        </button>
+      {!selectedCollegeId ? (
+        <div className="rounded-[2rem] border border-dashed border-slate-300 bg-white px-6 py-16 text-center text-slate-500 shadow-sm">
+          Select a college to manage its placement data.
+        </div>
+      ) : loadingPlacement ? (
+        <div className="rounded-[2rem] border border-slate-200 bg-white px-6 py-16 text-center text-slate-500 shadow-sm">
+          <LoaderCircle className="mx-auto mb-3 h-5 w-5 animate-spin" />
+          Loading placement data for {selectedCollege?.name}...
+        </div>
+      ) : (
+        <>
+          <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <h2 className="text-2xl font-semibold text-slate-900">
+                  {selectedCollege?.name}
+                </h2>
+                <p className="mt-1 text-sm text-slate-600">
+                  {placementId
+                    ? "Placement record is ready. Add or update yearly branch data below."
+                    : "This college does not have a placement record yet. Initialize it first."}
+                </p>
+              </div>
 
-        <button
-          onClick={handleSaveYear}
-          className="px-6 py-3 bg-black text-white rounded"
-        >
-          Add / Update Year Data
-        </button>
-      </div>
+              {!placementId && (
+                <button
+                  type="button"
+                  onClick={handleCreatePlacement}
+                  disabled={saving}
+                  className="rounded-2xl bg-indigo-600 px-5 py-3 font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {saving ? "Initializing..." : "Initialize Placement Record"}
+                </button>
+              )}
+            </div>
+
+            {existingYears.length > 0 && (
+              <p className="mt-5 text-sm text-slate-600">
+                Existing years: {existingYears.slice().sort((a, b) => b - a).join(", ")}
+              </p>
+            )}
+          </section>
+
+          <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="mb-6">
+              <label className="mb-2 block text-sm font-medium text-slate-700">
+                Placement Year
+              </label>
+              <input
+                type="number"
+                value={year}
+                onChange={(event) => setYear(Number(event.target.value))}
+                className="w-44 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none transition focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100"
+              />
+            </div>
+
+            <div className="space-y-4">
+              {placements.map((row, index) => (
+                <div
+                  key={index}
+                  className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-4"
+                >
+                  <div className="mb-4 flex items-center justify-between">
+                    <h3 className="font-semibold text-slate-900">
+                      Branch row {index + 1}
+                    </h3>
+                    <button
+                      type="button"
+                      onClick={() => removeBranch(index)}
+                      disabled={placements.length === 1}
+                      className="text-sm font-medium text-rose-600 transition hover:text-rose-700 disabled:cursor-not-allowed disabled:opacity-40"
+                    >
+                      Remove
+                    </button>
+                  </div>
+
+                  <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                    <input
+                      placeholder="Branch"
+                      value={row.branch}
+                      onChange={(event) =>
+                        updateField(index, "branch", event.target.value)
+                      }
+                      className="rounded-2xl border border-slate-200 bg-white px-4 py-3"
+                    />
+                    <input
+                      type="number"
+                      placeholder="Highest Package"
+                      value={row.highestPackage}
+                      onChange={(event) =>
+                        updateField(index, "highestPackage", event.target.value)
+                      }
+                      className="rounded-2xl border border-slate-200 bg-white px-4 py-3"
+                    />
+                    <input
+                      type="number"
+                      placeholder="Average Package"
+                      value={row.averagePackage}
+                      onChange={(event) =>
+                        updateField(index, "averagePackage", event.target.value)
+                      }
+                      className="rounded-2xl border border-slate-200 bg-white px-4 py-3"
+                    />
+                    <input
+                      type="number"
+                      placeholder="Lowest Package"
+                      value={row.lowestPackage}
+                      onChange={(event) =>
+                        updateField(index, "lowestPackage", event.target.value)
+                      }
+                      className="rounded-2xl border border-slate-200 bg-white px-4 py-3"
+                    />
+                    <input
+                      type="number"
+                      placeholder="Placement %"
+                      value={row.placementPercentage}
+                      onChange={(event) =>
+                        updateField(
+                          index,
+                          "placementPercentage",
+                          event.target.value
+                        )
+                      }
+                      className="rounded-2xl border border-slate-200 bg-white px-4 py-3"
+                    />
+                    <input
+                      type="number"
+                      placeholder="Students Placed"
+                      value={row.studentsPlaced}
+                      onChange={(event) =>
+                        updateField(index, "studentsPlaced", event.target.value)
+                      }
+                      className="rounded-2xl border border-slate-200 bg-white px-4 py-3"
+                    />
+                    <input
+                      type="number"
+                      placeholder="Total Students"
+                      value={row.totalStudents}
+                      onChange={(event) =>
+                        updateField(index, "totalStudents", event.target.value)
+                      }
+                      className="rounded-2xl border border-slate-200 bg-white px-4 py-3"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-6 flex flex-wrap gap-4">
+              <button
+                type="button"
+                onClick={addBranch}
+                className="rounded-2xl border border-slate-200 px-4 py-3 font-medium text-slate-700 transition hover:bg-slate-50"
+              >
+                + Add Branch
+              </button>
+
+              <button
+                type="button"
+                onClick={handleSaveYear}
+                disabled={!placementId || saving}
+                className="rounded-2xl bg-slate-900 px-6 py-3 font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {saving ? "Saving..." : "Add / Update Year Data"}
+              </button>
+            </div>
+          </section>
+        </>
+      )}
     </div>
   );
 }
