@@ -61,6 +61,16 @@ const alumniSchema = new mongoose.Schema(
       maxlength: 500,
       default: "",
     },
+    status: {
+      type: String,
+      enum: ["pending", "approved", "rejected"],
+      default: "pending",
+      index: true,
+    },
+    reviewedAt: {
+      type: Date,
+      default: null,
+    },
   },
   { timestamps: true }
 );

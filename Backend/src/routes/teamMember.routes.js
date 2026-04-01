@@ -1,19 +1,20 @@
 import express from "express";
-import {upload} from "../middlewares/upload.middleware.js";
 import {
   createTeamMember,
-  updateTeamMember,
   deleteTeamMember,
-  getTeamMembers,
   getTeamMemberById,
+  getTeamMembers,
+  updateTeamMember,
 } from "../controllers/teamMember.controller.js";
+import adminAuth from "../middlewares/adminAuth.js";
+import { upload } from "../middlewares/upload.middleware.js";
 
 const router = express.Router();
 
 router.get("/", getTeamMembers);
 router.get("/:id", getTeamMemberById);
-router.post("/", upload.single("photo"), createTeamMember);
-router.put("/:id", upload.single("photo"), updateTeamMember);
-router.delete("/:id", deleteTeamMember);
+router.post("/", adminAuth, upload.single("photo"), createTeamMember);
+router.put("/:id", adminAuth, upload.single("photo"), updateTeamMember);
+router.delete("/:id", adminAuth, deleteTeamMember);
 
 export default router;

@@ -1,24 +1,20 @@
 import express from "express";
 import {
   createEvent,
-  getEvents,
+  deleteEvent,
   getEventById,
+  getEvents,
   updateEvent,
-  deleteEvent
 } from "../controllers/event.controller.js";
+import adminAuth from "../middlewares/adminAuth.js";
 import { upload } from "../middlewares/upload.middleware.js";
 
 const router = express.Router();
 
-
-router.post(
-  "/",
-  upload.single("banner"), // 👈 THIS IS THE KEY
-  createEvent
-);
-router.patch("/:id", upload.single("banner"), updateEvent);
+router.post("/", adminAuth, upload.single("banner"), createEvent);
+router.patch("/:id", adminAuth, upload.single("banner"), updateEvent);
 router.get("/", getEvents);
 router.get("/:id", getEventById);
-router.delete("/:id", deleteEvent); // ✅ ADD THIS
+router.delete("/:id", adminAuth, deleteEvent);
 
 export default router;
