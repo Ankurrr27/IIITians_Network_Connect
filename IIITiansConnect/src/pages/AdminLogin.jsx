@@ -155,8 +155,17 @@ export default function AdminLogin() {
     setAdmins([]);
     setAdminPanelError("");
     setAdminListNotice("");
+    setForm({
+      email: "",
+      password: "",
+    });
+    setCreateAdminForm(initialCreateAdminForm);
+    setCreateAdminState({
+      loading: false,
+      error: "",
+      success: "",
+    });
     navigate("/admin", { replace: true });
-    window.location.reload();
   };
 
   const handleCreateAdminChange = (event) => {
@@ -210,7 +219,7 @@ export default function AdminLogin() {
 
   return (
     <section
-      className={`relative min-h-screen overflow-hidden px-4 py-20 sm:px-6 ${
+      className={`relative min-h-screen overflow-hidden px-3 py-12 sm:px-6 sm:py-20 ${
         isDarkMode
           ? "bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.14),_transparent_38%),linear-gradient(180deg,#020617_0%,#0f172a_52%,#020617_100%)]"
           : "bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.12),_transparent_34%),linear-gradient(180deg,#eef2ff_0%,#f8fafc_42%,#ffffff_100%)]"
@@ -228,16 +237,16 @@ export default function AdminLogin() {
       />
 
       <div className="relative mx-auto max-w-7xl">
-        <div className="grid gap-8 xl:grid-cols-[1.05fr_0.95fr]">
+        <div className="grid gap-5 sm:gap-8 xl:grid-cols-[1.05fr_0.95fr]">
           <section
-            className={`rounded-[2.25rem] border p-8 sm:p-10 ${
+            className={`rounded-[1.75rem] border p-5 sm:rounded-[2.25rem] sm:p-10 ${
               isDarkMode
                 ? "border-slate-800/80 bg-slate-950/70 text-slate-100 shadow-[0_30px_100px_rgba(2,6,23,0.5)] backdrop-blur"
                 : "border-white/80 bg-white/85 text-slate-900 shadow-[0_30px_100px_rgba(99,102,241,0.12)] backdrop-blur"
             }`}
           >
             <div
-              className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.28em] ${
+              className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.28em] ${
                 isDarkMode
                   ? "border-slate-700 bg-slate-900 text-indigo-300"
                   : "border-indigo-100 bg-indigo-50 text-indigo-700"
@@ -247,12 +256,12 @@ export default function AdminLogin() {
               Admin Console
             </div>
 
-            <h1 className="mt-6 max-w-2xl text-4xl font-extrabold leading-tight sm:text-5xl">
+            <h1 className="mt-5 max-w-2xl text-3xl font-extrabold leading-tight sm:mt-6 sm:text-5xl">
               Secure control panel for the IIITians Network team.
             </h1>
 
             <p
-              className={`mt-5 max-w-2xl text-base leading-8 sm:text-lg ${
+              className={`mt-4 max-w-2xl text-sm leading-7 sm:mt-5 sm:text-lg sm:leading-8 ${
                 isDarkMode ? "text-slate-300" : "text-slate-600"
               }`}
             >
@@ -261,11 +270,11 @@ export default function AdminLogin() {
               from the same page.
             </p>
 
-            <div className="mt-10 grid gap-4 sm:grid-cols-3">
+            <div className="mt-7 grid gap-3 sm:mt-10 sm:grid-cols-3 sm:gap-4">
               {infoCards.map((card) => (
                 <div
                   key={card.title}
-                  className={`rounded-3xl border p-5 ${
+                  className={`rounded-2xl border p-4 sm:rounded-3xl sm:p-5 ${
                     isDarkMode
                       ? "border-slate-800 bg-slate-900/80"
                       : "border-indigo-100 bg-white"
@@ -275,7 +284,7 @@ export default function AdminLogin() {
                     {card.title}
                   </div>
                   <div
-                    className={`mt-3 text-sm leading-7 ${
+                    className={`mt-2 text-sm leading-6 sm:mt-3 sm:leading-7 ${
                       isDarkMode ? "text-slate-300" : "text-slate-600"
                     }`}
                   >
@@ -287,7 +296,7 @@ export default function AdminLogin() {
 
             {isAdminLoggedIn && (
               <div
-                className={`mt-10 rounded-[2rem] border p-6 ${
+                className={`mt-7 rounded-[1.5rem] border p-4 sm:mt-10 sm:rounded-[2rem] sm:p-6 ${
                   isDarkMode
                     ? "border-emerald-900/60 bg-emerald-950/30"
                     : "border-emerald-200 bg-emerald-50"
@@ -299,7 +308,7 @@ export default function AdminLogin() {
                       Active session
                     </div>
                     <div
-                      className={`mt-1 text-lg font-semibold ${
+                      className={`mt-1 break-all text-base font-semibold sm:text-lg ${
                         isDarkMode ? "text-slate-100" : "text-slate-900"
                       }`}
                     >
@@ -318,11 +327,11 @@ export default function AdminLogin() {
                     )}
                   </div>
 
-                  <div className="flex flex-wrap gap-3">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:gap-3">
                     <button
                       type="button"
                       onClick={() => navigate("/alumni/admin")}
-                      className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700"
+                      className="inline-flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 sm:px-5 sm:py-3"
                     >
                       Open dashboard
                       <ArrowRight className="h-4 w-4" />
@@ -330,7 +339,7 @@ export default function AdminLogin() {
                     <button
                       type="button"
                       onClick={handleLogout}
-                      className={`rounded-full px-5 py-3 text-sm font-semibold transition ${
+                      className={`rounded-full px-4 py-2.5 text-sm font-semibold transition sm:px-5 sm:py-3 ${
                         isDarkMode
                           ? "border border-slate-700 bg-slate-900 text-slate-100 hover:bg-slate-800"
                           : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
@@ -346,14 +355,14 @@ export default function AdminLogin() {
 
           <section className="space-y-6">
             <div
-              className={`rounded-[2.25rem] border p-6 sm:p-8 ${
+              className={`rounded-[1.75rem] border p-5 sm:rounded-[2.25rem] sm:p-8 ${
                 isDarkMode
                   ? "border-slate-800/80 bg-slate-950/75 shadow-[0_30px_100px_rgba(2,6,23,0.5)] backdrop-blur"
                   : "border-white/80 bg-white/90 shadow-[0_30px_100px_rgba(99,102,241,0.12)] backdrop-blur"
               }`}
             >
-                <div className="mb-6 flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-600 text-white">
+                <div className="mb-5 flex items-center gap-3 sm:mb-6">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 text-white sm:h-12 sm:w-12 sm:rounded-2xl">
                     <LockKeyhole className="h-5 w-5" />
                 </div>
                 <div>
@@ -361,7 +370,7 @@ export default function AdminLogin() {
                     Access
                   </div>
                   <h2
-                    className={`text-2xl font-semibold ${
+                    className={`text-xl font-semibold sm:text-2xl ${
                       isDarkMode ? "text-slate-100" : "text-slate-900"
                     }`}
                   >
@@ -374,7 +383,7 @@ export default function AdminLogin() {
               {adminListNotice && <StatusMessage>{adminListNotice}</StatusMessage>}
               {error && <StatusMessage tone="error">{error}</StatusMessage>}
 
-              <form onSubmit={submit} className="mt-5 space-y-5">
+              <form onSubmit={submit} className="mt-5 space-y-4 sm:space-y-5">
                 <div>
                   <label
                     className={`mb-2 block text-sm font-medium ${
@@ -391,7 +400,7 @@ export default function AdminLogin() {
                     onChange={handleChange}
                     disabled={loading}
                     required
-                    className={`w-full rounded-2xl border px-4 py-3 outline-none transition disabled:opacity-70 ${
+                    className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition disabled:opacity-70 sm:text-base ${
                       isDarkMode
                         ? "border-slate-700 bg-slate-950 text-slate-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20"
                         : "border-slate-200 bg-slate-50 text-slate-900 focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100"
@@ -415,7 +424,7 @@ export default function AdminLogin() {
                     onChange={handleChange}
                     disabled={loading}
                     required
-                    className={`w-full rounded-2xl border px-4 py-3 outline-none transition disabled:opacity-70 ${
+                    className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition disabled:opacity-70 sm:text-base ${
                       isDarkMode
                         ? "border-slate-700 bg-slate-950 text-slate-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20"
                         : "border-slate-200 bg-slate-50 text-slate-900 focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100"
@@ -426,21 +435,21 @@ export default function AdminLogin() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full rounded-2xl bg-indigo-600 px-4 py-3 font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="w-full rounded-2xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60 sm:text-base"
                 >
                   {loading ? "Signing in..." : "Continue to admin"}
                 </button>
               </form>
 
               <div
-                className={`mt-6 grid gap-3 sm:grid-cols-2 ${
+                className={`mt-5 grid gap-3 sm:mt-6 sm:grid-cols-2 ${
                   isDarkMode ? "text-slate-300" : "text-slate-600"
                 }`}
               >
                 <button
                   type="button"
                   onClick={() => navigate("/alumni/admin")}
-                  className={`rounded-2xl border px-4 py-4 text-left transition ${
+                  className={`rounded-2xl border px-4 py-3.5 text-left transition sm:py-4 ${
                     isDarkMode
                       ? "border-slate-800 bg-slate-900/80 hover:border-indigo-500/60"
                       : "border-slate-200 bg-slate-50 hover:border-indigo-300 hover:bg-white"
@@ -457,7 +466,7 @@ export default function AdminLogin() {
                 <button
                   type="button"
                   onClick={() => navigate("/placement/admin")}
-                  className={`rounded-2xl border px-4 py-4 text-left transition ${
+                  className={`rounded-2xl border px-4 py-3.5 text-left transition sm:py-4 ${
                     isDarkMode
                       ? "border-slate-800 bg-slate-900/80 hover:border-indigo-500/60"
                       : "border-slate-200 bg-slate-50 hover:border-indigo-300 hover:bg-white"
@@ -474,16 +483,16 @@ export default function AdminLogin() {
             </div>
 
             {isAdminLoggedIn && isSuperAdmin && (
-              <div className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
+              <div className="grid gap-5 sm:gap-6 xl:grid-cols-[0.95fr_1.05fr]">
                 <div
-                  className={`rounded-[2.25rem] border p-6 sm:p-8 ${
+                  className={`rounded-[1.75rem] border p-5 sm:rounded-[2.25rem] sm:p-8 ${
                     isDarkMode
                       ? "border-slate-800/80 bg-slate-950/75 shadow-[0_30px_100px_rgba(2,6,23,0.5)] backdrop-blur"
                       : "border-white/80 bg-white/90 shadow-[0_30px_100px_rgba(99,102,241,0.12)] backdrop-blur"
                   }`}
                 >
                   <div className="mb-5 flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-600 text-white">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 text-white sm:h-12 sm:w-12 sm:rounded-2xl">
                       <UserPlus className="h-5 w-5" />
                     </div>
                     <div>
@@ -491,7 +500,7 @@ export default function AdminLogin() {
                         Super Admin
                       </div>
                       <h2
-                        className={`text-2xl font-semibold ${
+                        className={`text-xl font-semibold sm:text-2xl ${
                           isDarkMode ? "text-slate-100" : "text-slate-900"
                         }`}
                       >
@@ -519,7 +528,7 @@ export default function AdminLogin() {
                       value={createAdminForm.email}
                       onChange={handleCreateAdminChange}
                       required
-                      className={`w-full rounded-2xl border px-4 py-3 outline-none transition ${
+                      className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition sm:text-base ${
                         isDarkMode
                           ? "border-slate-700 bg-slate-950 text-slate-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20"
                           : "border-slate-200 bg-slate-50 text-slate-900 focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100"
@@ -533,7 +542,7 @@ export default function AdminLogin() {
                       value={createAdminForm.password}
                       onChange={handleCreateAdminChange}
                       required
-                      className={`w-full rounded-2xl border px-4 py-3 outline-none transition ${
+                      className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition sm:text-base ${
                         isDarkMode
                           ? "border-slate-700 bg-slate-950 text-slate-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20"
                           : "border-slate-200 bg-slate-50 text-slate-900 focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100"
@@ -543,7 +552,7 @@ export default function AdminLogin() {
                     <button
                       type="submit"
                       disabled={createAdminState.loading}
-                      className="w-full rounded-2xl bg-indigo-600 px-4 py-3 font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+                      className="w-full rounded-2xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60 sm:text-base"
                     >
                       {createAdminState.loading ? "Adding admin..." : "Add admin"}
                     </button>
@@ -551,14 +560,14 @@ export default function AdminLogin() {
                 </div>
 
                 <div
-                  className={`rounded-[2.25rem] border p-6 sm:p-8 ${
+                  className={`rounded-[1.75rem] border p-5 sm:rounded-[2.25rem] sm:p-8 ${
                     isDarkMode
                       ? "border-slate-800/80 bg-slate-950/75 shadow-[0_30px_100px_rgba(2,6,23,0.5)] backdrop-blur"
                       : "border-white/80 bg-white/90 shadow-[0_30px_100px_rgba(99,102,241,0.12)] backdrop-blur"
                   }`}
                 >
                   <div className="mb-5 flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-900 text-white">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900 text-white sm:h-12 sm:w-12 sm:rounded-2xl">
                       <Users className="h-5 w-5" />
                     </div>
                     <div>
@@ -566,7 +575,7 @@ export default function AdminLogin() {
                         Admin List
                       </div>
                       <h2
-                        className={`text-2xl font-semibold ${
+                        className={`text-xl font-semibold sm:text-2xl ${
                           isDarkMode ? "text-slate-100" : "text-slate-900"
                         }`}
                       >
@@ -579,7 +588,7 @@ export default function AdminLogin() {
                     {admins.map((admin) => (
                       <div
                         key={admin.id}
-                        className={`rounded-2xl border px-4 py-4 ${
+                        className={`rounded-2xl border px-4 py-3.5 sm:py-4 ${
                           isDarkMode
                             ? "border-slate-800 bg-slate-950 text-slate-200"
                             : "border-slate-200 bg-slate-50 text-slate-700"
