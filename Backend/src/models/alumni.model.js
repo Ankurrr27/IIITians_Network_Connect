@@ -35,15 +35,20 @@ const alumniSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    networkPost: {
+      type: String,
+      trim: true,
+      default: "",
+    },
     currentRole: {
       type: String,
-      required: true,
       trim: true,
+      default: "",
     },
     currentCompany: {
       type: String,
-      required: true,
       trim: true,
+      default: "",
     },
     location: {
       type: String,
@@ -51,6 +56,11 @@ const alumniSchema = new mongoose.Schema(
       default: "",
     },
     linkedin: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    instagram: {
       type: String,
       trim: true,
       default: "",

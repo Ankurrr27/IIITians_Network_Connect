@@ -10,6 +10,17 @@ const sanitizeAdmin = (admin) => ({
   createdAt: admin.createdAt,
 });
 
+const getAuthorizedSuperAdmin = async (adminId) => {
+  const currentAdmin = await Admin.findById(adminId);
+  const resolvedCurrentAdmin = currentAdmin
+    ? await ensureAdminRole(currentAdmin)
+    : null;
+
+  return resolvedCurrentAdmin?.role === "super_admin"
+    ? resolvedCurrentAdmin
+    : null;
+};
+
 const ensureAdminRole = async (admin) => {
   const allAdmins = await Admin.find()
     .select("_id role createdAt")
@@ -143,10 +154,7 @@ export const getMe = async (req, res) => {
 
 export const createAdminBySuperAdmin = async (req, res) => {
   try {
-    const currentAdmin = await Admin.findById(req.adminId);
-    const resolvedCurrentAdmin = currentAdmin
-      ? await ensureAdminRole(currentAdmin)
-      : null;
+    const resolvedCurrentAdmin = await getAuthorizedSuperAdmin(req.adminId);
     if (!resolvedCurrentAdmin || resolvedCurrentAdmin.role !== "super_admin") {
       return res.status(403).json({
         message: "Only a super admin can add new admins",
@@ -184,10 +192,7 @@ export const createAdminBySuperAdmin = async (req, res) => {
 
 export const getAdmins = async (req, res) => {
   try {
-    const currentAdmin = await Admin.findById(req.adminId);
-    const resolvedCurrentAdmin = currentAdmin
-      ? await ensureAdminRole(currentAdmin)
-      : null;
+    const resolvedCurrentAdmin = await getAuthorizedSuperAdmin(req.adminId);
     if (!resolvedCurrentAdmin || resolvedCurrentAdmin.role !== "super_admin") {
       return res.status(403).json({
         message: "Only a super admin can view admins",
@@ -201,6 +206,108 @@ export const getAdmins = async (req, res) => {
     await Promise.all(admins.map((admin) => ensureAdminRole(admin)));
 
     res.json(admins.map(sanitizeAdmin));
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+export const updateAdminBySuperAdmin = async (req, res) => {
+  try {
+    const resolvedCurrentAdmin = await getAuthorizedSuperAdmin(req.adminId);
+    if (!resolvedCurrentAdmin) {
+      return res.status(403).json({
+        message: "Only a super admin can edit admins",
+      });
+    }
+
+    const { id } = req.params;
+    const targetAdmin = await Admin.findById(id);
+
+    if (!targetAdmin) {
+      return res.status(404).json({ message: "Admin not found" });
+    }
+
+    const normalizedEmail = req.body.email?.trim().toLowerCase();
+    const nextRole = req.body.role?.trim();
+    const nextPassword = req.body.password?.trim();
+
+    if (!normalizedEmail) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    if (nextRole && !["super_admin", "admin"].includes(nextRole)) {
+      return res.status(400).json({ message: "Invalid role selected" });
+    }
+
+    const duplicateAdmin = await Admin.findOne({
+      email: normalizedEmail,
+      _id: { $ne: targetAdmin._id },
+    });
+
+    if (duplicateAdmin) {
+      return res.status(409).json({ message: "Admin email already exists" });
+    }
+
+    if (
+      targetAdmin.role === "super_admin" &&
+      nextRole === "admin" &&
+      String(targetAdmin._id) === String(resolvedCurrentAdmin._id)
+    ) {
+      return res.status(400).json({
+        message: "You cannot demote your own super admin account",
+      });
+    }
+
+    targetAdmin.email = normalizedEmail;
+    targetAdmin.role = nextRole || targetAdmin.role || "admin";
+
+    if (nextPassword) {
+      targetAdmin.password = await bcrypt.hash(nextPassword, 10);
+    }
+
+    await targetAdmin.save();
+    await ensureAdminRole(targetAdmin);
+
+    res.json({
+      message: "Admin updated successfully",
+      admin: sanitizeAdmin(targetAdmin),
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+export const deleteAdminBySuperAdmin = async (req, res) => {
+  try {
+    const resolvedCurrentAdmin = await getAuthorizedSuperAdmin(req.adminId);
+    if (!resolvedCurrentAdmin) {
+      return res.status(403).json({
+        message: "Only a super admin can remove admins",
+      });
+    }
+
+    const { id } = req.params;
+
+    if (String(id) === String(resolvedCurrentAdmin._id)) {
+      return res.status(400).json({
+        message: "You cannot remove your own admin account",
+      });
+    }
+
+    const targetAdmin = await Admin.findById(id);
+    if (!targetAdmin) {
+      return res.status(404).json({ message: "Admin not found" });
+    }
+
+    if (targetAdmin.role === "super_admin") {
+      return res.status(400).json({
+        message: "Remove or transfer super admin access manually instead",
+      });
+    }
+
+    await Admin.findByIdAndDelete(id);
+
+    res.json({ message: "Admin removed successfully" });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
