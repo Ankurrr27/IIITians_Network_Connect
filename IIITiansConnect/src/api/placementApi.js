@@ -1,6 +1,10 @@
 // src/api/placementApi.js
 import api from "./axios";
 
+export const getAllPlacements = () => {
+  return api.get("/placements");
+};
+
 // Create placement document (one-time per college)
 export const createPlacement = (collegeId) => {
   return api.post("/placements", { college: collegeId });

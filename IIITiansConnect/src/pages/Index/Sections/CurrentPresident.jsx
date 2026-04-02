@@ -1,44 +1,127 @@
-const currentPresident = {
-  name: "Lokesh",
-  role: "Current President",
-  college: "IIITians Network",
-  image: "/lokesh.png",
-  about:
-    "Focused on carrying the next phase of IIITians Network with stronger collaboration, student-first execution, and wider community impact across campuses.",
-  message:
-    "My goal is to make IIITians Network more useful, more accessible, and more connected for every student. We want this platform to feel active, trusted, and genuinely valuable for the entire IIIT community.",
-};
+import { useEffect, useMemo, useState } from "react";
+import api from "../../../api/axios";
+
+function getPresidentPriority(role = "") {
+  const normalizedRole = role.toLowerCase().trim().replace(/\s+/g, " ");
+
+  if (/\bpresident\b/.test(normalizedRole) && !/\bvice president\b/.test(normalizedRole)) {
+    return 0;
+  }
+
+  if (/\bvice president\b/.test(normalizedRole)) {
+    return 1;
+  }
+
+  return 99;
+}
+
+function compareTenureYears(a = "", b = "") {
+  return String(b).localeCompare(String(a), undefined, { numeric: true });
+}
 
 export default function CurrentPresident() {
+  const [members, setMembers] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let mounted = true;
+
+    api
+      .get("/team")
+      .then((response) => {
+        if (!mounted) return;
+        setMembers(response.data || []);
+      })
+      .catch(() => {
+        if (!mounted) return;
+        setMembers([]);
+      })
+      .finally(() => {
+        if (!mounted) return;
+        setLoading(false);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const currentPresident = useMemo(() => {
+    const executives = members.filter((member) => member.roleType === "EXEC");
+
+    const latestYear =
+      executives
+        .map((member) => member.year)
+        .filter(Boolean)
+        .sort(compareTenureYears)[0] || null;
+
+    const latestExecutives = latestYear
+      ? executives.filter((member) => member.year === latestYear)
+      : executives;
+
+    const sortedExecutives = latestExecutives
+      .sort((a, b) => {
+        const priorityA = getPresidentPriority(a.role);
+        const priorityB = getPresidentPriority(b.role);
+
+        if (priorityA !== priorityB) {
+          return priorityA - priorityB;
+        }
+
+        const orderA = Number.isFinite(Number(a.order)) ? Number(a.order) : Number.MAX_SAFE_INTEGER;
+        const orderB = Number.isFinite(Number(b.order)) ? Number(b.order) : Number.MAX_SAFE_INTEGER;
+
+        if (orderA !== orderB) {
+          return orderA - orderB;
+        }
+
+        return (a.name || "").localeCompare(b.name || "");
+      });
+
+    return (
+      sortedExecutives.find((member) => getPresidentPriority(member.role) === 0) ||
+      null
+    );
+  }, [members]);
+
+  if (loading || !currentPresident) {
+    return null;
+  }
+
+  const about = `${currentPresident.name} is leading the current IIITians Network team with a focus on student coordination, continuity, and building a stronger network across campuses.`;
+  const message = `${currentPresident.name} and the current team are working to make IIITians Network more useful, accessible, and active for the wider IIIT community.`;
+
   return (
     <div className="mb-5 overflow-hidden rounded-[1.35rem] border border-slate-200 bg-gradient-to-br from-slate-50 via-white to-indigo-50 shadow-[0_20px_60px_rgba(79,70,229,0.08)] sm:mb-12 sm:rounded-[1.9rem]">
-      <div className="grid gap-0 lg:grid-cols-[280px_1fr]">
-        <div className="relative h-44 overflow-hidden bg-indigo-100 sm:h-72 lg:h-full">
+      <div className="grid grid-cols-1 gap-0 sm:grid-cols-[150px_1fr] lg:grid-cols-[238px_1fr]">
+        <div className="relative mx-3 mt-3 overflow-hidden rounded-[1rem] bg-indigo-100 sm:mx-0 sm:mt-0 sm:rounded-none">
           <img
-            src={currentPresident.image}
+            src={currentPresident.photo?.url}
             alt={currentPresident.name}
-            className="h-full w-full object-cover"
+            className="aspect-[1/1] w-full object-cover object-center sm:h-full sm:aspect-auto"
           />
-          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-slate-950/45 to-transparent lg:hidden" />
+          <div className="absolute inset-y-0 right-0 hidden w-8 bg-gradient-to-l from-white/18 to-transparent sm:block" />
         </div>
 
-        <div className="p-3.5 sm:p-6 lg:p-8">
-          <div className="flex flex-col gap-3 sm:gap-5">
+        <div className="p-3 sm:p-4 lg:p-5">
+          <div className="flex flex-col gap-2.5 sm:gap-4">
             <div className="flex flex-wrap items-center gap-3">
               <div className="inline-flex items-center rounded-full bg-indigo-600 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-white sm:px-3 sm:text-xs sm:tracking-[0.18em]">
                 Current President
               </div>
-              <div className="text-[10px] font-medium uppercase tracking-[0.14em] text-slate-500 sm:text-xs sm:tracking-[0.16em]">
-                Team Spotlight
-              </div>
+              {currentPresident.year && (
+                <div className="text-[10px] font-medium uppercase tracking-[0.14em] text-slate-500 sm:text-xs sm:tracking-[0.16em]">
+                  {currentPresident.year}
+                </div>
+              )}
             </div>
 
             <div>
-              <h3 className="text-xl font-bold text-slate-900 sm:text-3xl">
+              <h3 className="text-lg font-bold text-slate-900 sm:text-2xl">
                 {currentPresident.name}
               </h3>
-              <p className="mt-1 text-xs font-medium text-indigo-600 sm:text-base">
-                {currentPresident.role} · {currentPresident.college}
+              <p className="mt-1 text-[11px] font-medium text-indigo-600 sm:text-sm">
+                {currentPresident.role} - {currentPresident.iiit}
               </p>
             </div>
 
@@ -47,8 +130,8 @@ export default function CurrentPresident() {
                 <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500 sm:text-xs sm:tracking-[0.16em]">
                   About
                 </p>
-                <p className="mt-2 text-xs leading-5 text-slate-700 sm:mt-3 sm:text-base sm:leading-7">
-                  {currentPresident.about}
+                <p className="mt-2 text-[12px] leading-5 text-slate-700 sm:mt-3 sm:text-sm sm:leading-6">
+                  {about}
                 </p>
               </div>
 
@@ -56,8 +139,8 @@ export default function CurrentPresident() {
                 <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-indigo-600 sm:text-xs sm:tracking-[0.16em]">
                   Message
                 </p>
-                <p className="mt-2 text-xs leading-5 text-slate-700 sm:mt-3 sm:text-base sm:leading-7">
-                  "{currentPresident.message}"
+                <p className="mt-2 text-[12px] leading-5 text-slate-700 sm:mt-3 sm:text-sm sm:leading-6">
+                  "{message}"
                 </p>
               </div>
             </div>

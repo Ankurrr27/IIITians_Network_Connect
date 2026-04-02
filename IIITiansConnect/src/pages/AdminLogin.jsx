@@ -1,14 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  ArrowRight,
-  LockKeyhole,
-  ShieldCheck,
-  Trash2,
-  UserCog,
-  UserPlus,
-  Users,
-} from "lucide-react";
+import { LockKeyhole, Trash2, UserCog, UserPlus, Users } from "lucide-react";
 import api from "../api/axios";
 import useThemeMode from "../hooks/useThemeMode.jsx";
 
@@ -23,26 +15,11 @@ const initialEditAdminForm = {
   password: "",
 };
 
-const infoCards = [
-  {
-    title: "Admin access",
-    description: "Secure sign-in for moderation, events, team, and placement updates.",
-  },
-  {
-    title: "Super admin tools",
-    description: "Create and manage other admins directly from the same console.",
-  },
-  {
-    title: "Direct control",
-    description: "Jump into the protected dashboard as soon as your session is active.",
-  },
-];
-
 function StatusMessage({ tone = "neutral", children }) {
   const styles = {
     success: "border-emerald-200 bg-emerald-50 text-emerald-800",
     error: "border-rose-200 bg-rose-50 text-rose-700",
-    neutral: "border-slate-200 bg-slate-50 text-slate-700",
+    neutral: "border-stone-200 bg-stone-50 text-stone-700",
   };
 
   return (
@@ -110,7 +87,7 @@ export default function AdminLogin() {
           if (err.response?.status === 404) {
             setAdmins([meResponse.data]);
             setAdminListNotice(
-              "This deployed backend is missing the latest admin list route. You can still use the page, but the backend should be redeployed to unlock the full admin list."
+              "Backend needs redeploy for full admin list support."
             );
           } else {
             throw err;
@@ -213,9 +190,7 @@ export default function AdminLogin() {
       } catch (err) {
         if (err.response?.status === 404) {
           await api.post("/admin/create", createAdminForm);
-          setAdminListNotice(
-            "Admin was added using the older create route on the deployed backend. Redeploy the backend to restore the protected super-admin route."
-          );
+          setAdminListNotice("Backend needs redeploy for protected admin create.");
         } else {
           throw err;
         }
@@ -225,7 +200,7 @@ export default function AdminLogin() {
       setCreateAdminState({
         loading: false,
         error: "",
-        success: "New admin added successfully.",
+        success: "Admin added successfully.",
       });
       await loadAdminPanel();
     } catch (err) {
@@ -302,16 +277,14 @@ export default function AdminLogin() {
         success: "",
         error:
           err.response?.status === 404
-            ? "The deployed backend does not support admin editing yet. Redeploy the backend first."
+            ? "Backend does not support admin editing yet."
             : err.response?.data?.message || "Could not update this admin.",
       });
     }
   };
 
   const handleDeleteAdmin = async (admin) => {
-    const confirmed = window.confirm(
-      `Remove ${admin.email} from admin access?`
-    );
+    const confirmed = window.confirm(`Remove ${admin.email} from admin access?`);
     if (!confirmed || adminActionState.loading) return;
 
     setAdminActionState({
@@ -334,7 +307,7 @@ export default function AdminLogin() {
         success: "",
         error:
           err.response?.status === 404
-            ? "The deployed backend does not support admin removal yet. Redeploy the backend first."
+            ? "Backend does not support admin removal yet."
             : err.response?.data?.message || "Could not remove this admin.",
       });
     }
@@ -342,517 +315,286 @@ export default function AdminLogin() {
 
   const isSuperAdmin = currentAdmin?.role === "super_admin";
 
+  const shellClass = isDarkMode
+    ? "border-slate-800/80 bg-slate-950/75 text-slate-100 shadow-[0_30px_100px_rgba(2,6,23,0.5)]"
+    : "border-[#eadfce] bg-[#fffdf8] text-slate-900 shadow-[0_24px_80px_rgba(120,113,108,0.10)]";
+
+  const inputClass = isDarkMode
+    ? "border-slate-700 bg-slate-950 text-slate-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20"
+    : "border-stone-200 bg-[#fffaf2] text-slate-900 focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100";
+
   return (
     <section
-      className={`relative min-h-screen overflow-hidden px-3 py-12 sm:px-6 sm:py-20 ${
+      className={`min-h-screen px-3 py-12 sm:px-6 sm:py-20 ${
         isDarkMode
-          ? "bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.14),_transparent_38%),linear-gradient(180deg,#020617_0%,#0f172a_52%,#020617_100%)]"
-          : "bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.12),_transparent_34%),linear-gradient(180deg,#eef2ff_0%,#f8fafc_42%,#ffffff_100%)]"
+          ? "bg-[linear-gradient(180deg,#020617_0%,#0f172a_52%,#020617_100%)]"
+          : "bg-[linear-gradient(180deg,#f8f2e8_0%,#fbf7f0_46%,#fffdf8_100%)]"
       }`}
     >
-      <div
-        className={`absolute left-[-7rem] top-16 h-56 w-56 rounded-full blur-3xl ${
-          isDarkMode ? "bg-indigo-500/15" : "bg-indigo-300/40"
-        }`}
-      />
-      <div
-        className={`absolute bottom-10 right-[-4rem] h-72 w-72 rounded-full blur-3xl ${
-          isDarkMode ? "bg-cyan-400/10" : "bg-sky-200/45"
-        }`}
-      />
+      <div className="mx-auto max-w-5xl space-y-6">
+        <div className={`rounded-[1.8rem] border p-5 sm:p-7 ${shellClass}`}>
+          <div className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white/70 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-stone-700">
+            <LockKeyhole className="h-4 w-4" />
+            Admin
+          </div>
 
-      <div className="relative mx-auto max-w-7xl">
-        <div className="grid gap-5 sm:gap-8 xl:grid-cols-[1.05fr_0.95fr]">
-          <section
-            className={`rounded-[1.75rem] border p-5 sm:rounded-[2.25rem] sm:p-10 ${
-              isDarkMode
-                ? "border-slate-800/80 bg-slate-950/70 text-slate-100 shadow-[0_30px_100px_rgba(2,6,23,0.5)] backdrop-blur"
-                : "border-white/80 bg-white/85 text-slate-900 shadow-[0_30px_100px_rgba(99,102,241,0.12)] backdrop-blur"
-            }`}
-          >
-            <div
-              className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.28em] ${
-                isDarkMode
-                  ? "border-slate-700 bg-slate-900 text-indigo-300"
-                  : "border-indigo-100 bg-indigo-50 text-indigo-700"
-              }`}
-            >
-              <ShieldCheck className="h-4 w-4" />
-              Admin Console
-            </div>
+          <h1 className="mt-4 text-3xl font-extrabold tracking-tight sm:text-4xl">
+            IIITians Network Admin
+          </h1>
+          <p className={`mt-3 text-sm leading-7 ${isDarkMode ? "text-slate-300" : "text-slate-600"}`}>
+            Simple access for admin operations.
+          </p>
 
-            <h1 className="mt-5 max-w-2xl text-3xl font-extrabold leading-tight sm:mt-6 sm:text-5xl">
-              Secure control panel for the IIITians Network team.
-            </h1>
+          {isAdminLoggedIn && (
+            <div className="mt-5 flex flex-col gap-3 rounded-[1.4rem] border border-emerald-200 bg-emerald-50/80 p-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <div className="text-sm font-semibold text-emerald-700">
+                  {adminPanelLoading ? "Checking session..." : currentAdmin?.email || "Admin"}
+                </div>
+                {!adminPanelLoading && currentAdmin?.role && (
+                  <div className="mt-1 text-sm text-emerald-800/80">
+                    {currentAdmin.role.replace("_", " ")}
+                  </div>
+                )}
+              </div>
 
-            <p
-              className={`mt-4 max-w-2xl text-sm leading-7 sm:mt-5 sm:text-lg sm:leading-8 ${
-                isDarkMode ? "text-slate-300" : "text-slate-600"
-              }`}
-            >
-              Sign in to access protected admin routes. If your account is a
-              super admin, you can also create and monitor other admin accounts
-              from the same page.
-            </p>
-
-            <div className="mt-7 grid gap-3 sm:mt-10 sm:grid-cols-3 sm:gap-4">
-              {infoCards.map((card) => (
-                <div
-                  key={card.title}
-                  className={`rounded-2xl border p-4 sm:rounded-3xl sm:p-5 ${
-                    isDarkMode
-                      ? "border-slate-800 bg-slate-900/80"
-                      : "border-indigo-100 bg-white"
-                  }`}
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => navigate("/legacy/admin")}
+                  className="rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700"
                 >
-                  <div className="text-sm font-semibold text-indigo-600">
-                    {card.title}
-                  </div>
-                  <div
-                    className={`mt-2 text-sm leading-6 sm:mt-3 sm:leading-7 ${
-                      isDarkMode ? "text-slate-300" : "text-slate-600"
-                    }`}
-                  >
-                    {card.description}
-                  </div>
-                </div>
-              ))}
+                  Dashboard
+                </button>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="rounded-full border border-stone-200 bg-white px-4 py-2 text-sm font-semibold text-stone-700 transition hover:bg-stone-50"
+                >
+                  Logout
+                </button>
+              </div>
             </div>
+          )}
+        </div>
 
-            {isAdminLoggedIn && (
-              <div
-                className={`mt-7 rounded-[1.5rem] border p-4 sm:mt-10 sm:rounded-[2rem] sm:p-6 ${
-                  isDarkMode
-                    ? "border-emerald-900/60 bg-emerald-950/30"
-                    : "border-emerald-200 bg-emerald-50"
-                }`}
-              >
-                <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                  <div>
-                    <div className="text-sm font-semibold text-emerald-600">
-                      Active session
-                    </div>
-                    <div
-                      className={`mt-1 break-all text-base font-semibold sm:text-lg ${
-                        isDarkMode ? "text-slate-100" : "text-slate-900"
-                      }`}
-                    >
-                      {adminPanelLoading
-                        ? "Checking your admin session..."
-                        : currentAdmin?.email || "Admin"}
-                    </div>
-                    {!adminPanelLoading && currentAdmin?.role && (
-                      <div
-                        className={`mt-1 text-sm ${
-                          isDarkMode ? "text-slate-300" : "text-slate-600"
-                        }`}
-                      >
-                        Role: {currentAdmin.role.replace("_", " ")}
-                      </div>
-                    )}
-                  </div>
+        <div className={`rounded-[1.8rem] border p-5 sm:p-7 ${shellClass}`}>
+          <div className="mb-5 flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 text-white">
+              <LockKeyhole className="h-5 w-5" />
+            </div>
+            <h2 className="text-xl font-semibold">Sign in</h2>
+          </div>
 
-                  <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:gap-3">
-                    <button
-                      type="button"
-                      onClick={() => navigate("/alumni/admin")}
-                      className="inline-flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 sm:px-5 sm:py-3"
-                    >
-                      Open dashboard
-                      <ArrowRight className="h-4 w-4" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleLogout}
-                      className={`rounded-full px-4 py-2.5 text-sm font-semibold transition sm:px-5 sm:py-3 ${
-                        isDarkMode
-                          ? "border border-slate-700 bg-slate-900 text-slate-100 hover:bg-slate-800"
-                          : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-                      }`}
-                    >
-                      Logout
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-          </section>
+          {adminPanelError && <StatusMessage tone="error">{adminPanelError}</StatusMessage>}
+          {adminListNotice && <StatusMessage>{adminListNotice}</StatusMessage>}
+          {error && <StatusMessage tone="error">{error}</StatusMessage>}
 
-          <section className="space-y-6">
-            <div
-              className={`rounded-[1.75rem] border p-5 sm:rounded-[2.25rem] sm:p-8 ${
-                isDarkMode
-                  ? "border-slate-800/80 bg-slate-950/75 shadow-[0_30px_100px_rgba(2,6,23,0.5)] backdrop-blur"
-                  : "border-white/80 bg-white/90 shadow-[0_30px_100px_rgba(99,102,241,0.12)] backdrop-blur"
-              }`}
+          <form onSubmit={submit} className="mt-5 space-y-4">
+            <input
+              type="email"
+              name="email"
+              placeholder="admin@iiitians.in"
+              value={form.email}
+              onChange={handleChange}
+              disabled={loading}
+              required
+              className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition sm:text-base ${inputClass}`}
+            />
+
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              value={form.password}
+              onChange={handleChange}
+              disabled={loading}
+              required
+              className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition sm:text-base ${inputClass}`}
+            />
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full rounded-2xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60 sm:text-base"
             >
-                <div className="mb-5 flex items-center gap-3 sm:mb-6">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 text-white sm:h-12 sm:w-12 sm:rounded-2xl">
-                    <LockKeyhole className="h-5 w-5" />
+              {loading ? "Signing in..." : "Continue"}
+            </button>
+          </form>
+        </div>
+
+        {isAdminLoggedIn && isSuperAdmin && (
+          <div className="grid gap-5 xl:grid-cols-[0.95fr_1.05fr]">
+            <div className={`rounded-[1.8rem] border p-5 sm:p-7 ${shellClass}`}>
+              <div className="mb-5 flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 text-white">
+                  <UserPlus className="h-5 w-5" />
                 </div>
-                <div>
-                  <div className="text-xs font-semibold uppercase tracking-[0.24em] text-indigo-600">
-                    Access
-                  </div>
-                  <h2
-                    className={`text-xl font-semibold sm:text-2xl ${
-                      isDarkMode ? "text-slate-100" : "text-slate-900"
-                    }`}
-                  >
-                    Sign in to continue
-                  </h2>
-                </div>
+                <h2 className="text-xl font-semibold">Add admin</h2>
               </div>
 
-              {adminPanelError && <StatusMessage tone="error">{adminPanelError}</StatusMessage>}
-              {adminListNotice && <StatusMessage>{adminListNotice}</StatusMessage>}
-              {error && <StatusMessage tone="error">{error}</StatusMessage>}
+              {createAdminState.error && (
+                <StatusMessage tone="error">{createAdminState.error}</StatusMessage>
+              )}
+              {createAdminState.success && (
+                <StatusMessage tone="success">{createAdminState.success}</StatusMessage>
+              )}
 
-              <form onSubmit={submit} className="mt-5 space-y-4 sm:space-y-5">
-                <div>
-                  <label
-                    className={`mb-2 block text-sm font-medium ${
-                      isDarkMode ? "text-slate-300" : "text-slate-700"
-                    }`}
-                  >
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    name="email"
-                    placeholder="admin@iiitians.in"
-                    value={form.email}
-                    onChange={handleChange}
-                    disabled={loading}
-                    required
-                    className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition disabled:opacity-70 sm:text-base ${
-                      isDarkMode
-                        ? "border-slate-700 bg-slate-950 text-slate-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20"
-                        : "border-slate-200 bg-slate-50 text-slate-900 focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100"
-                    }`}
-                  />
-                </div>
+              <form onSubmit={handleCreateAdmin} className="mt-5 space-y-4">
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="newadmin@iiitians.in"
+                  value={createAdminForm.email}
+                  onChange={handleCreateAdminChange}
+                  required
+                  className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition sm:text-base ${inputClass}`}
+                />
 
-                <div>
-                  <label
-                    className={`mb-2 block text-sm font-medium ${
-                      isDarkMode ? "text-slate-300" : "text-slate-700"
-                    }`}
-                  >
-                    Password
-                  </label>
-                  <input
-                    type="password"
-                    name="password"
-                    placeholder="Enter your password"
-                    value={form.password}
-                    onChange={handleChange}
-                    disabled={loading}
-                    required
-                    className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition disabled:opacity-70 sm:text-base ${
-                      isDarkMode
-                        ? "border-slate-700 bg-slate-950 text-slate-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20"
-                        : "border-slate-200 bg-slate-50 text-slate-900 focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100"
-                    }`}
-                  />
-                </div>
+                <input
+                  type="password"
+                  name="password"
+                  placeholder="Password"
+                  value={createAdminForm.password}
+                  onChange={handleCreateAdminChange}
+                  required
+                  className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition sm:text-base ${inputClass}`}
+                />
 
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={createAdminState.loading}
                   className="w-full rounded-2xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60 sm:text-base"
                 >
-                  {loading ? "Signing in..." : "Continue to admin"}
+                  {createAdminState.loading ? "Adding..." : "Add admin"}
                 </button>
               </form>
-
-              <div
-                className={`mt-5 grid gap-3 sm:mt-6 sm:grid-cols-2 ${
-                  isDarkMode ? "text-slate-300" : "text-slate-600"
-                }`}
-              >
-                <button
-                  type="button"
-                  onClick={() => navigate("/alumni/admin")}
-                  className={`rounded-2xl border px-4 py-3.5 text-left transition sm:py-4 ${
-                    isDarkMode
-                      ? "border-slate-800 bg-slate-900/80 hover:border-indigo-500/60"
-                      : "border-slate-200 bg-slate-50 hover:border-indigo-300 hover:bg-white"
-                  }`}
-                >
-                  <div className="text-sm font-semibold text-indigo-600">
-                    Network Legacy
-                  </div>
-                  <div className="mt-1 text-sm">
-                    Review pending, approved, and rejected legacy profiles.
-                  </div>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => navigate("/placement/admin")}
-                  className={`rounded-2xl border px-4 py-3.5 text-left transition sm:py-4 ${
-                    isDarkMode
-                      ? "border-slate-800 bg-slate-900/80 hover:border-indigo-500/60"
-                      : "border-slate-200 bg-slate-50 hover:border-indigo-300 hover:bg-white"
-                  }`}
-                >
-                  <div className="text-sm font-semibold text-indigo-600">
-                    Placement data
-                  </div>
-                  <div className="mt-1 text-sm">
-                    Jump into placement updates after choosing a college.
-                  </div>
-                </button>
-              </div>
             </div>
 
-            {isAdminLoggedIn && isSuperAdmin && (
-              <div className="grid gap-5 sm:gap-6 xl:grid-cols-[0.95fr_1.05fr]">
-                <div
-                  className={`rounded-[1.75rem] border p-5 sm:rounded-[2.25rem] sm:p-8 ${
-                    isDarkMode
-                      ? "border-slate-800/80 bg-slate-950/75 shadow-[0_30px_100px_rgba(2,6,23,0.5)] backdrop-blur"
-                      : "border-white/80 bg-white/90 shadow-[0_30px_100px_rgba(99,102,241,0.12)] backdrop-blur"
-                  }`}
-                >
-                  <div className="mb-5 flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 text-white sm:h-12 sm:w-12 sm:rounded-2xl">
-                      <UserPlus className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <div className="text-xs font-semibold uppercase tracking-[0.24em] text-indigo-600">
-                        Super Admin
-                      </div>
-                      <h2
-                        className={`text-xl font-semibold sm:text-2xl ${
-                          isDarkMode ? "text-slate-100" : "text-slate-900"
-                        }`}
-                      >
-                        Add admin
-                      </h2>
-                    </div>
-                  </div>
-
-                  {createAdminState.error && (
-                    <StatusMessage tone="error">
-                      {createAdminState.error}
-                    </StatusMessage>
-                  )}
-                  {createAdminState.success && (
-                    <StatusMessage tone="success">
-                      {createAdminState.success}
-                    </StatusMessage>
-                  )}
-
-                  <form onSubmit={handleCreateAdmin} className="mt-5 space-y-4">
-                    <input
-                      type="email"
-                      name="email"
-                      placeholder="newadmin@iiitians.in"
-                      value={createAdminForm.email}
-                      onChange={handleCreateAdminChange}
-                      required
-                      className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition sm:text-base ${
-                        isDarkMode
-                          ? "border-slate-700 bg-slate-950 text-slate-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20"
-                          : "border-slate-200 bg-slate-50 text-slate-900 focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100"
-                      }`}
-                    />
-
-                    <input
-                      type="password"
-                      name="password"
-                      placeholder="Set a password"
-                      value={createAdminForm.password}
-                      onChange={handleCreateAdminChange}
-                      required
-                      className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition sm:text-base ${
-                        isDarkMode
-                          ? "border-slate-700 bg-slate-950 text-slate-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20"
-                          : "border-slate-200 bg-slate-50 text-slate-900 focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100"
-                      }`}
-                    />
-
-                    <button
-                      type="submit"
-                      disabled={createAdminState.loading}
-                      className="w-full rounded-2xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60 sm:text-base"
-                    >
-                      {createAdminState.loading ? "Adding admin..." : "Add admin"}
-                    </button>
-                  </form>
+            <div className={`rounded-[1.8rem] border p-5 sm:p-7 ${shellClass}`}>
+              <div className="mb-5 flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900 text-white">
+                  <Users className="h-5 w-5" />
                 </div>
-
-                <div
-                  className={`rounded-[1.75rem] border p-5 sm:rounded-[2.25rem] sm:p-8 ${
-                    isDarkMode
-                      ? "border-slate-800/80 bg-slate-950/75 shadow-[0_30px_100px_rgba(2,6,23,0.5)] backdrop-blur"
-                      : "border-white/80 bg-white/90 shadow-[0_30px_100px_rgba(99,102,241,0.12)] backdrop-blur"
-                  }`}
-                >
-                  <div className="mb-5 flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900 text-white sm:h-12 sm:w-12 sm:rounded-2xl">
-                      <Users className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <div className="text-xs font-semibold uppercase tracking-[0.24em] text-indigo-600">
-                        Admin Control
-                      </div>
-                      <h2
-                        className={`text-xl font-semibold sm:text-2xl ${
-                          isDarkMode ? "text-slate-100" : "text-slate-900"
-                        }`}
-                      >
-                        Edit or remove admins
-                      </h2>
-                    </div>
-                  </div>
-
-                  {adminActionState.error && (
-                    <StatusMessage tone="error">
-                      {adminActionState.error}
-                    </StatusMessage>
-                  )}
-                  {adminActionState.success && (
-                    <StatusMessage tone="success">
-                      {adminActionState.success}
-                    </StatusMessage>
-                  )}
-
-                  <div className="mt-5 space-y-3">
-                    {admins.map((admin) => {
-                      const isEditing = editAdminId === admin.id;
-                      const isSelf = currentAdmin?.id === admin.id;
-
-                      return (
-                        <div
-                          key={admin.id}
-                          className={`rounded-2xl border px-4 py-3.5 sm:py-4 ${
-                            isDarkMode
-                              ? "border-slate-800 bg-slate-950 text-slate-200"
-                              : "border-slate-200 bg-slate-50 text-slate-700"
-                          }`}
-                        >
-                          {isEditing ? (
-                            <div className="space-y-3">
-                              <input
-                                type="email"
-                                name="email"
-                                value={editAdminForm.email}
-                                onChange={handleEditAdminChange}
-                                placeholder="Admin email"
-                                className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition sm:text-base ${
-                                  isDarkMode
-                                    ? "border-slate-700 bg-slate-900 text-slate-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20"
-                                    : "border-slate-200 bg-white text-slate-900 focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100"
-                                }`}
-                              />
-
-                              <select
-                                name="role"
-                                value={editAdminForm.role}
-                                onChange={handleEditAdminChange}
-                                className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition sm:text-base ${
-                                  isDarkMode
-                                    ? "border-slate-700 bg-slate-900 text-slate-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20"
-                                    : "border-slate-200 bg-white text-slate-900 focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100"
-                                }`}
-                              >
-                                <option value="admin">Admin</option>
-                                <option value="super_admin">Super admin</option>
-                              </select>
-
-                              <input
-                                type="password"
-                                name="password"
-                                value={editAdminForm.password}
-                                onChange={handleEditAdminChange}
-                                placeholder="New password (optional)"
-                                className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition sm:text-base ${
-                                  isDarkMode
-                                    ? "border-slate-700 bg-slate-900 text-slate-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20"
-                                    : "border-slate-200 bg-white text-slate-900 focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100"
-                                }`}
-                              />
-
-                              <div className="flex flex-wrap gap-2">
-                                <button
-                                  type="button"
-                                  onClick={() => handleUpdateAdmin(admin.id)}
-                                  disabled={adminActionState.loading}
-                                  className="inline-flex items-center gap-2 rounded-full bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
-                                >
-                                  <UserCog className="h-4 w-4" />
-                                  Save
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={cancelEditAdmin}
-                                  className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-                                    isDarkMode
-                                      ? "border border-slate-700 bg-slate-900 text-slate-100 hover:bg-slate-800"
-                                      : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-100"
-                                  }`}
-                                >
-                                  Cancel
-                                </button>
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="space-y-3">
-                              <div className="flex items-start justify-between gap-3">
-                                <div>
-                                  <div className="break-all font-semibold">{admin.email}</div>
-                                  <div className="mt-1 text-sm capitalize text-indigo-600">
-                                    {admin.role.replace("_", " ")}
-                                    {isSelf ? " · You" : ""}
-                                  </div>
-                                </div>
-                                <div
-                                  className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] ${
-                                    admin.role === "super_admin"
-                                      ? "bg-amber-100 text-amber-800"
-                                      : "bg-slate-200 text-slate-700"
-                                  }`}
-                                >
-                                  {admin.role === "super_admin" ? "Owner" : "Admin"}
-                                </div>
-                              </div>
-
-                              <div className="flex flex-wrap gap-2">
-                                <button
-                                  type="button"
-                                  onClick={() => startEditAdmin(admin)}
-                                  className="inline-flex items-center gap-2 rounded-full bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700"
-                                >
-                                  <UserCog className="h-4 w-4" />
-                                  Edit
-                                </button>
-
-                                {!isSelf && (
-                                  <button
-                                    type="button"
-                                    onClick={() => handleDeleteAdmin(admin)}
-                                    disabled={adminActionState.loading}
-                                    className="inline-flex items-center gap-2 rounded-full border border-rose-200 bg-white px-4 py-2 text-sm font-medium text-rose-700 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-60"
-                                  >
-                                    <Trash2 className="h-4 w-4" />
-                                    Remove
-                                  </button>
-                                )}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
+                <h2 className="text-xl font-semibold">Admins</h2>
               </div>
-            )}
-          </section>
-        </div>
+
+              {adminActionState.error && (
+                <StatusMessage tone="error">{adminActionState.error}</StatusMessage>
+              )}
+              {adminActionState.success && (
+                <StatusMessage tone="success">{adminActionState.success}</StatusMessage>
+              )}
+
+              <div className="mt-5 space-y-3">
+                {admins.map((admin) => {
+                  const isEditing = editAdminId === admin.id;
+                  const isSelf = currentAdmin?.id === admin.id;
+
+                  return (
+                    <div
+                      key={admin.id}
+                      className={`rounded-2xl border px-4 py-4 ${
+                        isDarkMode
+                          ? "border-slate-800 bg-slate-950 text-slate-200"
+                          : "border-stone-200 bg-[#fffaf2] text-stone-700"
+                      }`}
+                    >
+                      {isEditing ? (
+                        <div className="space-y-3">
+                          <input
+                            type="email"
+                            name="email"
+                            value={editAdminForm.email}
+                            onChange={handleEditAdminChange}
+                            placeholder="Admin email"
+                            className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition sm:text-base ${inputClass}`}
+                          />
+
+                          <select
+                            name="role"
+                            value={editAdminForm.role}
+                            onChange={handleEditAdminChange}
+                            className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition sm:text-base ${inputClass}`}
+                          >
+                            <option value="admin">Admin</option>
+                            <option value="super_admin">Super admin</option>
+                          </select>
+
+                          <input
+                            type="password"
+                            name="password"
+                            value={editAdminForm.password}
+                            onChange={handleEditAdminChange}
+                            placeholder="New password (optional)"
+                            className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition sm:text-base ${inputClass}`}
+                          />
+
+                          <div className="flex flex-wrap gap-2">
+                            <button
+                              type="button"
+                              onClick={() => handleUpdateAdmin(admin.id)}
+                              disabled={adminActionState.loading}
+                              className="inline-flex items-center gap-2 rounded-full bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                              <UserCog className="h-4 w-4" />
+                              Save
+                            </button>
+                            <button
+                              type="button"
+                              onClick={cancelEditAdmin}
+                              className="rounded-full border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition hover:bg-stone-50"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="space-y-3">
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <div className="break-all font-semibold">{admin.email}</div>
+                              <div className="mt-1 text-sm capitalize text-indigo-600">
+                                {admin.role.replace("_", " ")}
+                                {isSelf ? " - You" : ""}
+                              </div>
+                            </div>
+                            <div className="rounded-full bg-stone-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-stone-700">
+                              {admin.role === "super_admin" ? "Owner" : "Admin"}
+                            </div>
+                          </div>
+
+                          <div className="flex flex-wrap gap-2">
+                            <button
+                              type="button"
+                              onClick={() => startEditAdmin(admin)}
+                              className="inline-flex items-center gap-2 rounded-full bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700"
+                            >
+                              <UserCog className="h-4 w-4" />
+                              Edit
+                            </button>
+
+                            {!isSelf && (
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteAdmin(admin)}
+                                disabled={adminActionState.loading}
+                                className="inline-flex items-center gap-2 rounded-full border border-rose-200 bg-white px-4 py-2 text-sm font-medium text-rose-700 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-60"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                                Remove
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );

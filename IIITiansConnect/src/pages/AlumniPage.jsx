@@ -191,7 +191,7 @@ export default function AlumniPage() {
               isDarkMode ? "text-slate-100" : "text-slate-900"
             }`}
           >
-            Build the IIITians Network Legacy with trusted alumni stories.
+            Network Legacy
           </h1>
 
           <p
@@ -199,9 +199,7 @@ export default function AlumniPage() {
               isDarkMode ? "text-slate-300" : "text-slate-600"
             }`}
           >
-            Search legacy profiles by batch, post, company, role, or institute.
-            Every new profile request is reviewed by an admin before it becomes
-            part of the public network.
+            "Once a member of the network, always a part of its legacy."
           </p>
 
           <div className="mt-6 grid gap-3 sm:mt-8 sm:grid-cols-2 xl:grid-cols-4">

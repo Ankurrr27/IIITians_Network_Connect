@@ -1,4 +1,4 @@
-import { Linkedin, Github, Instagram, Twitter, Globe } from "lucide-react";
+import { Github, Globe, Instagram, Linkedin, Twitter } from "lucide-react";
 import { useState } from "react";
 
 const socialItems = [
@@ -13,25 +13,40 @@ const BigTeamCard = ({ name, role, college, image, desc, links = {} }) => {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="group overflow-hidden rounded-[1.35rem] border border-slate-200 bg-white  shadow-[0_18px_50px_rgba(15,23,42,0.06)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_70px_rgba(79,70,229,0.12)] sm:rounded-[1.75rem] sm:p-5">
-      <div className="flex items-start gap-3 sm:block">
-        <div className="relative h-24 w-20 flex-shrink-0 overflow-hidden rounded-[1rem] bg-indigo-50 sm:h-64 sm:w-full ">
-          <img src={image} alt={name} className="h-full w-full object-cover" />
-          <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-slate-950/20 to-transparent sm:h-24" />
+    <article className="group overflow-hidden rounded-[1.45rem] border border-slate-200 bg-white shadow-[0_18px_50px_rgba(15,23,42,0.06)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_70px_rgba(79,70,229,0.12)] sm:rounded-[1.9rem]">
+      <div className="flex flex-col sm:flex-col">
+        <div className="relative h-52 overflow-hidden bg-indigo-50 sm:h-64 lg:h-72">
+          <img
+            src={image}
+            alt={name}
+            className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
+          />
+          <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-slate-950/55 via-slate-950/15 to-transparent" />
+
+          <div className="absolute inset-x-0 bottom-0 p-3.5 sm:hidden">
+            <h3 className="text-base font-semibold leading-tight text-white">
+              {name}
+            </h3>
+            <p className="mt-1 text-[11px] font-medium text-white/85">
+              {role} - {college}
+            </p>
+          </div>
         </div>
 
-        <div className="min-w-0 flex-1 sm:mt-5">
-          <h3 className="text-sm font-semibold leading-tight text-slate-900 sm:text-2xl">
-            {name}
-          </h3>
+        <div className="p-3.5 sm:p-5">
+          <div className="hidden sm:block">
+            <h3 className="text-2xl font-semibold leading-tight text-slate-900">
+              {name}
+            </h3>
 
-          <p className="mt-1 text-[11px] font-medium leading-4 text-indigo-600 sm:text-sm sm:leading-5">
-            {role} · {college}
-          </p>
+            <p className="mt-1 text-sm font-medium leading-5 text-indigo-600">
+              {role} - {college}
+            </p>
+          </div>
 
           <p
-            className={`mt-2 text-[12px] leading-5 text-slate-600 sm:mt-3 sm:text-[15px] sm:leading-7 ${
-              expanded ? "" : "line-clamp-3 sm:line-clamp-5"
+            className={`text-[13px] leading-6 text-slate-600 sm:mt-4 sm:text-[15px] sm:leading-7 ${
+              expanded ? "" : "line-clamp-5 sm:line-clamp-5"
             }`}
           >
             {desc}
@@ -40,31 +55,31 @@ const BigTeamCard = ({ name, role, college, image, desc, links = {} }) => {
           {desc?.length > 80 && (
             <button
               onClick={() => setExpanded((prev) => !prev)}
-              className="mt-1.5 text-xs font-medium text-indigo-600 transition hover:text-indigo-700 sm:mt-2 sm:text-sm"
+              className="mt-2 text-sm font-medium text-indigo-600 transition hover:text-indigo-700"
             >
               {expanded ? "See less" : "See more"}
             </button>
           )}
+
+          <div className="mt-4 flex flex-wrap gap-2 sm:mt-5">
+            {socialItems.map(({ key, icon: Icon, label }) =>
+              links[key] ? (
+                <a
+                  key={key}
+                  href={links[key]}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-700 transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 sm:text-sm"
+                >
+                  <Icon size={14} />
+                  <span>{label}</span>
+                </a>
+              ) : null
+            )}
+          </div>
         </div>
       </div>
-
-      <div className="mt-3 flex flex-wrap gap-2 sm:mt-5">
-        {socialItems.map(({ key, icon: Icon, label }) =>
-          links[key] ? (
-            <a
-              key={key}
-              href={links[key]}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-[11px] font-medium text-slate-700 transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 sm:gap-2 sm:px-3 sm:py-2 sm:text-sm"
-            >
-              <Icon size={14} />
-              <span>{label}</span>
-            </a>
-          ) : null
-        )}
-      </div>
-    </div>
+    </article>
   );
 };
 

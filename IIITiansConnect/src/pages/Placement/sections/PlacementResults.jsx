@@ -5,7 +5,7 @@ import PlacementFaqs from "../shared/PlacementFaqs";
 
 export default function PlacementResults({ data, year, yearData }) {
   return (
-    <div className="space-y-12">
+    <div className="space-y-8 sm:space-y-12">
       <StatsGrid
         yearData={yearData}
         allYearsData={!year ? data.yearlyPlacements : null}

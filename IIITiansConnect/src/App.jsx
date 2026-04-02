@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route, useLocation, Navigate, useParams } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import TeamPage from "./pages/Team/TeamPage";
 
@@ -25,11 +25,22 @@ import ScrollToTop from "./components/ScrollToTop.jsx";
 import AlumniAdminPage from "./pages/AlumniAdminPage.jsx";
 import Alumni from "./pages/AlumniPage.jsx";
 
+function LegacyAdminRedirect() {
+  const { status } = useParams();
+
+  return (
+    <Navigate
+      to={status ? `/legacy/admin/${status}` : "/legacy/admin"}
+      replace
+    />
+  );
+}
+
 function App() {
   const [loading, setLoading] = useState(true);
   const location = useLocation();
   const isAdminPage =
-    location.pathname === "/admin" || location.pathname.endsWith("/admin");
+    location.pathname === "/admin" || location.pathname.includes("/admin");
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -55,7 +66,8 @@ function App() {
           <Route path="/colleges" element={<Colleges />} />
           <Route path="/events" element={<PublicEvents />} />
           <Route path="/placement" element={<Placement />} />
-          <Route path="/alumni" element={<Alumni />} />
+          <Route path="/legacy" element={<Alumni />} />
+          <Route path="/alumni" element={<Navigate to="/legacy" replace />} />
           <Route path="/team" element={<TeamPage />} />
           <Route path="/contact" element={<ContactPage />} />
 
@@ -65,8 +77,10 @@ function App() {
           {/* 🔐 ADMIN PROTECTED ROUTES */}
           <Route element={<RequireAdmin />}>
             <Route element={<AdminLayout />}>
-              <Route path="/alumni/admin" element={<AlumniAdminPage />} />
-              <Route path="/alumni/admin/:status" element={<AlumniAdminPage />} />
+              <Route path="/legacy/admin" element={<AlumniAdminPage />} />
+              <Route path="/legacy/admin/:status" element={<AlumniAdminPage />} />
+              <Route path="/alumni/admin" element={<LegacyAdminRedirect />} />
+              <Route path="/alumni/admin/:status" element={<LegacyAdminRedirect />} />
               <Route path="/team/admin" element={<TeamAdmin />} />
               <Route path="/placement/admin" element={<PlacementPage />} />
               <Route path="/events/admin" element={<Events />} />

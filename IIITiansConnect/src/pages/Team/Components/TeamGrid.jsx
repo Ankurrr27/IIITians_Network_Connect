@@ -20,14 +20,43 @@ const leadPriority = [
 ];
 
 function getPriorityIndex(role = "", priorityList = []) {
-  const normalizedRole = role.toLowerCase();
-  const index = priorityList.findIndex((item) => normalizedRole.includes(item));
+  const normalizedRole = role.toLowerCase().trim().replace(/\s+/g, " ");
+
+  const matchedItem = [...priorityList]
+    .map((item, index) => ({ item, index }))
+    .sort((a, b) => b.item.length - a.item.length)
+    .find(({ item }) => {
+      const normalizedItem = item.toLowerCase().trim();
+      const escapedItem = normalizedItem.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      return new RegExp(`\\b${escapedItem}\\b`, "i").test(normalizedRole);
+    });
+
+  if (!matchedItem) {
+    return priorityList.length;
+  }
+
+  const index = priorityList.findIndex((item) => {
+    const normalizedItem = item.toLowerCase().trim();
+    const escapedItem = normalizedItem.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    return (
+      new RegExp(`\\b${escapedItem}\\b`, "i").test(normalizedRole) &&
+      normalizedItem === matchedItem.item.toLowerCase().trim()
+    );
+  });
+
   return index === -1 ? priorityList.length : index;
 }
 
-function compareMembers(a, b, priorityList = []) {
+function compareMembers(a, b, priorityList = [], options = {}) {
+  const { priorityFirst = false } = options;
   const orderA = Number.isFinite(Number(a.order)) ? Number(a.order) : null;
   const orderB = Number.isFinite(Number(b.order)) ? Number(b.order) : null;
+  const priorityA = getPriorityIndex(a.role, priorityList);
+  const priorityB = getPriorityIndex(b.role, priorityList);
+
+  if (priorityFirst && priorityA !== priorityB) {
+    return priorityA - priorityB;
+  }
 
   if (orderA !== null && orderB !== null && orderA !== orderB) {
     return orderA - orderB;
@@ -35,9 +64,6 @@ function compareMembers(a, b, priorityList = []) {
 
   if (orderA !== null && orderB === null) return -1;
   if (orderA === null && orderB !== null) return 1;
-
-  const priorityA = getPriorityIndex(a.role, priorityList);
-  const priorityB = getPriorityIndex(b.role, priorityList);
 
   if (priorityA !== priorityB) {
     return priorityA - priorityB;
@@ -49,7 +75,7 @@ function compareMembers(a, b, priorityList = []) {
 export default function TeamGrid({ members = [] }) {
   const execs = members
     .filter((member) => member.roleType === "EXEC")
-    .sort((a, b) => compareMembers(a, b, execPriority));
+    .sort((a, b) => compareMembers(a, b, execPriority, { priorityFirst: true }));
 
   const leads = members
     .filter((member) => member.roleType === "LEAD")
@@ -59,14 +85,6 @@ export default function TeamGrid({ members = [] }) {
     .filter((member) => member.roleType === "MEMBER")
     .sort((a, b) => compareMembers(a, b));
 
-  const featuredExecutive =
-    execs.find((member) => member.role?.toLowerCase().includes("president")) ||
-    execs[0] ||
-    null;
-  const remainingExecs = featuredExecutive
-    ? execs.filter((member) => member._id !== featuredExecutive._id)
-    : execs;
-
   if (!members.length) {
     return (
       <div className="py-20 text-center text-slate-500">No team members found.</div>
@@ -74,36 +92,16 @@ export default function TeamGrid({ members = [] }) {
   }
 
   return (
-    <div className="space-y-14">
-      {featuredExecutive && (
+    <div className="space-y-12 sm:space-y-14">
+      {execs.length > 0 && (
         <section>
-          <div className="mb-5 text-center">
-            <p className="text-sm font-semibold uppercase tracking-[0.24em] text-indigo-600">
-              Leadership Hierarchy
-            </p>
-            <h2 className="mt-2 text-3xl font-semibold text-slate-900">
-              President
-            </h2>
-          </div>
-
-          <div className="mx-auto max-w-4xl">
-            <ExecCard member={featuredExecutive} />
-          </div>
-        </section>
-      )}
-
-      {remainingExecs.length > 0 && (
-        <section>
-          <div className="mb-5 text-center">
-            <p className="text-sm font-semibold uppercase tracking-[0.24em] text-indigo-600">
-              Executive Order
-            </p>
-            <h2 className="mt-2 text-3xl font-semibold text-slate-900">
+          <div className="mb-5 text-center sm:mb-6">
+            <h2 className="mt-2 text-2xl font-semibold text-slate-900 sm:text-3xl">
               Executive Team
             </h2>
           </div>
           <div className="mx-auto grid max-w-5xl gap-5 md:grid-cols-2">
-            {remainingExecs.map((member) => (
+            {execs.map((member) => (
               <ExecCard key={member._id} member={member} />
             ))}
           </div>
@@ -112,12 +110,10 @@ export default function TeamGrid({ members = [] }) {
 
       {leads.length > 0 && (
         <section>
-          <div className="mb-5 text-center">
-            <p className="text-sm font-semibold uppercase tracking-[0.24em] text-indigo-600">
-              Functional Hierarchy
-            </p>
-            <h2 className="mt-2 text-3xl font-semibold text-slate-900">
-              Team Leads
+          <div className="mb-5 text-center sm:mb-6">
+           
+            <h2 className="mt-2 text-2xl font-semibold text-slate-900 sm:text-3xl">
+              Lead Team
             </h2>
           </div>
           <div className="mx-auto grid max-w-6xl gap-5 sm:grid-cols-2 md:grid-cols-3">
@@ -130,15 +126,13 @@ export default function TeamGrid({ members = [] }) {
 
       {team.length > 0 && (
         <section>
-          <div className="mb-5 text-center">
-            <p className="text-sm font-semibold uppercase tracking-[0.24em] text-indigo-600">
-              Core Team
-            </p>
-            <h2 className="mt-2 text-3xl font-semibold text-slate-900">
+          <div className="mb-5 text-center sm:mb-6">
+       
+            <h2 className="mt-2 text-2xl font-semibold text-slate-900 sm:text-3xl">
               Members
             </h2>
           </div>
-          <div className="mx-auto grid max-w-7xl grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6">
+          <div className="mx-auto grid max-w-7xl grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-5 xl:grid-cols-6">
             {team.map((member) => (
               <MemberCard key={member._id} member={member} />
             ))}

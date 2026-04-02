@@ -36,7 +36,8 @@ export default function Initiatives() {
   return (
     <div>
       <h2 className="text-2xl sm:text-4xl font-extrabold text-gray-900 mb-4 sm:mb-12 text-left">
-        Our Initiatives
+        <br />
+      Our Initiatives
       </h2>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8">

@@ -24,18 +24,18 @@ export default function StatsGrid({ yearData, allYearsData }) {
           accent="from-emerald-500/12 to-emerald-50"
         />
         <StatCard
-          title="Placement rate"
-          value={`${summary.placementRate.toFixed(1)}%`}
-          note={`${summary.studentsPlaced}/${summary.totalStudents} students placed`}
+          title="Median package"
+          value={formatLpa(summary.medianPackage)}
+          note="Median of recorded branch average packages"
           accent="from-amber-500/12 to-amber-50"
         />
         <StatCard
-          title="Top branch"
-          value={summary.topBranch?.branch || "N/A"}
+          title="Highest placement"
+          value={`${summary.highestPlacementPercentage.toFixed(1)}%`}
           note={
             summary.topBranch
-              ? `${summary.topBranch.placementPercentage.toFixed(1)}% placement rate`
-              : "No branch-level leader available"
+              ? `${summary.topBranch.branch} leads this year`
+              : `${summary.studentsPlaced}/${summary.totalStudents} students placed`
           }
           accent="from-sky-500/12 to-sky-50"
         />
@@ -80,13 +80,14 @@ export default function StatsGrid({ yearData, allYearsData }) {
             <div className="mt-4 space-y-2 text-sm">
               <StatRow label="Highest package" value={formatLpa(summary.highestPackage)} />
               <StatRow label="Weighted average" value={formatLpa(summary.averagePackage)} />
+              <StatRow label="Median package" value={formatLpa(summary.medianPackage)} />
               <StatRow
                 label="Placement rate"
                 value={`${summary.placementRate.toFixed(1)}%`}
               />
               <StatRow
-                label="Top branch"
-                value={summary.topBranch?.branch || "N/A"}
+                label="Highest placement"
+                value={`${summary.highestPlacementPercentage.toFixed(1)}%`}
               />
             </div>
           </div>

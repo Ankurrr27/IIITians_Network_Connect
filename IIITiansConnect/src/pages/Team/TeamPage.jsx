@@ -29,8 +29,17 @@ export default function TeamPage() {
 
   const years = useMemo(() => {
     const values = new Set(members.map((member) => member.year).filter(Boolean));
-    return ["ALL", ...Array.from(values).sort()];
+    const sortedYears = Array.from(values).sort((a, b) =>
+      String(b).localeCompare(String(a), undefined, { numeric: true })
+    );
+    return ["ALL", ...sortedYears];
   }, [members]);
+
+  useEffect(() => {
+    if (year === "ALL" && years.length > 1) {
+      setYear(years[1]);
+    }
+  }, [years, year]);
 
   const filteredMembers = useMemo(() => {
     const normalizedSearch = search.toLowerCase();

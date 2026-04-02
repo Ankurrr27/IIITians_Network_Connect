@@ -18,7 +18,7 @@ const Navigation = () => {
     { name: "Colleges", href: "/colleges" },
     { name: "Events", href: "/events" },
     { name: "Placements", href: "/placement" },
-    { name: "Legacy", href: "/alumni" },
+    { name: "Legacy", href: "/legacy" },
     { name: "Team", href: "/team" },
     { name: "Contact", href: "/contact" },
   ];

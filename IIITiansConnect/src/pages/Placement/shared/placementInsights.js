@@ -3,6 +3,25 @@ export function formatLpa(value) {
   return `${numericValue.toFixed(numericValue >= 10 ? 0 : 1)} LPA`;
 }
 
+function getMedian(values = []) {
+  const cleaned = values
+    .map((value) => Number(value || 0))
+    .filter((value) => Number.isFinite(value))
+    .sort((a, b) => a - b);
+
+  if (!cleaned.length) {
+    return 0;
+  }
+
+  const middle = Math.floor(cleaned.length / 2);
+
+  if (cleaned.length % 2 === 0) {
+    return (cleaned[middle - 1] + cleaned[middle]) / 2;
+  }
+
+  return cleaned[middle];
+}
+
 export function summarizePlacementYear(yearData) {
   if (!yearData?.placements?.length) {
     return null;
@@ -24,6 +43,11 @@ export function summarizePlacementYear(yearData) {
         accumulator.highestPackage,
         highestPackage
       );
+      accumulator.highestPlacementPercentage = Math.max(
+        accumulator.highestPlacementPercentage,
+        placementPercentage
+      );
+      accumulator.branchAveragePackages.push(averagePackage);
 
       if (
         !accumulator.topBranch ||
@@ -41,8 +65,10 @@ export function summarizePlacementYear(yearData) {
       totalStudents: 0,
       studentsPlaced: 0,
       highestPackage: 0,
+      highestPlacementPercentage: 0,
       weightedAverage: 0,
       weightedAverageBase: 0,
+      branchAveragePackages: [],
       topBranch: null,
     }
   );
@@ -59,7 +85,9 @@ export function summarizePlacementYear(yearData) {
     averagePackage: summary.weightedAverageBase
       ? summary.weightedAverage / summary.weightedAverageBase
       : 0,
+    medianPackage: getMedian(summary.branchAveragePackages),
     placementRate,
+    highestPlacementPercentage: summary.highestPlacementPercentage,
     branchCount: yearData.placements.length,
     topBranch: summary.topBranch,
   };
@@ -70,6 +98,42 @@ export function summarizeAllYears(yearlyPlacements = []) {
     .map((yearBlock) => summarizePlacementYear(yearBlock))
     .filter(Boolean)
     .sort((a, b) => b.year - a.year);
+}
+
+export function summarizePlacementCollection(placements = []) {
+  return placements
+    .map((placement) => {
+      const latestYear = [...(placement.yearlyPlacements || [])].sort(
+        (a, b) => b.year - a.year
+      )[0];
+      const summary = summarizePlacementYear(latestYear);
+
+      if (!summary || !placement.college?.name) {
+        return null;
+      }
+
+      return {
+        id: placement._id,
+        collegeName: placement.college.name,
+        collegeLocation: placement.college.location || "",
+        collegeLogo: placement.college.logo || "/fallback-college.png",
+        year: summary.year,
+        highestPackage: summary.highestPackage,
+        averagePackage: summary.averagePackage,
+        medianPackage: summary.medianPackage,
+        placementRate: summary.placementRate,
+        highestPlacementPercentage: summary.highestPlacementPercentage,
+        topBranch: summary.topBranch,
+      };
+    })
+    .filter(Boolean)
+    .sort((a, b) => {
+      if (b.highestPackage !== a.highestPackage) {
+        return b.highestPackage - a.highestPackage;
+      }
+
+      return b.placementRate - a.placementRate;
+    });
 }
 
 export function buildPlacementFaqs({ data, yearData, summaries = [] }) {

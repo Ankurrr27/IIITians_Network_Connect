@@ -1,5 +1,6 @@
 import { useState } from "react";
 import api from "../../../api/axios";
+import ImageCropModal from "../../../components/ImageCropModal";
 
 export default function TeamMemberForm({ onSuccess }) {
   const [form, setForm] = useState({
@@ -14,6 +15,7 @@ export default function TeamMemberForm({ onSuccess }) {
   });
 
   const [photo, setPhoto] = useState(null);
+  const [rawPhoto, setRawPhoto] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
@@ -43,6 +45,7 @@ export default function TeamMemberForm({ onSuccess }) {
         linkedin: "",
       });
       setPhoto(null);
+      setRawPhoto(null);
       onSuccess();
     } catch (err) {
       alert(err.response?.data?.error || "Failed to add team member");
@@ -93,13 +96,59 @@ export default function TeamMemberForm({ onSuccess }) {
       </div>
 
       {/* PHOTO */}
-      <input
-        type="file"
-        accept="image/*"
-        onChange={(e) => setPhoto(e.target.files[0])}
-        className="w-full"
-        required
-      />
+      <div className="space-y-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <label
+            htmlFor="team-photo-upload"
+            className="inline-flex cursor-pointer items-center rounded-lg border border-gray-300 bg-gray-100 px-4 py-2 text-sm font-medium text-gray-800 transition hover:bg-gray-200"
+          >
+            {photo ? "Replace photo" : "Upload photo"}
+          </label>
+
+          <input
+            id="team-photo-upload"
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) {
+                setRawPhoto(file);
+              }
+              e.target.value = "";
+            }}
+            className="hidden"
+            required={!photo}
+          />
+
+          {photo && (
+            <>
+              <button
+                type="button"
+                onClick={() => setRawPhoto(photo)}
+                className="rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-2 text-sm font-medium text-indigo-700 transition hover:bg-indigo-100"
+              >
+                Edit photo
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setPhoto(null);
+                  setRawPhoto(null);
+                }}
+                className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-medium text-rose-700 transition hover:bg-rose-100"
+              >
+                Remove photo
+              </button>
+            </>
+          )}
+        </div>
+
+        {photo && (
+          <p className="text-sm text-slate-500">
+            Selected photo: <span className="font-medium">{photo.name}</span>
+          </p>
+        )}
+      </div>
 
       {/* TEAM + YEAR */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -134,6 +183,17 @@ export default function TeamMemberForm({ onSuccess }) {
       >
         {loading ? "Uploading..." : "Add Member"}
       </button>
+
+      {rawPhoto && (
+        <ImageCropModal
+          file={rawPhoto}
+          onClose={() => setRawPhoto(null)}
+          onCrop={(croppedFile) => {
+            setPhoto(croppedFile);
+            setRawPhoto(null);
+          }}
+        />
+      )}
     </form>
   );
 }

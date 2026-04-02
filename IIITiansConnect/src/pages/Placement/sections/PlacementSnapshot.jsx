@@ -15,15 +15,15 @@ export default function PlacementSnapshot({ data }) {
     : null;
 
   return (
-    <section className="rounded-[1.75rem] border border-slate-200 bg-gradient-to-br from-indigo-50 via-white to-blue-50 p-5 shadow-sm sm:p-8">
+    <section className="rounded-[1.5rem] border border-slate-200 bg-gradient-to-br from-indigo-50 via-white to-blue-50 p-4 shadow-sm sm:rounded-[1.75rem] sm:p-8">
       <div className="mb-5 sm:mb-6">
         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-indigo-600">
           Placement Snapshot
         </p>
-        <h3 className="mt-2 text-xl font-semibold text-slate-900 sm:text-2xl">
+        <h3 className="mt-2 text-lg font-semibold text-slate-900 sm:text-2xl">
           Overall placement story
         </h3>
-        <p className="mt-2 text-sm leading-7 text-slate-600">
+        <p className="mt-2 text-sm leading-6 text-slate-600 sm:leading-7">
           Consolidated performance for {latest.year}, built from all visible
           branch data.
         </p>
@@ -69,7 +69,7 @@ export default function PlacementSnapshot({ data }) {
 
 function Stat({ label, value }) {
   return (
-    <div className="rounded-2xl bg-white p-4 shadow-sm">
+    <div className="rounded-2xl bg-white p-3.5 shadow-sm sm:p-4">
       <p className="text-[11px] text-slate-500 sm:text-xs">{label}</p>
       <p className="mt-2 text-lg font-bold tracking-tight text-slate-900 sm:text-2xl">
         {value}
@@ -80,14 +80,14 @@ function Stat({ label, value }) {
 
 function InsightCard({ label, value, note }) {
   return (
-    <div className="rounded-2xl border border-indigo-100 bg-white/85 p-4">
+    <div className="rounded-2xl border border-indigo-100 bg-white/85 p-3.5 sm:p-4">
       <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-indigo-600">
         {label}
       </p>
       <p className="mt-2 text-base font-semibold text-slate-900 sm:text-lg">
         {value}
       </p>
-      <p className="mt-1 text-sm text-slate-600">{note}</p>
+      <p className="mt-1 text-xs leading-5 text-slate-600 sm:text-sm">{note}</p>
     </div>
   );
 }

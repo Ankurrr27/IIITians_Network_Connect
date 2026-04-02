@@ -5,11 +5,11 @@ export default function PlacementHeader({ collegeName }) {
         Placement Insights
       </p>
 
-      <h1 className="text-3xl font-bold leading-tight text-slate-900 sm:text-5xl">
+      <h1 className="text-[1.9rem] font-bold leading-[1.08] text-slate-900 sm:text-5xl">
         {collegeName ? `${collegeName} placements` : "Compare IIIT placements"}
       </h1>
 
-      <p className="text-sm leading-7 text-slate-600 sm:text-lg">
+      <p className="max-w-2xl text-sm leading-6 text-slate-600 sm:text-lg sm:leading-7">
         Explore branch-wise performance, yearly package movement, and placement
         FAQs generated from the visible data so students can read the numbers in
         context.

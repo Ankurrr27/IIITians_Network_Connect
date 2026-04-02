@@ -1,10 +1,10 @@
 import { ArrowUpRight, Award } from "lucide-react";
 import {
-  PieChart,
-  Pie,
   Cell,
-  Tooltip,
+  Pie,
+  PieChart,
   ResponsiveContainer,
+  Tooltip,
 } from "recharts";
 
 const COLORS = [
@@ -31,22 +31,19 @@ export default function PlacementTable({ placements = [] }) {
   const topBranch = sorted[0];
 
   return (
-    <div className="bg-white sm:border rounded-2xl shadow-sm overflow-hidden">
-      {/* HEADER */}
-      <div className="px-4 sm:px-6 py-4 border-b">
-        <h3 className="text-base sm:text-lg font-semibold text-gray-800">
+    <div className="overflow-hidden rounded-[1.5rem] bg-white shadow-sm sm:border sm:rounded-2xl">
+      <div className="border-b px-4 py-4 sm:px-6">
+        <h3 className="text-base font-semibold text-gray-800 sm:text-lg">
           Branch-wise Placement Details
         </h3>
-        <p className="text-xs sm:text-sm text-gray-500 mt-1">
+        <p className="mt-1 text-xs text-gray-500 sm:text-sm">
           Ranked by placement percentage
         </p>
       </div>
 
-      {/* CONTENT */}
-      <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6 p-4 sm:p-6">
-        {/* TABLE */}
-        <div className="overflow-x-auto">
-          <table className="min-w-[640px] w-full text-xs sm:text-sm">
+      <div className="grid grid-cols-1 gap-5 p-4 sm:p-6 lg:grid-cols-[2fr_1fr] lg:gap-6">
+        <div className="-mx-1 overflow-x-auto sm:mx-0">
+          <table className="min-w-[560px] w-full text-xs sm:min-w-[640px] sm:text-sm">
             <thead className="bg-gray-50 text-gray-600">
               <tr>
                 <th className="p-3 text-left font-medium">#</th>
@@ -68,11 +65,9 @@ export default function PlacementTable({ placements = [] }) {
                       isTop ? "bg-indigo-50/40" : "hover:bg-gray-50"
                     }`}
                   >
-                    <td className="p-3 font-semibold text-gray-500">
-                      {i + 1}
-                    </td>
+                    <td className="p-3 font-semibold text-gray-500">{i + 1}</td>
 
-                    <td className="p-3 font-medium text-gray-900 flex items-center gap-1">
+                    <td className="flex items-center gap-1 p-3 font-medium text-gray-900">
                       {p.branch}
                       {isTop && (
                         <span className="text-indigo-600">
@@ -81,22 +76,22 @@ export default function PlacementTable({ placements = [] }) {
                       )}
                     </td>
 
-                    <td className="p-3 text-right font-semibold text-indigo-600">
+                    <td className="whitespace-nowrap p-3 text-right font-semibold text-indigo-600">
                       {p.highestPackage} LPA
                     </td>
 
-                    <td className="p-3 text-right text-gray-800">
+                    <td className="whitespace-nowrap p-3 text-right text-gray-800">
                       {p.averagePackage} LPA
                     </td>
 
                     <td className="p-3 text-right">
                       <span
-                        className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-[11px] font-medium ${
+                        className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-medium ${
                           p.placementPercentage >= 90
                             ? "bg-green-100 text-green-700"
                             : p.placementPercentage >= 70
-                            ? "bg-amber-100 text-amber-700"
-                            : "bg-red-100 text-red-700"
+                              ? "bg-amber-100 text-amber-700"
+                              : "bg-red-100 text-red-700"
                         }`}
                       >
                         {p.placementPercentage}%
@@ -112,12 +107,11 @@ export default function PlacementTable({ placements = [] }) {
           </table>
         </div>
 
-        {/* PIE */}
-        <div className="h-[220px] sm:h-[260px] lg:h-[320px] flex flex-col items-center justify-center">
-          <p className="text-xs sm:text-sm font-semibold text-gray-700 mb-1">
+        <div className="flex h-[220px] flex-col items-center justify-center rounded-[1.25rem] bg-slate-50 p-3 sm:h-[260px] lg:h-[320px]">
+          <p className="mb-1 text-xs font-semibold text-gray-700 sm:text-sm">
             Placement Distribution
           </p>
-          <p className="text-[11px] sm:text-xs text-gray-500 mb-2 sm:mb-3">
+          <p className="mb-2 text-[11px] text-gray-500 sm:mb-3 sm:text-xs">
             Highest share: {topBranch.branch}
           </p>
 
@@ -132,10 +126,7 @@ export default function PlacementTable({ placements = [] }) {
                 paddingAngle={3}
               >
                 {pieData.map((_, i) => (
-                  <Cell
-                    key={i}
-                    fill={COLORS[i % COLORS.length]}
-                  />
+                  <Cell key={i} fill={COLORS[i % COLORS.length]} />
                 ))}
               </Pie>
               <Tooltip />

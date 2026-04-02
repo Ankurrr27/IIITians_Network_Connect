@@ -1,17 +1,14 @@
-import React from "react";
 import { motion } from "framer-motion";
 import {
-  Mail,
-  Instagram,
-  ExternalLink,
-  ShieldCheck,
-  Users,
-  Send,
-  Linkedin,
-  Youtube,
-  MessageCircle,
+  ArrowRight,
   Hash,
-  ArrowRight
+  Instagram,
+  Linkedin,
+  Mail,
+  MessageCircle,
+  Send,
+  ShieldCheck,
+  Youtube,
 } from "lucide-react";
 
 const container = {
@@ -29,137 +26,191 @@ const item = {
 
 export default function ContactPage() {
   const socialLinks = [
-    { name: "Telegram", icon: <Send size={20} />, link: "#", color: "hover:bg-blue-50 hover:text-blue-600" },
-    { name: "LinkedIn", icon: <Linkedin size={20} />, link: "https://www.linkedin.com/company/iiitians-network/", color: "hover:bg-cyan-50 hover:text-cyan-700" },
-    { name: "Discord", icon: <MessageCircle size={20} />, link: "https://discord.gg/88AnpuNc6E", color: "hover:bg-indigo-50 hover:text-indigo-600" },
-    { name: "Reddit", icon: <Hash size={20} />, link: "https://www.reddit.com/r/iiitiansnetwork_/s/raoRbgEdX6", color: "hover:bg-orange-50 hover:text-orange-600" },
-    { name: "YouTube", icon: <Youtube size={20} />, link: "https://youtube.com/@iiitiansnetwork?si=8ytWXimIsJt2qJeF", color: "hover:bg-red-50 hover:text-red-600" },
+    {
+      name: "Telegram",
+      icon: <Send size={18} />,
+      link: "#",
+      tone: "hover:border-blue-200 hover:bg-blue-50 hover:text-blue-600",
+    },
+    {
+      name: "LinkedIn",
+      icon: <Linkedin size={18} />,
+      link: "https://www.linkedin.com/company/iiitians-network/",
+      tone: "hover:border-cyan-200 hover:bg-cyan-50 hover:text-cyan-700",
+    },
+    {
+      name: "Discord",
+      icon: <MessageCircle size={18} />,
+      link: "https://discord.gg/88AnpuNc6E",
+      tone: "hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-600",
+    },
+    {
+      name: "Reddit",
+      icon: <Hash size={18} />,
+      link: "https://www.reddit.com/r/iiitiansnetwork_/s/raoRbgEdX6",
+      tone: "hover:border-orange-200 hover:bg-orange-50 hover:text-orange-600",
+    },
+    {
+      name: "YouTube",
+      icon: <Youtube size={18} />,
+      link: "https://youtube.com/@iiitiansnetwork?si=8ytWXimIsJt2qJeF",
+      tone: "hover:border-red-200 hover:bg-red-50 hover:text-red-600",
+    },
+  ];
+
+  const contactCards = [
+    {
+      title: "Official Email",
+      subtitle: "Verification, collaboration, and general inquiries",
+      href: "mailto:iiitiansnetwork@gmail.com",
+      icon: <Mail size={22} className="text-indigo-600" />,
+      cta: "Mail us",
+    },
+    {
+      title: "Instagram",
+      subtitle: "Community updates, highlights, and latest activity",
+      href: "https://www.instagram.com/iiitiansnetwork",
+      icon: <Instagram size={22} className="text-pink-600" />,
+      cta: "View profile",
+    },
+    {
+      title: "Transparency",
+      subtitle: "Public information bridge with clear and verified outreach",
+      icon: <ShieldCheck size={22} className="text-emerald-600" />,
+      static: true,
+    },
   ];
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 pt-5 pb-12 sm:pb-20 selection:bg-indigo-100 overflow-x-hidden">
-      <div className="h-1.5 bg-gradient-to-r from-indigo-500 via-blue-500 to-indigo-500" />
-
-      {/* HERO SECTION - Adjusted for Mobile */}
-      <motion.section 
+    <div className="min-h-screen overflow-x-hidden bg-gradient-to-b from-indigo-50 via-white to-slate-50 pb-14 pt-24 text-slate-900 sm:pb-20 sm:pt-28">
+      <motion.section
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="max-w-5xl mx-auto px-6 sm:px-8 pt-12 sm:pt-20 pb-10 sm:pb-14  text-left"
+        className="mx-auto max-w-6xl px-4 sm:px-6"
       >
-        <motion.div 
-          initial={{ scale: 0.9 }}
-          animate={{ scale: 1 }}
-          className="inline-flex gap-2 px-3 py-1 rounded-full bg-white border border-slate-200 shadow-sm mb-6"
-        >
-          <span className="flex h-2 w-2 rounded-full bg-indigo-500 animate-pulse" />
-          <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-left text-slate-500">Official Channels</span>
-        </motion.div>
-        
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-slate-900 mb-4 sm:mb-6 leading-[1.1]">
-          Connect with the <br className="hidden sm:block" />
-          <span className="text-indigo-600">Network</span>
-        </h1>
-        <p className="text-slate-500 max-w-2xl text-sm sm:text-base md:text-lg leading-relaxed mx-auto md:mx-0">
-          Centralized coordination for the IIIT ecosystem. Follow our verified handles 
-          for institutional updates and community coordination.
-        </p>
+        <div className="rounded-[2rem] border border-indigo-100 bg-white/90 px-5 py-8 shadow-[0_24px_80px_rgba(99,102,241,0.08)] backdrop-blur sm:px-8 sm:py-12">
+          <div className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-indigo-700">
+            <span className="h-2 w-2 rounded-full bg-indigo-500" />
+            Official Channels
+          </div>
+
+          <div className="mt-5 grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
+            <div>
+              <h1 className="text-3xl font-black tracking-tight text-slate-900 sm:text-5xl">
+                Contact The
+                <span className="block text-indigo-600">IIITians Network</span>
+              </h1>
+              <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-600 sm:text-base">
+                Reach the network through verified public channels for updates,
+                collaboration, and community coordination across IIIT campuses.
+              </p>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
+              <div className="rounded-[1.35rem] border border-slate-200 bg-slate-50 px-4 py-4">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                  Best For
+                </p>
+                <p className="mt-2 text-sm font-medium text-slate-800">
+                  official outreach, student queries, and community updates
+                </p>
+              </div>
+              <div className="rounded-[1.35rem] border border-slate-200 bg-slate-50 px-4 py-4">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                  Response Path
+                </p>
+                <p className="mt-2 text-sm font-medium text-slate-800">
+                  email first, social platforms for fast community visibility
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
       </motion.section>
 
-      <motion.section 
+      <motion.section
         variants={container}
         initial="hidden"
         animate="show"
-        className="max-w-5xl mx-auto px-5 sm:px-8"
+        className="mx-auto mt-8 max-w-6xl px-4 sm:px-6"
       >
-        {/* TOP TIER CONTACTS - Stacked on Mobile */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mb-6">
-          <motion.a
-  variants={item}
-  href="mailto:iiitiansnetwork@gmail.com"
-  className="group bg-white p-6 sm:p-8 rounded-2xl sm:rounded-[22px] border border-slate-200 hover:border-indigo-400 transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
->
-  <Mail className="text-indigo-600 mb-3 sm:mb-4" size={24} />
-  <h3 className="font-bold text-base sm:text-lg">Official Email</h3>
-  <p className="text-slate-400 text-xs mb-3 sm:mb-4">
-    Verification & Inquiries
-  </p>
-  <span className="text-indigo-600 text-sm font-bold flex items-center gap-1.5">
-    Mail us
-    <ArrowRight
-      size={16}
-      className="group-hover:translate-x-1 transition-transform"
-    />
-  </span>
-</motion.a>
-
-
-  <motion.a
-  variants={item}
-  href="https://www.instagram.com/iiitiansnetwork"
-  target="_blank"
-  rel="noreferrer"
-  className="group bg-white p-6 sm:p-8 rounded-2xl sm:rounded-[22px] border border-slate-200 hover:border-pink-400 transition-all shadow-sm"
->
-  <Instagram className="text-pink-600 mb-3 sm:mb-4" size={24} />
-  <h3 className="font-bold text-base sm:text-lg">Instagram</h3>
-  <p className="text-slate-400 text-xs mb-3 sm:mb-4">
-    Community Highlights
-  </p>
-  <span className="text-pink-600 text-sm font-bold flex items-center gap-1.5">
-    View Profile
-    <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-  </span>
-</motion.a>
-
-          {/* Transparency - Full width on small tablets */}
-          <motion.div variants={item} className="sm:col-span-2 md:col-span-1 bg-indigo-50/50 p-6 sm:p-8 rounded-2xl sm:rounded-[22px] border border-indigo-100 relative overflow-hidden group">
-            <ShieldCheck className="text-indigo-500 mb-3 sm:mb-4" size={24} />
-            <h3 className="font-bold text-base sm:text-lg text-indigo-900">Transparency</h3>
-            <p className="text-indigo-700/70 text-xs leading-relaxed pr-10">
-              Public informational bridge. No data collection or personal tracking.
-            </p>
-            <div className="absolute -right-2 -bottom-2 text-indigo-100 opacity-40 pointer-events-none">
-               <ShieldCheck size={70} />
-            </div>
-          </motion.div>
+        <div className="grid gap-4 md:grid-cols-3">
+          {contactCards.map((card) =>
+            card.static ? (
+              <motion.div
+                key={card.title}
+                variants={item}
+                className="rounded-[1.6rem] border border-emerald-100 bg-emerald-50/70 p-5 shadow-sm sm:p-6"
+              >
+                {card.icon}
+                <h2 className="mt-4 text-xl font-semibold text-slate-900">
+                  {card.title}
+                </h2>
+                <p className="mt-2 text-sm leading-7 text-slate-600">
+                  {card.subtitle}
+                </p>
+              </motion.div>
+            ) : (
+              <motion.a
+                key={card.title}
+                variants={item}
+                href={card.href}
+                target={card.href.startsWith("http") ? "_blank" : undefined}
+                rel={card.href.startsWith("http") ? "noreferrer" : undefined}
+                className="group rounded-[1.6rem] border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:border-indigo-200 hover:shadow-[0_20px_50px_rgba(79,70,229,0.08)] sm:p-6"
+              >
+                {card.icon}
+                <h2 className="mt-4 text-xl font-semibold text-slate-900">
+                  {card.title}
+                </h2>
+                <p className="mt-2 text-sm leading-7 text-slate-600">
+                  {card.subtitle}
+                </p>
+                <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-indigo-600">
+                  {card.cta}
+                  <ArrowRight
+                    size={16}
+                    className="transition-transform group-hover:translate-x-1"
+                  />
+                </span>
+              </motion.a>
+            )
+          )}
         </div>
 
-        {/* SOCIAL LINKS - 2 cols on mobile, 5 on desktop */}
-        <motion.div variants={item} className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4 mb-10">
-          {socialLinks.map((social) => (
-            <a 
-              key={social.name}
-              href={social.link}
-              className={`flex items-center justify-center gap-2 p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-slate-200 bg-white transition-all text-slate-600 font-bold text-[10px] sm:text-[11px] uppercase tracking-widest group ${social.color}`}
-            >
-              <span className="group-hover:scale-110 transition-transform">{social.icon}</span>
-              {social.name}
-            </a>
-          ))}
-        </motion.div>
-
-        {/* RECRUITMENT BOX - Responsive Flex */}
-        <motion.div 
+        <motion.div
           variants={item}
-          className="bg-white border border-slate-200 rounded-[24px] sm:rounded-[32px] p-6 sm:p-10 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8"
+          className="mt-6 rounded-[1.8rem] border border-slate-200 bg-white p-5 shadow-sm sm:p-6"
         >
-          <div className="flex flex-col items-center md:items-start text-center md:text-left">
-            <div className="bg-indigo-600 text-white text-[9px] sm:text-[10px] font-black px-2.5 py-1 rounded-md mb-3 uppercase tracking-wider">
-              Open Positions
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-indigo-600">
+                Social Presence
+              </p>
+              <h2 className="mt-2 text-2xl font-semibold text-slate-900 sm:text-3xl">
+                Follow the network across platforms
+              </h2>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 leading-tight">Join the Core Team</h2>
-            <p className="text-slate-500 text-xs sm:text-sm mt-1.5 max-w-xs">Support collaboration and communication among IIITs.</p>
+            <p className="max-w-xl text-sm leading-7 text-slate-600">
+              Stay connected through the platforms where the community is most
+              active.
+            </p>
           </div>
-          
-          <motion.a
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-            href="#"
-            className="w-full md:w-auto bg-indigo-600 text-white px-8 sm:px-10 py-3.5 sm:py-4.5 rounded-xl sm:rounded-[18px] font-bold text-sm sm:text-base flex items-center justify-center gap-2.5 hover:bg-indigo-700 transition-colors shadow-xl shadow-indigo-100"
-          >
-            Apply Now
-            <ExternalLink size={20} />
-          </motion.a>
+
+          <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+            {socialLinks.map((social) => (
+              <a
+                key={social.name}
+                href={social.link}
+                target="_blank"
+                rel="noreferrer"
+                className={`flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm font-semibold text-slate-700 transition ${social.tone}`}
+              >
+                <span>{social.icon}</span>
+                <span>{social.name}</span>
+              </a>
+            ))}
+          </div>
         </motion.div>
       </motion.section>
     </div>

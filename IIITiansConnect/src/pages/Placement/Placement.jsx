@@ -39,7 +39,7 @@ export default function Placement() {
     : null;
 
   return (
-    <div className="mx-auto max-w-7xl px-4 pb-12 pt-24 sm:px-6 sm:pb-16 sm:pt-28 sm:space-y-12">
+    <div className="mx-auto max-w-7xl space-y-8 px-4 pb-10 pt-24 sm:space-y-12 sm:px-6 sm:pb-16 sm:pt-28">
       <PlacementSearchBar
         college={college}
         searched={searched}
@@ -64,7 +64,7 @@ export default function Placement() {
       )}
 
       {searched && !loading && !data && (
-        <p className="rounded-[1.5rem] border border-dashed border-slate-300 bg-white px-6 py-12 text-center text-slate-500">
+        <p className="rounded-[1.5rem] border border-dashed border-slate-300 bg-white px-5 py-10 text-center text-sm text-slate-500 sm:px-6 sm:py-12">
           No placement data found.
         </p>
       )}
