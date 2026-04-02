@@ -1,6 +1,7 @@
 import express from "express";
 import {
   createPlacement,
+  getAllPlacements,
   getPlacementByCollege,
   getPlacementByCollegeName,
   upsertPlacementYear,
@@ -11,6 +12,7 @@ const router = express.Router();
 
 router.post("/", adminAuth, createPlacement);
 router.patch("/:placementId/year", adminAuth, upsertPlacementYear);
+router.get("/", getAllPlacements);
 router.get("/college/:collegeId", getPlacementByCollege);
 router.get("/college-name/:name", getPlacementByCollegeName);
 

@@ -1,6 +1,20 @@
 import Placement from "../models/placement.model.js";
 import College from "../models/College.model.js";
 
+export const getAllPlacements = async (req, res) => {
+  try {
+    const placements = await Placement.find({
+      yearlyPlacements: { $exists: true, $ne: [] },
+    })
+      .populate("college", "name location logo")
+      .sort({ updatedAt: -1 });
+
+    res.json(placements);
+  } catch (err) {
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
 /**
  * Create placement doc for a college (ONCE)
  */
