@@ -11,40 +11,56 @@ const currentPresident = {
 
 export default function CurrentPresident() {
   return (
-    <div className="mb-6 overflow-hidden rounded-[1.4rem] border border-slate-200 bg-gradient-to-br from-indigo-50 via-white to-slate-50 shadow-[0_20px_60px_rgba(79,70,229,0.08)] sm:mb-12 sm:rounded-[1.75rem]">
-      <div className="grid gap-0 md:grid-cols-[280px_1fr]">
-        <div className="relative h-48 overflow-hidden bg-indigo-100 sm:h-56 md:h-full">
+    <div className="mb-5 overflow-hidden rounded-[1.35rem] border border-slate-200 bg-gradient-to-br from-slate-50 via-white to-indigo-50 shadow-[0_20px_60px_rgba(79,70,229,0.08)] sm:mb-12 sm:rounded-[1.9rem]">
+      <div className="grid gap-0 lg:grid-cols-[280px_1fr]">
+        <div className="relative h-44 overflow-hidden bg-indigo-100 sm:h-72 lg:h-full">
           <img
             src={currentPresident.image}
             alt={currentPresident.name}
             className="h-full w-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/35 via-transparent to-transparent md:bg-gradient-to-r md:from-slate-950/10 md:to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-slate-950/45 to-transparent lg:hidden" />
         </div>
 
-        <div className="p-4 sm:p-8">
-          <div className="inline-flex items-center rounded-full bg-indigo-600 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-white sm:px-3 sm:text-xs sm:tracking-[0.2em]">
-            Current President
-          </div>
+        <div className="p-3.5 sm:p-6 lg:p-8">
+          <div className="flex flex-col gap-3 sm:gap-5">
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="inline-flex items-center rounded-full bg-indigo-600 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-white sm:px-3 sm:text-xs sm:tracking-[0.18em]">
+                Current President
+              </div>
+              <div className="text-[10px] font-medium uppercase tracking-[0.14em] text-slate-500 sm:text-xs sm:tracking-[0.16em]">
+                Team Spotlight
+              </div>
+            </div>
 
-          <h3 className="mt-3 text-xl font-bold text-slate-900 sm:mt-4 sm:text-3xl">
-            {currentPresident.name}
-          </h3>
-          <p className="mt-1 text-xs font-medium text-indigo-600 sm:text-base">
-            {currentPresident.role} · {currentPresident.college}
-          </p>
+            <div>
+              <h3 className="text-xl font-bold text-slate-900 sm:text-3xl">
+                {currentPresident.name}
+              </h3>
+              <p className="mt-1 text-xs font-medium text-indigo-600 sm:text-base">
+                {currentPresident.role} · {currentPresident.college}
+              </p>
+            </div>
 
-          <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600 sm:mt-4 sm:text-base sm:leading-7">
-            {currentPresident.about}
-          </p>
+            <div className="grid gap-3 lg:grid-cols-[0.9fr_1.1fr]">
+              <div className="rounded-[1rem] border border-slate-200 bg-white p-3 shadow-sm sm:rounded-[1.2rem] sm:p-4">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500 sm:text-xs sm:tracking-[0.16em]">
+                  About
+                </p>
+                <p className="mt-2 text-xs leading-5 text-slate-700 sm:mt-3 sm:text-base sm:leading-7">
+                  {currentPresident.about}
+                </p>
+              </div>
 
-          <div className="mt-4 rounded-[1.2rem] border border-indigo-100 bg-white/80 p-3.5 shadow-sm sm:mt-5 sm:rounded-[1.5rem] sm:p-5">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-indigo-600 sm:text-xs sm:tracking-[0.2em]">
-              Message
-            </p>
-            <p className="mt-2.5 text-sm leading-6 text-slate-700 sm:mt-3 sm:text-base sm:leading-7">
-              {currentPresident.message}
-            </p>
+              <div className="rounded-[1rem] border border-indigo-100 bg-indigo-50/60 p-3 shadow-sm sm:rounded-[1.2rem] sm:p-4">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-indigo-600 sm:text-xs sm:tracking-[0.16em]">
+                  Message
+                </p>
+                <p className="mt-2 text-xs leading-5 text-slate-700 sm:mt-3 sm:text-base sm:leading-7">
+                  "{currentPresident.message}"
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>

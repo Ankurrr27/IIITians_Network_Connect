@@ -17,9 +17,9 @@ const Navigation = () => {
     { name: "Home", href: "#home" },
     { name: "Colleges", href: "/colleges" },
     { name: "Events", href: "/events" },
-    { name: "IIIT Placements", href: "/placement" },
-    { name: "Network Legacy", href: "/alumni" },
-    { name: "Our Team", href: "/team" },
+    { name: "Placements", href: "/placement" },
+    { name: "Legacy", href: "/alumni" },
+    { name: "Team", href: "/team" },
     { name: "Contact", href: "/contact" },
   ];
 

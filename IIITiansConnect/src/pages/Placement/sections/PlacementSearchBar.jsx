@@ -13,22 +13,18 @@ export default function PlacementSearchBar({
   onYearChange,
 }) {
   return (
-    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 sm:gap-6">
+    <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
       <PlacementHeader collegeName={searched ? college : null} />
 
       <section
-        className={`grid gap-4 pt-4 sm:pt-12 mt-4 items-center ${
+        className={`grid gap-4 ${
           searched ? "lg:grid-cols-[1fr_auto]" : "grid-cols-1"
         }`}
       >
-        {/* SEARCH + YEAR (MOBILE COMBINED) */}
         <div
-          className={`
-            bg-white rounded-xl
-            ${searched ? "p-3" : "p-4 sm:p-6 max-w-xl mx-auto"}
-            space-y-3
-            lg:space-y-0
-          `}
+          className={`rounded-[1.5rem] border border-slate-200 bg-white shadow-sm ${
+            searched ? "p-3 sm:p-4" : "mx-auto max-w-xl p-4 sm:p-6"
+          }`}
         >
           <CollegeSearch
             value={college}
@@ -38,11 +34,10 @@ export default function PlacementSearchBar({
             compact={searched}
           />
 
-          {/* YearSelector INSIDE search on mobile */}
           {data && (
-            <div className="block lg:hidden">
+            <div className="mt-3 block lg:hidden">
               <YearSelector
-                years={data.yearlyPlacements.map(y => y.year)}
+                years={data.yearlyPlacements.map((item) => item.year)}
                 value={year}
                 onChange={onYearChange}
               />
@@ -50,11 +45,10 @@ export default function PlacementSearchBar({
           )}
         </div>
 
-        {/* YearSelector SEPARATE on desktop */}
         {data && (
-          <div className="hidden lg:flex bg-white px-4 py-2 items-center justify-center rounded-xl">
+          <div className="hidden rounded-[1.5rem] border border-slate-200 bg-white px-4 py-3 shadow-sm lg:flex lg:items-center">
             <YearSelector
-              years={data.yearlyPlacements.map(y => y.year)}
+              years={data.yearlyPlacements.map((item) => item.year)}
               value={year}
               onChange={onYearChange}
             />

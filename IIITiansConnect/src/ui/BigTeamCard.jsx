@@ -13,9 +13,9 @@ const BigTeamCard = ({ name, role, college, image, desc, links = {} }) => {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="group overflow-hidden rounded-[1.35rem] border border-slate-200 bg-white p-3.5 shadow-[0_18px_50px_rgba(15,23,42,0.06)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_70px_rgba(79,70,229,0.12)] sm:rounded-[1.75rem] sm:p-5">
+    <div className="group overflow-hidden rounded-[1.35rem] border border-slate-200 bg-white  shadow-[0_18px_50px_rgba(15,23,42,0.06)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_70px_rgba(79,70,229,0.12)] sm:rounded-[1.75rem] sm:p-5">
       <div className="flex items-start gap-3 sm:block">
-        <div className="relative h-24 w-20 flex-shrink-0 overflow-hidden rounded-[1rem] bg-indigo-50 sm:h-64 sm:w-full sm:rounded-[1.5rem]">
+        <div className="relative h-24 w-20 flex-shrink-0 overflow-hidden rounded-[1rem] bg-indigo-50 sm:h-64 sm:w-full ">
           <img src={image} alt={name} className="h-full w-full object-cover" />
           <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-slate-950/20 to-transparent sm:h-24" />
         </div>

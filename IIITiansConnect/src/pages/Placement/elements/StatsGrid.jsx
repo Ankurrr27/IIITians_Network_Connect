@@ -1,139 +1,122 @@
-/* ================= Helpers ================= */
-
-function calculateMetrics(placements) {
-  const highest = Math.max(...placements.map(p => p.highestPackage));
-
-  const average =
-    placements.reduce((s, p) => s + p.averagePackage, 0) /
-    placements.length;
-
-  const percent = Math.max(
-    ...placements.map(p => p.placementPercentage)
-  );
-
-  return {
-    highest,
-    average: +average.toFixed(1),
-    percent,
-  };
-}
-
-/* Stable year → color mapping */
-const YEAR_COLORS = {
-  2021: "border-indigo-500",
-  2022: "border-emerald-500",
-  2023: "border-amber-500",
-  2024: "border-rose-500",
-};
-
-/* ================= Component ================= */
+import {
+  formatLpa,
+  summarizeAllYears,
+  summarizePlacementYear,
+} from "../shared/placementInsights";
 
 export default function StatsGrid({ yearData, allYearsData }) {
-  /* ========== SINGLE YEAR VIEW ========== */
   if (yearData) {
-    const metrics = calculateMetrics(yearData.placements);
+    const summary = summarizePlacementYear(yearData);
+    if (!summary) return null;
 
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-        <Stat
-          title="Highest Package"
-          value={`${metrics.highest} LPA`}
-          accent="border-indigo-500"
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard
+          title="Highest package"
+          value={formatLpa(summary.highestPackage)}
+          note="Best reported offer in the selected year"
+          accent="from-indigo-500/15 to-indigo-50"
         />
-        <Stat
-          title="Average Package"
-          value={`${metrics.average} LPA`}
-          accent="border-emerald-500"
+        <StatCard
+          title="Weighted average"
+          value={formatLpa(summary.averagePackage)}
+          note="Weighted using total students recorded by branch"
+          accent="from-emerald-500/12 to-emerald-50"
         />
-        <Stat
-          title="Placement Rate"
-          value={`${metrics.percent}%`}
-          accent="border-amber-500"
+        <StatCard
+          title="Placement rate"
+          value={`${summary.placementRate.toFixed(1)}%`}
+          note={`${summary.studentsPlaced}/${summary.totalStudents} students placed`}
+          accent="from-amber-500/12 to-amber-50"
+        />
+        <StatCard
+          title="Top branch"
+          value={summary.topBranch?.branch || "N/A"}
+          note={
+            summary.topBranch
+              ? `${summary.topBranch.placementPercentage.toFixed(1)}% placement rate`
+              : "No branch-level leader available"
+          }
+          accent="from-sky-500/12 to-sky-50"
         />
       </div>
     );
   }
 
-  /* ========== ALL YEARS VIEW ========== */
-  if (!allYearsData?.length) return null;
+  const summaries = summarizeAllYears(allYearsData || []);
+  if (!summaries.length) return null;
 
   return (
-    <div className="space-y-3 sm:space-y-4">
-      <h3 className="text-base sm:text-lg font-semibold text-gray-800">
-        Year-wise Placement Comparison
-      </h3>
+    <section className="space-y-4">
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-indigo-600">
+          Multi-Year View
+        </p>
+        <h3 className="mt-2 text-xl font-semibold text-slate-900 sm:text-2xl">
+          Year-wise placement comparison
+        </h3>
+      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-        {allYearsData.map((yearBlock) => {
-          const metrics = calculateMetrics(yearBlock.placements);
-          const accent =
-            YEAR_COLORS[yearBlock.year] ?? "border-gray-300";
-
-          return (
-            <div
-              key={yearBlock.year}
-              className={`
-                bg-white border-l-4 ${accent}
-                rounded-xl
-                p-4 sm:p-5
-                shadow-sm
-              `}
-            >
-              <p className="text-xs sm:text-sm font-medium text-gray-500 mb-2">
-                {yearBlock.year}
-              </p>
-
-              <div className="space-y-1.5">
-                <StatRow
-                  label="Highest"
-                  value={`${metrics.highest} LPA`}
-                />
-                <StatRow
-                  label="Average"
-                  value={`${metrics.average} LPA`}
-                />
-                <StatRow
-                  label="Placed"
-                  value={`${metrics.percent}%`}
-                />
+      <div className="grid gap-4 lg:grid-cols-3">
+        {summaries.map((summary) => (
+          <div
+            key={summary.year}
+            className="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm"
+          >
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-600">
+                  {summary.year}
+                </p>
+                <h4 className="mt-2 text-lg font-semibold text-slate-900">
+                  Placement snapshot
+                </h4>
+              </div>
+              <div className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">
+                {summary.branchCount} branches
               </div>
             </div>
-          );
-        })}
+
+            <div className="mt-4 space-y-2 text-sm">
+              <StatRow label="Highest package" value={formatLpa(summary.highestPackage)} />
+              <StatRow label="Weighted average" value={formatLpa(summary.averagePackage)} />
+              <StatRow
+                label="Placement rate"
+                value={`${summary.placementRate.toFixed(1)}%`}
+              />
+              <StatRow
+                label="Top branch"
+                value={summary.topBranch?.branch || "N/A"}
+              />
+            </div>
+          </div>
+        ))}
       </div>
-    </div>
+    </section>
   );
 }
 
-/* ================= UI Primitives ================= */
-function Stat({ title, value, accent }) {
+function StatCard({ title, value, note, accent }) {
   return (
     <div
-      className={`
-        bg-white border-l-4 ${accent}
-        rounded-lg sm:rounded-xl
-        p-3 sm:p-6
-        shadow-sm
-        text-center sm:text-left
-      `}
+      className={`rounded-[1.5rem] border border-slate-200 bg-gradient-to-br ${accent} p-5 shadow-sm`}
     >
-      <p className="text-[10px] sm:text-sm text-gray-500 leading-tight">
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-600">
         {title}
       </p>
-      <h3 className="text-base sm:text-3xl font-bold mt-0.5 sm:mt-1 text-gray-900">
+      <p className="mt-3 text-2xl font-bold tracking-tight text-slate-900">
         {value}
-      </h3>
+      </p>
+      <p className="mt-2 text-sm leading-6 text-slate-600">{note}</p>
     </div>
   );
 }
 
 function StatRow({ label, value }) {
   return (
-    <div className="flex justify-between text-xs sm:text-sm">
-      <span className="text-gray-600">{label}</span>
-      <span className="font-medium text-gray-900">
-        {value}
-      </span>
+    <div className="flex items-center justify-between gap-3 rounded-xl bg-slate-50 px-3 py-2.5">
+      <span className="text-slate-600">{label}</span>
+      <span className="font-medium text-slate-900">{value}</span>
     </div>
   );
 }

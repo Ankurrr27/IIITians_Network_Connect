@@ -23,11 +23,12 @@ export default function Placement() {
       const res = await getPlacementByCollegeName(name);
       setData(res.data);
 
-      const years = res.data.yearlyPlacements.map(y => y.year);
-      setYear(Math.max(...years));
+      const years = (res.data.yearlyPlacements || []).map((entry) => entry.year);
+      setYear(years.length ? Math.max(...years) : null);
     } catch (err) {
       console.error("Placement fetch failed:", err);
       setData(null);
+      setYear(null);
     } finally {
       setLoading(false);
     }
@@ -38,8 +39,7 @@ export default function Placement() {
     : null;
 
   return (
-    <div className="max-w-7xl mx-auto px-6 pt-4 pb-0 sm:py-6 sm:space-y-12">
-      {/* Search */}
+    <div className="mx-auto max-w-7xl px-4 pb-12 pt-24 sm:px-6 sm:pb-16 sm:pt-28 sm:space-y-12">
       <PlacementSearchBar
         college={college}
         searched={searched}
@@ -51,15 +51,10 @@ export default function Placement() {
         onYearChange={setYear}
       />
 
-      {/* Default Preview */}
       {!searched && <PlacementPreview />}
 
-     
-
-      {/* Snapshot */}
       {data && <PlacementSnapshot data={data} />}
 
-      {/* Results */}
       {data && !loading && (
         <PlacementResults
           data={data}
@@ -68,9 +63,8 @@ export default function Placement() {
         />
       )}
 
-      {/* No Data */}
       {searched && !loading && !data && (
-        <p className="text-center text-gray-500">
+        <p className="rounded-[1.5rem] border border-dashed border-slate-300 bg-white px-6 py-12 text-center text-slate-500">
           No placement data found.
         </p>
       )}
