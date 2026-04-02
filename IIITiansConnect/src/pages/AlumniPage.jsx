@@ -5,9 +5,13 @@ import {
   ChevronDown,
   ChevronUp,
   GraduationCap,
+  Instagram,
+  Linkedin,
   LoaderCircle,
+  Mail,
   MapPin,
   Search,
+  ShieldCheck,
   Sparkles,
   Users,
 } from "lucide-react";
@@ -21,16 +25,25 @@ const initialForm = {
   graduationYear: "",
   generation: "",
   branch: "",
+  networkPost: "",
   currentRole: "",
   currentCompany: "",
   location: "",
   linkedin: "",
+  instagram: "",
   bio: "",
+};
+
+const cardShell = {
+  light:
+    "border-slate-200 bg-white shadow-[0_18px_50px_rgba(15,23,42,0.06)]",
+  dark:
+    "border-slate-800 bg-slate-900 shadow-[0_18px_50px_rgba(15,23,42,0.26)]",
 };
 
 export default function AlumniPage() {
   const { isDarkMode } = useThemeMode();
-  const [alumni, setAlumni] = useState([]);
+  const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [apiUnavailable, setApiUnavailable] = useState(false);
   const [search, setSearch] = useState("");
@@ -43,7 +56,7 @@ export default function AlumniPage() {
   });
   const [form, setForm] = useState(initialForm);
 
-  const fetchAlumni = async (filters = {}) => {
+  const fetchEntries = async (filters = {}) => {
     setLoading(true);
 
     try {
@@ -54,50 +67,50 @@ export default function AlumniPage() {
         },
       });
 
-      setAlumni(response.data);
+      setEntries(response.data);
       setApiUnavailable(false);
     } catch (error) {
       if (error.response?.status === 404) {
         setApiUnavailable(true);
       }
-      console.error("ALUMNI FETCH ERROR:", error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchAlumni();
-  }, []);
-
-  useEffect(() => {
     const timeout = setTimeout(() => {
-      fetchAlumni({ search, generation: generationFilter });
+      fetchEntries({ search, generation: generationFilter });
     }, 250);
 
     return () => clearTimeout(timeout);
   }, [search, generationFilter]);
 
   const generationOptions = useMemo(() => {
-    const values = alumni.map((entry) => entry.generation).filter(Boolean);
+    const values = entries.map((entry) => entry.generation).filter(Boolean);
     return [...new Set(values)].sort((a, b) => b.localeCompare(a));
-  }, [alumni]);
+  }, [entries]);
 
   const stats = useMemo(
     () => [
-      { label: "Listed alumni", value: alumni.length, icon: Users },
+      { label: "Legacy profiles", value: entries.length, icon: Users },
       {
-        label: "Companies represented",
-        value: new Set(alumni.map((entry) => entry.currentCompany)).size,
+        label: "Network posts",
+        value: new Set(entries.map((entry) => entry.networkPost).filter(Boolean)).size,
+        icon: ShieldCheck,
+      },
+      {
+        label: "Companies listed",
+        value: new Set(entries.map((entry) => entry.currentCompany).filter(Boolean)).size,
         icon: Building2,
       },
       {
         label: "Batches visible",
-        value: new Set(alumni.map((entry) => entry.generation)).size,
+        value: new Set(entries.map((entry) => entry.generation).filter(Boolean)).size,
         icon: GraduationCap,
       },
     ],
-    [alumni]
+    [entries]
   );
 
   const handleChange = (event) => {
@@ -129,19 +142,21 @@ export default function AlumniPage() {
         loading: false,
         error: "",
         success:
-          "Your alumni request has been submitted. It will appear in the alumni directory after admin approval.",
+          "Your Network Legacy request has been submitted. It will appear after admin approval.",
       });
       setApiUnavailable(false);
     } catch (error) {
       const notDeployed = error.response?.status === 404;
+
       if (notDeployed) {
         setApiUnavailable(true);
       }
+
       setSubmitState({
         loading: false,
         success: "",
         error: notDeployed
-          ? "The alumni API is not live on the backend yet. Redeploy the backend service first, then try again."
+          ? "The Network Legacy API is not live on the backend yet. Redeploy the backend service first."
           : error.response?.data?.message ||
             "Could not submit your details right now.",
       });
@@ -156,56 +171,53 @@ export default function AlumniPage() {
           : "bg-gradient-to-b from-indigo-50 via-white to-white"
       }`}
     >
-      <section className="relative overflow-hidden px-6 pb-14 pt-28">
+      <section className="relative overflow-hidden px-4 pb-8 pt-24 sm:px-6 sm:pb-12 sm:pt-28">
         <div
-          className={`absolute inset-x-0 top-0 h-72 ${
+          className={`absolute inset-x-0 top-0 h-64 ${
             isDarkMode
-              ? "bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.12),_transparent_52%)]"
+              ? "bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.14),_transparent_52%)]"
               : "bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.16),_transparent_52%)]"
           }`}
         />
 
         <div className="mx-auto max-w-7xl">
-          <div className="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-indigo-600">
+          <div className="inline-flex items-center gap-2 rounded-full border border-indigo-100 bg-white/80 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-indigo-600 sm:px-4 sm:py-2 sm:text-xs">
             <Sparkles className="h-4 w-4" />
-            Alumni Network
+            Network Legacy
           </div>
 
           <h1
-            className={`mt-5 max-w-4xl text-4xl font-extrabold leading-tight sm:text-5xl ${
+            className={`mt-4 max-w-4xl text-3xl font-extrabold leading-tight sm:mt-5 sm:text-5xl ${
               isDarkMode ? "text-slate-100" : "text-slate-900"
             }`}
           >
-            Discover alumni, trace batches, and add your own story to the
-            IIITians network.
+            Build the IIITians Network Legacy with trusted alumni stories.
           </h1>
 
           <p
-            className={`mt-5 max-w-3xl text-base leading-8 sm:text-lg ${
+            className={`mt-4 max-w-3xl text-sm leading-7 sm:text-lg sm:leading-8 ${
               isDarkMode ? "text-slate-300" : "text-slate-600"
             }`}
           >
-            The alumni section now works as a live directory. Search by name,
-            generation, role, company, or institute. New alumni submissions are
-            reviewed by an admin first, then published to the network.
+            Search legacy profiles by batch, post, company, role, or institute.
+            Every new profile request is reviewed by an admin before it becomes
+            part of the public network.
           </p>
 
-          <div className="mt-8 grid gap-4 sm:grid-cols-3">
+          <div className="mt-6 grid gap-3 sm:mt-8 sm:grid-cols-2 xl:grid-cols-4">
             {stats.map((item) => {
               const Icon = item.icon;
 
               return (
                 <div
                   key={item.label}
-                  className={`rounded-3xl border p-5 ${
-                    isDarkMode
-                      ? "border-slate-800 bg-slate-900 text-slate-100 shadow-[0_18px_45px_rgba(15,23,42,0.24)]"
-                      : "border-indigo-100 bg-white/80 shadow-[0_18px_45px_rgba(99,102,241,0.08)]"
+                  className={`rounded-[1.5rem] border p-4 sm:rounded-[1.75rem] sm:p-5 ${
+                    isDarkMode ? cardShell.dark : cardShell.light
                   }`}
                 >
                   <Icon className="h-5 w-5 text-indigo-600" />
                   <div
-                    className={`mt-4 text-3xl font-semibold ${
+                    className={`mt-3 text-2xl font-semibold sm:text-3xl ${
                       isDarkMode ? "text-slate-100" : "text-slate-900"
                     }`}
                   >
@@ -225,19 +237,18 @@ export default function AlumniPage() {
         </div>
       </section>
 
-      <section className="px-6 pb-20">
-        <div className="mx-auto max-w-7xl space-y-6">
+      <section className="px-4 pb-14 sm:px-6 sm:pb-20">
+        <div className="mx-auto max-w-7xl space-y-4 sm:space-y-6">
           {apiUnavailable && (
             <div
-              className={`rounded-[2rem] border px-5 py-4 text-sm leading-7 ${
+              className={`rounded-[1.5rem] border px-4 py-3 text-sm leading-7 sm:px-5 sm:py-4 ${
                 isDarkMode
                   ? "border-amber-900 bg-amber-950/40 text-amber-200"
                   : "border-amber-200 bg-amber-50 text-amber-800"
               }`}
             >
-              The alumni backend route is returning `404`, which means the
-              deployed backend does not have `/api/alumni` live yet. Redeploy
-              the backend service before testing the alumni search or form.
+              The deployed backend does not have `/api/alumni` live yet. Redeploy
+              the backend before testing the Network Legacy page fully.
             </div>
           )}
 
@@ -254,35 +265,33 @@ export default function AlumniPage() {
           )}
 
           <div
-            className={`rounded-[2rem] border p-6 ${
-              isDarkMode
-                ? "border-slate-800 bg-slate-900 shadow-[0_20px_60px_rgba(15,23,42,0.3)]"
-                : "border-slate-200 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.06)]"
+            className={`rounded-[1.5rem] border p-4 sm:rounded-[2rem] sm:p-6 ${
+              isDarkMode ? cardShell.dark : cardShell.light
             }`}
           >
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div className="flex flex-col gap-4 sm:gap-5 lg:flex-row lg:items-start lg:justify-between">
               <div>
                 <h2
-                  className={`text-2xl font-semibold ${
+                  className={`text-xl font-semibold sm:text-2xl ${
                     isDarkMode ? "text-slate-100" : "text-slate-900"
                   }`}
                 >
-                  Add yourself to the alumni directory
+                  Add your Network Legacy profile
                 </h2>
                 <p
-                  className={`mt-2 text-sm leading-7 ${
+                  className={`mt-2 text-sm leading-6 sm:leading-7 ${
                     isDarkMode ? "text-slate-400" : "text-slate-600"
                   }`}
                 >
-                  Fill in your details and send a request for review. Your
-                  profile will go live only after an admin approves it.
+                  Send your profile for review. Only approved entries are shown
+                  in the public legacy page.
                 </p>
               </div>
 
               <button
                 type="button"
                 onClick={() => setIsFormOpen((prev) => !prev)}
-                className="inline-flex items-center gap-2 rounded-full bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700"
               >
                 {isFormOpen ? "Close form" : "Open form"}
                 {isFormOpen ? (
@@ -294,8 +303,8 @@ export default function AlumniPage() {
             </div>
 
             {isFormOpen && (
-              <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-                <div className="grid gap-4 sm:grid-cols-2">
+              <form onSubmit={handleSubmit} className="mt-5 space-y-4">
+                <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
                   {[
                     ["name", "Full name", "text", true, ""],
                     ["email", "Email address", "email", true, ""],
@@ -303,10 +312,12 @@ export default function AlumniPage() {
                     ["generation", "Generation (e.g. 2020-24)", "text", true, ""],
                     ["graduationYear", "Graduation year", "number", true, ""],
                     ["branch", "Branch", "text", true, ""],
-                    ["currentRole", "Current role", "text", true, ""],
-                    ["currentCompany", "Current company", "text", true, ""],
-                    ["location", "Location", "text", false, "sm:col-span-2"],
+                    ["networkPost", "Network post", "text", false, ""],
+                    ["currentRole", "Current role / designation", "text", false, ""],
+                    ["currentCompany", "Current company (if placed)", "text", false, ""],
+                    ["location", "Location", "text", false, ""],
                     ["linkedin", "LinkedIn profile URL", "text", false, "sm:col-span-2"],
+                    ["instagram", "Instagram profile URL", "text", false, "sm:col-span-2"],
                   ].map(([name, placeholder, type, required, span]) => (
                     <input
                       key={name}
@@ -316,7 +327,7 @@ export default function AlumniPage() {
                       onChange={handleChange}
                       placeholder={placeholder}
                       required={required}
-                      className={`rounded-2xl border px-4 py-3 outline-none transition ${span} ${
+                      className={`rounded-2xl border px-4 py-3 text-sm outline-none transition ${span} sm:text-base ${
                         isDarkMode
                           ? "border-slate-700 bg-slate-950 text-slate-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20"
                           : "border-slate-200 bg-slate-50 text-slate-900 focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100"
@@ -328,9 +339,9 @@ export default function AlumniPage() {
                     name="bio"
                     value={form.bio}
                     onChange={handleChange}
-                    placeholder="Short bio, interests, or what you're building now"
+                    placeholder="Short bio, interests, achievements, or what you're building now"
                     rows={4}
-                    className={`rounded-2xl border px-4 py-3 outline-none transition sm:col-span-2 ${
+                    className={`rounded-2xl border px-4 py-3 text-sm outline-none transition sm:col-span-2 sm:text-base ${
                       isDarkMode
                         ? "border-slate-700 bg-slate-950 text-slate-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20"
                         : "border-slate-200 bg-slate-50 text-slate-900 focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100"
@@ -341,49 +352,45 @@ export default function AlumniPage() {
                 <button
                   type="submit"
                   disabled={submitState.loading}
-                  className="w-full rounded-2xl bg-indigo-600 px-4 py-3 font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="w-full rounded-2xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60 sm:text-base"
                 >
-                  {submitState.loading ? "Submitting..." : "Send alumni request"}
+                  {submitState.loading ? "Submitting..." : "Send legacy request"}
                 </button>
               </form>
             )}
           </div>
 
           <div
-            className={`rounded-[2rem] border p-6 ${
-              isDarkMode
-                ? "border-slate-800 bg-slate-900 shadow-[0_20px_60px_rgba(15,23,42,0.3)]"
-                : "border-slate-200 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.06)]"
+            className={`rounded-[1.5rem] border p-4 sm:rounded-[2rem] sm:p-6 ${
+              isDarkMode ? cardShell.dark : cardShell.light
             }`}
           >
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-              <div>
-                <h2
-                  className={`text-2xl font-semibold ${
-                    isDarkMode ? "text-slate-100" : "text-slate-900"
-                  }`}
-                >
-                  Search alumni
-                </h2>
-                <p
-                  className={`mt-1 text-sm ${
-                    isDarkMode ? "text-slate-400" : "text-slate-600"
-                  }`}
-                >
-                  Filter by name, company, role, branch, batch, or institute.
-                </p>
-              </div>
+            <div>
+              <h2
+                className={`text-xl font-semibold sm:text-2xl ${
+                  isDarkMode ? "text-slate-100" : "text-slate-900"
+                }`}
+              >
+                Search Network Legacy
+              </h2>
+              <p
+                className={`mt-1 text-sm ${
+                  isDarkMode ? "text-slate-400" : "text-slate-600"
+                }`}
+              >
+                Filter by name, batch, post, role, company, or institute.
+              </p>
             </div>
 
-            <div className="mt-5 grid gap-4 md:grid-cols-[1fr_220px]">
+            <div className="mt-4 grid gap-3 md:grid-cols-[1fr_220px]">
               <label className="relative block">
                 <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                 <input
                   type="text"
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
-                  placeholder="Search by name, company, role, branch, or IIIT"
-                  className={`w-full rounded-2xl border px-11 py-3 outline-none transition ${
+                  placeholder="Search name, post, role, company, branch, or IIIT"
+                  className={`w-full rounded-2xl border px-11 py-3 text-sm outline-none transition sm:text-base ${
                     isDarkMode
                       ? "border-slate-700 bg-slate-950 text-slate-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20"
                       : "border-slate-200 bg-slate-50 text-slate-900 focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100"
@@ -394,7 +401,7 @@ export default function AlumniPage() {
               <select
                 value={generationFilter}
                 onChange={(event) => setGenerationFilter(event.target.value)}
-                className={`w-full rounded-2xl border px-4 py-3 outline-none transition ${
+                className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition sm:text-base ${
                   isDarkMode
                     ? "border-slate-700 bg-slate-950 text-slate-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20"
                     : "border-slate-200 bg-slate-50 text-slate-900 focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100"
@@ -410,85 +417,99 @@ export default function AlumniPage() {
             </div>
           </div>
 
-          <div className="grid gap-4">
+          <div className="grid gap-3 sm:gap-4">
             {loading ? (
               <div
-                className={`flex min-h-[240px] items-center justify-center rounded-[2rem] border ${
-                  isDarkMode
-                    ? "border-slate-800 bg-slate-900 text-slate-400 shadow-[0_20px_60px_rgba(15,23,42,0.25)]"
-                    : "border-slate-200 bg-white text-slate-500 shadow-[0_20px_60px_rgba(15,23,42,0.05)]"
-                }`}
+                className={`flex min-h-[220px] items-center justify-center rounded-[1.5rem] border text-sm sm:rounded-[2rem] ${
+                  isDarkMode ? cardShell.dark : cardShell.light
+                } ${isDarkMode ? "text-slate-400" : "text-slate-500"}`}
               >
                 <LoaderCircle className="mr-3 h-5 w-5 animate-spin" />
-                Loading alumni directory...
+                Loading Network Legacy...
               </div>
-            ) : alumni.length === 0 ? (
+            ) : entries.length === 0 ? (
               <div
-                className={`rounded-[2rem] border border-dashed p-8 text-center ${
+                className={`rounded-[1.5rem] border border-dashed p-6 text-center sm:rounded-[2rem] sm:p-8 ${
                   isDarkMode
                     ? "border-slate-700 bg-slate-900 shadow-[0_20px_60px_rgba(15,23,42,0.25)]"
                     : "border-slate-300 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.05)]"
                 }`}
               >
                 <h3
-                  className={`text-xl font-semibold ${
+                  className={`text-lg font-semibold sm:text-xl ${
                     isDarkMode ? "text-slate-100" : "text-slate-900"
                   }`}
                 >
-                  No alumni match this search yet
+                  No legacy profiles match this search yet
                 </h3>
                 <p
                   className={`mt-2 text-sm leading-7 ${
                     isDarkMode ? "text-slate-400" : "text-slate-600"
                   }`}
                 >
-                  Try another keyword or send an alumni request using the button
-                  above.
+                  Try another search term or open the form above to submit a
+                  new profile request.
                 </p>
               </div>
             ) : (
-              alumni.map((entry) => (
+              entries.map((entry) => (
                 <article
                   key={entry._id}
-                  className={`rounded-[2rem] border p-6 transition hover:-translate-y-0.5 ${
-                    isDarkMode
-                      ? "border-slate-800 bg-slate-900 shadow-[0_20px_60px_rgba(15,23,42,0.25)] hover:shadow-[0_24px_70px_rgba(15,23,42,0.3)]"
-                      : "border-slate-200 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.05)] hover:shadow-[0_24px_70px_rgba(15,23,42,0.08)]"
+                  className={`rounded-[1.5rem] border p-4 transition sm:rounded-[2rem] sm:p-6 ${
+                    isDarkMode ? cardShell.dark : cardShell.light
                   }`}
                 >
-                  <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
+                  <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                     <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.24em] text-indigo-600">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-indigo-600 sm:text-xs sm:tracking-[0.24em]">
                         {entry.generation}
                       </p>
                       <h3
-                        className={`mt-2 text-2xl font-semibold ${
+                        className={`mt-2 text-xl font-semibold sm:text-2xl ${
                           isDarkMode ? "text-slate-100" : "text-slate-900"
                         }`}
                       >
                         {entry.name}
                       </h3>
+
                       <div
-                        className={`mt-3 flex flex-wrap gap-3 text-sm ${
+                        className={`mt-3 flex flex-wrap gap-2 text-sm ${
                           isDarkMode ? "text-slate-300" : "text-slate-600"
                         }`}
                       >
-                        <span
-                          className={`inline-flex items-center gap-2 rounded-full px-3 py-1 ${
-                            isDarkMode ? "bg-slate-800" : "bg-slate-100"
-                          }`}
-                        >
-                          <Briefcase className="h-4 w-4 text-indigo-600" />
-                          {entry.currentRole}
-                        </span>
-                        <span
-                          className={`inline-flex items-center gap-2 rounded-full px-3 py-1 ${
-                            isDarkMode ? "bg-slate-800" : "bg-slate-100"
-                          }`}
-                        >
-                          <Building2 className="h-4 w-4 text-indigo-600" />
-                          {entry.currentCompany}
-                        </span>
+                        {entry.networkPost && (
+                          <span
+                            className={`inline-flex items-center gap-2 rounded-full px-3 py-1 ${
+                              isDarkMode ? "bg-slate-800" : "bg-indigo-50"
+                            }`}
+                          >
+                            <ShieldCheck className="h-4 w-4 text-indigo-600" />
+                            {entry.networkPost}
+                          </span>
+                        )}
+
+                        {entry.currentRole && (
+                          <span
+                            className={`inline-flex items-center gap-2 rounded-full px-3 py-1 ${
+                              isDarkMode ? "bg-slate-800" : "bg-slate-100"
+                            }`}
+                          >
+                            <Briefcase className="h-4 w-4 text-indigo-600" />
+                            {entry.currentRole}
+                          </span>
+                        )}
+
+                        {entry.currentCompany && (
+                          <span
+                            className={`inline-flex items-center gap-2 rounded-full px-3 py-1 ${
+                              isDarkMode ? "bg-slate-800" : "bg-slate-100"
+                            }`}
+                          >
+                            <Building2 className="h-4 w-4 text-indigo-600" />
+                            {entry.currentCompany}
+                          </span>
+                        )}
+
                         {entry.location && (
                           <span
                             className={`inline-flex items-center gap-2 rounded-full px-3 py-1 ${
@@ -528,18 +549,33 @@ export default function AlumniPage() {
                   <div className="mt-4 flex flex-wrap gap-4 text-sm">
                     <a
                       href={`mailto:${entry.email}`}
-                      className="font-medium text-indigo-600 transition hover:text-indigo-500"
+                      className="inline-flex items-center gap-2 font-medium text-indigo-600 transition hover:text-indigo-500"
                     >
-                      {entry.email}
+                      <Mail className="h-4 w-4" />
+                      Email
                     </a>
+
                     {entry.linkedin && (
                       <a
                         href={entry.linkedin}
                         target="_blank"
                         rel="noreferrer"
-                        className="font-medium text-indigo-600 transition hover:text-indigo-500"
+                        className="inline-flex items-center gap-2 font-medium text-indigo-600 transition hover:text-indigo-500"
                       >
+                        <Linkedin className="h-4 w-4" />
                         LinkedIn
+                      </a>
+                    )}
+
+                    {entry.instagram && (
+                      <a
+                        href={entry.instagram}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-2 font-medium text-indigo-600 transition hover:text-indigo-500"
+                      >
+                        <Instagram className="h-4 w-4" />
+                        Instagram
                       </a>
                     )}
                   </div>

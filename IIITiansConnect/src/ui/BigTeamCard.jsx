@@ -1,107 +1,68 @@
 import { Linkedin, Github, Instagram, Twitter, Globe } from "lucide-react";
 import { useState } from "react";
 
+const socialItems = [
+  { key: "linkedin", icon: Linkedin, label: "LinkedIn" },
+  { key: "github", icon: Github, label: "GitHub" },
+  { key: "instagram", icon: Instagram, label: "Instagram" },
+  { key: "twitter", icon: Twitter, label: "Twitter" },
+  { key: "website", icon: Globe, label: "Website" },
+];
+
 const BigTeamCard = ({ name, role, college, image, desc, links = {} }) => {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl p-3 sm:p-4 shadow-sm hover:shadow-md transition">
-      
-      {/* TOP ROW */}
-      <div className="flex items-start gap-3 sm:gap-4">
-        
-        {/* PHOTO */}
-        <div
-          className="
-            w-14 h-14
-            sm:w-40 sm:aspect-[3/4] sm:h-auto
-            rounded-lg overflow-hidden
-            flex-shrink-0
-            sm:-ml-4 sm:-mt-4 sm:-mb-4
-          "
-        >
-          <img src={image} alt={name} className="w-full h-full object-cover" />
+    <div className="group overflow-hidden rounded-[1.35rem] border border-slate-200 bg-white p-3.5 shadow-[0_18px_50px_rgba(15,23,42,0.06)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_70px_rgba(79,70,229,0.12)] sm:rounded-[1.75rem] sm:p-5">
+      <div className="flex items-start gap-3 sm:block">
+        <div className="relative h-24 w-20 flex-shrink-0 overflow-hidden rounded-[1rem] bg-indigo-50 sm:h-64 sm:w-full sm:rounded-[1.5rem]">
+          <img src={image} alt={name} className="h-full w-full object-cover" />
+          <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-slate-950/20 to-transparent sm:h-24" />
         </div>
 
-        {/* CONTENT */}
-        <div className="flex-1">
-          <h3 className="text-sm sm:text-base font-semibold text-gray-900 leading-tight">
+        <div className="min-w-0 flex-1 sm:mt-5">
+          <h3 className="text-sm font-semibold leading-tight text-slate-900 sm:text-2xl">
             {name}
           </h3>
 
-          <p className="text-xs sm:text-sm text-indigo-600 font-medium">
+          <p className="mt-1 text-[11px] font-medium leading-4 text-indigo-600 sm:text-sm sm:leading-5">
             {role} · {college}
           </p>
 
-          {/* DESCRIPTION — DESKTOP */}
           <p
-            className={`
-              hidden sm:block
-              mt-1
-              text-sm
-              text-gray-600
-              leading-snug
-              overflow-hidden
-              transition-all duration-300
-              ${expanded ? "max-h-[500px]" : "max-h-[4.5em]"}
-            `}
+            className={`mt-2 text-[12px] leading-5 text-slate-600 sm:mt-3 sm:text-[15px] sm:leading-7 ${
+              expanded ? "" : "line-clamp-3 sm:line-clamp-5"
+            }`}
           >
             {desc}
           </p>
 
-          {/* SEE MORE — DESKTOP */}
           {desc?.length > 80 && (
             <button
-              onClick={() => setExpanded(!expanded)}
-              className="hidden sm:inline-block text-xs text-indigo-500 mt-1 hover:underline"
+              onClick={() => setExpanded((prev) => !prev)}
+              className="mt-1.5 text-xs font-medium text-indigo-600 transition hover:text-indigo-700 sm:mt-2 sm:text-sm"
             >
               {expanded ? "See less" : "See more"}
             </button>
           )}
-
-          {/* SOCIALS — DESKTOP (below description) */}
-          <div className="hidden sm:flex gap-3 mt-3 text-gray-600">
-            {links.linkedin && <a href={links.linkedin} target="_blank" rel="noreferrer"><Linkedin size={16} /></a>}
-            {links.github && <a href={links.github} target="_blank" rel="noreferrer"><Github size={16} /></a>}
-            {links.instagram && <a href={links.instagram} target="_blank" rel="noreferrer"><Instagram size={16} /></a>}
-            {links.twitter && <a href={links.twitter} target="_blank" rel="noreferrer"><Twitter size={16} /></a>}
-            {links.website && <a href={links.website} target="_blank" rel="noreferrer"><Globe size={16} /></a>}
-          </div>
         </div>
       </div>
 
-      {/* DESCRIPTION — MOBILE FULL WIDTH */}
-      <div className="sm:hidden mt-2">
-        <p
-          className={`
-            text-[11px]
-            text-gray-600
-            leading-snug
-            overflow-hidden
-            transition-all duration-300
-            ${expanded ? "max-h-[500px]" : "max-h-[6em]"}
-          `}
-        >
-          {desc}
-        </p>
-
-        {desc?.length > 80 && (
-          <button
-            onClick={() => setExpanded(!expanded)}
-            className="text-[11px] text-indigo-500 mt-1 hover:underline"
-          >
-            {expanded ? "See less" : "See more"}
-          </button>
+      <div className="mt-3 flex flex-wrap gap-2 sm:mt-5">
+        {socialItems.map(({ key, icon: Icon, label }) =>
+          links[key] ? (
+            <a
+              key={key}
+              href={links[key]}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-[11px] font-medium text-slate-700 transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 sm:gap-2 sm:px-3 sm:py-2 sm:text-sm"
+            >
+              <Icon size={14} />
+              <span>{label}</span>
+            </a>
+          ) : null
         )}
-
-        {/* SOCIALS — MOBILE */}
-        <div className="flex gap-2 mt-3 text-gray-600">
-          {links.linkedin && <a href={links.linkedin}><Linkedin size={14} /></a>}
-          {links.github && <a href={links.github}><Github size={14} /></a>}
-          {links.instagram && <a href={links.instagram}><Instagram size={14} /></a>}
-          {links.twitter && <a href={links.twitter}><Twitter size={14} /></a>}
-          {links.website && <a href={links.website}><Globe size={14} /></a>}
-        </div>
       </div>
     </div>
   );

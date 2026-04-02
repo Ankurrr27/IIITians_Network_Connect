@@ -11,7 +11,6 @@ const BlobWithLogo = ({ logoSrc = logo }) => {
         lg:w-[480px] lg:h-[480px]
       "
     >
-      {/* Blob */}
       <svg
         viewBox="0 0 200 200"
         className="absolute inset-0 w-full h-full drop-shadow-2xl"
@@ -38,7 +37,6 @@ const BlobWithLogo = ({ logoSrc = logo }) => {
         />
       </svg>
 
-      {/* Logo */}
       <img
         src={logoSrc}
         alt="Logo"

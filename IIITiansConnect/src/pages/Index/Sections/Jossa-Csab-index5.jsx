@@ -20,47 +20,42 @@ const counsellingPoints = [
 
 const Index4 = () => {
   const [active, setActive] = useState(null);
-  const [showMore, setShowMore] = useState(false); // 👈 mobile read-more
+  const [showMore, setShowMore] = useState(false);
 
   return (
     <section className="bg-white py-16 sm:py-24">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6">
-
-        {/* ================= HEADING ================= */}
-        <div className="text-center mb-10 sm:mb-16">
-          <h2 className="text-2xl sm:text-4xl text-left pl-1 sm:text-center sm:pl-0 font-extrabold text-gray-900 mb-3">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <div className="mb-10 sm:mb-16">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-indigo-600">
+            Counselling Support
+          </p>
+          <h2 className="mt-2 text-2xl font-extrabold text-slate-900 sm:text-4xl">
             JEE Counselling Guidance
           </h2>
 
-          <p className="text-sm text-left sm:text-center sm:text-lg text-gray-600 max-w-2xl mx-auto">
-            Practical, experience-backed support for JoSAA and CSAB counselling —
-            designed to help aspirants make confident, informed choices.
+          <p className="mt-3 max-w-2xl text-sm text-slate-600 sm:text-lg">
+            Practical, experience-backed support for JoSAA and CSAB counselling,
+            designed to help aspirants make confident and informed choices.
           </p>
         </div>
 
-        {/* ================= CONTENT ================= */}
-        <div className="grid md:grid-cols-2 gap-8 sm:gap-10 items-start">
-
-          {/* LEFT: TEXT (READ MORE ON MOBILE) */}
-          <div className="text-gray-700 leading-relaxed text-sm sm:text-base space-y-4">
-
-            {/* ALWAYS VISIBLE */}
+        <div className="grid items-start gap-8 sm:gap-10 md:grid-cols-2">
+          <div className="space-y-4 text-sm leading-7 text-slate-700 sm:text-base">
             <p>
-              IIITians Network simplifies the JEE counselling process by providing
-              aspirants with clear, unbiased guidance based on real student
-              experiences across IIITs.
+              IIITians Network simplifies the JEE counselling process by
+              providing aspirants with clear, unbiased guidance based on real
+              student experiences across IIITs.
             </p>
 
-            {/* MOBILE: READ MORE */}
-            <div className={`${showMore ? "block" : "hidden"} sm:block space-y-4`}>
+            <div className={`${showMore ? "block" : "hidden"} space-y-4 sm:block`}>
               <p>
                 We focus on reducing confusion during JoSAA and CSAB rounds by
                 explaining institute differences, branch expectations, cutoff
-                trends, and placement realities — without exaggeration or false
+                trends, and placement realities without exaggeration or false
                 promises.
               </p>
 
-              <ul className="list-disc pl-5 space-y-2">
+              <ul className="list-disc space-y-2 pl-5">
                 <li>Institute-wise and branch-wise counselling clarity</li>
                 <li>Previous year cutoff trends and interpretation</li>
                 <li>Academic workload and placement expectations</li>
@@ -68,75 +63,65 @@ const Index4 = () => {
               </ul>
             </div>
 
-            {/* READ MORE BUTTON — MOBILE ONLY */}
             <button
-              onClick={() => setShowMore(!showMore)}
-              className="sm:hidden text-indigo-600 text-sm font-medium mt-2"
+              onClick={() => setShowMore((prev) => !prev)}
+              className="text-sm font-medium text-indigo-600 sm:hidden"
             >
-              {showMore ? "Read less ↑" : "Read more ↓"}
+              {showMore ? "Read less" : "Read more"}
             </button>
 
-            {/* OFFICIAL LINKS — DESKTOP */}
-            <div className="hidden sm:block pt-4">
-              <p className="text-sm font-medium text-gray-900 mb-2">
-                Official Counselling Portals
+            <div className="hidden pt-4 sm:block">
+              <p className="mb-3 text-sm font-medium text-slate-900">
+                Official counselling portals
               </p>
 
-              <div className="flex gap-4 text-sm">
+              <div className="flex flex-wrap gap-3 text-sm">
                 <a
                   href="https://josaa.nic.in"
                   target="_blank"
                   rel="noreferrer"
-                  className="text-indigo-600 hover:underline"
+                  className="rounded-full border border-indigo-200 px-4 py-2 font-medium text-indigo-600 transition hover:bg-indigo-50"
                 >
-                  JoSAA Official Website →
+                  JoSAA Official Website
                 </a>
 
                 <a
                   href="https://csab.nic.in"
                   target="_blank"
                   rel="noreferrer"
-                  className="text-indigo-600 hover:underline"
+                  className="rounded-full border border-indigo-200 px-4 py-2 font-medium text-indigo-600 transition hover:bg-indigo-50"
                 >
-                  CSAB Official Website →
+                  CSAB Official Website
                 </a>
               </div>
             </div>
           </div>
 
-          {/* RIGHT: ACCORDION */}
-          <div className="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-2xl p-5 sm:p-8 shadow-md">
-            <h3 className="text-base sm:text-xl font-semibold text-gray-900 mb-5 sm:mb-6">
+          <div className="rounded-[1.75rem] bg-gradient-to-br from-indigo-50 to-blue-50 p-5 shadow-md sm:p-8">
+            <h3 className="text-base font-semibold text-slate-900 sm:text-xl">
               How We Help
             </h3>
 
-            <div className="space-y-3">
+            <div className="mt-5 space-y-3">
               {counsellingPoints.map((item, index) => (
                 <div
                   key={index}
-                  className="bg-white rounded-xl border border-gray-200 overflow-hidden"
+                  className="overflow-hidden rounded-xl border border-slate-200 bg-white"
                 >
                   <button
-                    onClick={() =>
-                      setActive(active === index ? null : index)
-                    }
-                    className="
-                      w-full flex justify-between items-center
-                      p-3 sm:p-4 text-left
-                      focus:outline-none
-                      focus-visible:ring-2 focus-visible:ring-indigo-500
-                    "
+                    onClick={() => setActive(active === index ? null : index)}
+                    className="flex w-full items-center justify-between p-3 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 sm:p-4"
                   >
-                    <span className="text-sm sm:text-base font-medium text-gray-900">
+                    <span className="text-sm font-medium text-slate-900 sm:text-base">
                       {item.title}
                     </span>
-                    <span className="text-indigo-600 text-lg">
-                      {active === index ? "−" : "+"}
+                    <span className="text-lg text-indigo-600">
+                      {active === index ? "-" : "+"}
                     </span>
                   </button>
 
                   {active === index && (
-                    <div className="px-3 sm:px-4 pb-3 sm:pb-4 text-xs sm:text-sm text-gray-600">
+                    <div className="px-3 pb-3 text-xs text-slate-600 sm:px-4 sm:pb-4 sm:text-sm">
                       {item.content}
                     </div>
                   )}
@@ -146,13 +131,12 @@ const Index4 = () => {
           </div>
         </div>
 
-        {/* OFFICIAL LINKS — MOBILE (BOTTOM, TAPPABLE) */}
-        <div className="sm:hidden mt-10 flex flex-col gap-3">
+        <div className="mt-10 flex flex-col gap-3 sm:hidden">
           <a
             href="https://josaa.nic.in"
             target="_blank"
             rel="noreferrer"
-            className="w-full text-center py-2 rounded-lg border border-indigo-600 text-indigo-600 text-sm font-medium"
+            className="w-full rounded-xl border border-indigo-600 py-2.5 text-center text-sm font-medium text-indigo-600"
           >
             JoSAA Official Website
           </a>
@@ -161,7 +145,7 @@ const Index4 = () => {
             href="https://csab.nic.in"
             target="_blank"
             rel="noreferrer"
-            className="w-full text-center py-2 rounded-lg border border-indigo-600 text-indigo-600 text-sm font-medium"
+            className="w-full rounded-xl border border-indigo-600 py-2.5 text-center text-sm font-medium text-indigo-600"
           >
             CSAB Official Website
           </a>

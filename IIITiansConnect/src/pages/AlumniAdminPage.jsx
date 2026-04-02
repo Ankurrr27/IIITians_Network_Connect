@@ -10,7 +10,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import api from "../api/axios";
 
 const filters = [
-  { label: "All Alumni", value: "all" },
+  { label: "All Profiles", value: "all" },
   { label: "Pending", value: "pending" },
   { label: "Approved", value: "approved" },
   { label: "Rejected", value: "rejected" },
@@ -37,9 +37,9 @@ const mergeEntries = (...groups) => {
 
 function StatCard({ label, value }) {
   return (
-    <div className="rounded-2xl bg-indigo-50 px-5 py-4 text-sm text-indigo-900">
+    <div className="rounded-2xl bg-indigo-50 px-4 py-3 text-sm text-indigo-900 sm:px-5 sm:py-4">
       <div className="font-semibold">{label}</div>
-      <div className="mt-1 text-3xl font-semibold">{value}</div>
+      <div className="mt-1 text-2xl font-semibold sm:text-3xl">{value}</div>
     </div>
   );
 }
@@ -81,7 +81,6 @@ export default function AlumniAdminPage() {
         publicResult.status === "fulfilled" ? publicResult.value.data : [];
 
       const merged = mergeEntries(adminEntries, publicEntries);
-
       const filtered =
         nextStatus === "all"
           ? merged
@@ -91,25 +90,23 @@ export default function AlumniAdminPage() {
 
       setEntries(filtered);
 
-      if (!filtered.length) {
-        if (
-          adminResult.status === "rejected" &&
-          publicResult.status === "fulfilled"
-        ) {
-          setError(
-            "Admin-only alumni data could not be loaded, so only public alumni are shown right now."
-          );
-        } else if (
-          publicResult.status === "rejected" &&
-          adminResult.status === "fulfilled"
-        ) {
-          setError(
-            "Public alumni fallback could not be loaded, so only admin alumni data is shown right now."
-          );
-        }
+      if (
+        adminResult.status === "rejected" &&
+        publicResult.status === "fulfilled"
+      ) {
+        setError(
+          "Admin-only data could not be loaded, so only public Network Legacy profiles are shown."
+        );
+      } else if (
+        publicResult.status === "rejected" &&
+        adminResult.status === "fulfilled"
+      ) {
+        setError(
+          "Public fallback data could not be loaded, so only admin Network Legacy data is shown."
+        );
       }
     } catch (err) {
-      setError(err.response?.data?.message || "Could not load alumni.");
+      setError(err.response?.data?.message || "Could not load Network Legacy.");
     } finally {
       setLoading(false);
     }
@@ -156,7 +153,7 @@ export default function AlumniAdminPage() {
       );
     } catch (err) {
       setError(
-        err.response?.data?.message || "Could not update alumni status."
+        err.response?.data?.message || "Could not update profile status."
       );
     } finally {
       setBusyId("");
@@ -165,7 +162,7 @@ export default function AlumniAdminPage() {
 
   const handleDelete = async (id) => {
     const confirmed = window.confirm(
-      "Delete this alumni entry permanently from the admin panel?"
+      "Delete this Network Legacy profile permanently?"
     );
     if (!confirmed) return;
 
@@ -176,26 +173,26 @@ export default function AlumniAdminPage() {
       await api.delete(`/alumni/${id}`);
       setEntries((prev) => prev.filter((entry) => entry._id !== id));
     } catch (err) {
-      setError(err.response?.data?.message || "Could not delete alumni.");
+      setError(err.response?.data?.message || "Could not delete profile.");
     } finally {
       setBusyId("");
     }
   };
 
   return (
-    <div className="space-y-6">
-      <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
+    <div className="space-y-4 sm:space-y-6">
+      <section className="rounded-[1.5rem] border border-slate-200 bg-white p-4 shadow-sm sm:rounded-[2rem] sm:p-6">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.24em] text-indigo-600">
-              Alumni moderation
+              Network Legacy moderation
             </p>
-            <h2 className="mt-2 text-3xl font-semibold text-slate-900">
-              Manage alumni requests and existing alumni
+            <h2 className="mt-2 text-2xl font-semibold text-slate-900 sm:text-3xl">
+              Manage legacy requests and published profiles
             </h2>
             <p className="mt-2 max-w-2xl text-sm leading-7 text-slate-600">
-              Approve pending requests, review older alumni records, and remove
-              entries directly from this admin page.
+              Review submissions, update profile status, and delete older legacy
+              entries from one compact admin page.
             </p>
           </div>
 
@@ -207,15 +204,15 @@ export default function AlumniAdminPage() {
           </div>
         </div>
 
-        <div className="mt-6 flex flex-col gap-4 lg:flex-row lg:items-center">
+        <div className="mt-5 flex flex-col gap-3 lg:mt-6 lg:flex-row lg:items-center">
           <label className="relative block flex-1">
             <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search by name, email, company, role, branch, or IIIT"
-              className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-11 py-3 text-slate-900 outline-none transition focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100"
+              placeholder="Search by name, email, post, company, role, branch, or IIIT"
+              className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-11 py-3 text-sm text-slate-900 outline-none transition focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100 sm:text-base"
             />
           </label>
 
@@ -251,32 +248,32 @@ export default function AlumniAdminPage() {
       )}
 
       {loading ? (
-        <div className="rounded-[2rem] border border-slate-200 bg-white px-6 py-16 text-center text-slate-500 shadow-sm">
-          Loading alumni...
+        <div className="rounded-[1.5rem] border border-slate-200 bg-white px-6 py-14 text-center text-slate-500 shadow-sm sm:rounded-[2rem] sm:py-16">
+          Loading Network Legacy...
         </div>
       ) : entries.length === 0 ? (
-        <div className="rounded-[2rem] border border-dashed border-slate-300 bg-white px-6 py-16 text-center shadow-sm">
-          <h3 className="text-xl font-semibold text-slate-900">
-            No alumni found
+        <div className="rounded-[1.5rem] border border-dashed border-slate-300 bg-white px-6 py-14 text-center shadow-sm sm:rounded-[2rem] sm:py-16">
+          <h3 className="text-lg font-semibold text-slate-900 sm:text-xl">
+            No Network Legacy profiles found
           </h3>
           <p className="mt-2 text-sm text-slate-600">
             Try another filter or search term.
           </p>
         </div>
       ) : (
-        <div className="grid gap-5 xl:grid-cols-2">
+        <div className="grid gap-4 xl:grid-cols-2">
           {entries.map((entry) => {
             const effectiveStatus = getEffectiveStatus(entry);
 
             return (
               <article
                 key={entry._id}
-                className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm"
+                className="rounded-[1.5rem] border border-slate-200 bg-white p-4 shadow-sm sm:rounded-[2rem] sm:p-6"
               >
                 <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="text-2xl font-semibold text-slate-900">
+                      <h3 className="text-xl font-semibold text-slate-900 sm:text-2xl">
                         {entry.name}
                       </h3>
                       <span
@@ -292,9 +289,16 @@ export default function AlumniAdminPage() {
                       </span>
                     </div>
 
-                    <p className="mt-2 text-sm text-slate-600">
-                      {entry.currentRole} at {entry.currentCompany}
-                    </p>
+                    <div className="mt-2 space-y-1 text-sm text-slate-600">
+                      {entry.networkPost && <p>Network post: {entry.networkPost}</p>}
+                      {(entry.currentRole || entry.currentCompany) && (
+                        <p>
+                          {[entry.currentRole, entry.currentCompany]
+                            .filter(Boolean)
+                            .join(" at ")}
+                        </p>
+                      )}
+                    </div>
 
                     <div className="mt-3 flex flex-wrap gap-2 text-sm text-slate-500">
                       <span className="rounded-full bg-slate-100 px-3 py-1">
@@ -315,6 +319,8 @@ export default function AlumniAdminPage() {
                   <div className="rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-600">
                     <div className="font-medium text-slate-900">{entry.email}</div>
                     <div className="mt-1">{entry.location || "Location not shared"}</div>
+                    {entry.linkedin && <div className="mt-1">LinkedIn added</div>}
+                    {entry.instagram && <div className="mt-1">Instagram added</div>}
                     <div className="mt-1">
                       Submitted {new Date(entry.createdAt).toLocaleDateString()}
                     </div>

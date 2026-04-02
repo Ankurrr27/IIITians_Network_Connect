@@ -1,38 +1,26 @@
 import React, { useState } from "react";
 import { Instagram, Linkedin, Globe, MessageCircle } from "lucide-react";
-
 import Initiatives from "./Initiatives";
 
 export default function Index2() {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <section className="py-16 sm:py-24 bg-white">
-      <div
-        className="
-          max-w-7xl mx-auto
-          px-4 sm:px-6
-          grid grid-cols-1 lg:grid-cols-2
-          gap-12 lg:gap-16
-          items-start
-        "
-      >
-        {/* LEFT — ABOUT US */}
+    <section className="bg-white py-16 sm:py-24">
+      <div className="mx-auto grid max-w-7xl grid-cols-1 items-start gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:gap-16">
         <div>
-          <h2 className="text-2xl sm:text-4xl font-extrabold text-gray-900 mb-3 sm:mb-8 text-left lg:text-left">
-            About Us
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-indigo-600">
+            About The Network
+          </p>
+          <h2 className="mt-2 text-2xl font-extrabold text-slate-900 sm:text-4xl">
+            Built by students, shaped for the IIIT community
           </h2>
 
-          <div className="bg-gradient-to-r from-indigo-50 to-blue-50 rounded-lg sm:rounded-3xl p-6 sm:p-10 shadow-lg">
+          <div className="mt-5 rounded-[1.75rem] bg-gradient-to-r from-indigo-50 to-blue-50 p-5 shadow-lg sm:p-10">
             <p
-              className={`
-                text-sm sm:text-lg
-                text-gray-700
-                leading-relaxed
-                text-left
-                px-1 sm:px-0
-                ${expanded ? "" : "line-clamp-4 sm:line-clamp-none"}
-              `}
+              className={`text-sm leading-7 text-slate-700 sm:text-lg sm:leading-8 ${
+                expanded ? "" : "line-clamp-4 sm:line-clamp-none"
+              }`}
             >
               IIITians Network is an autonomous, student-driven community that
               connects students and alumni across all Indian Institutes of
@@ -46,26 +34,23 @@ export default function Index2() {
               <br />
               <br />
               Over the years, IIITians Network has evolved into a nationwide
-              ecosystem — enabling collaboration, sharing verified placement
-              data, promoting hackathons and competitions, supporting JEE
-              aspirants, and showcasing alumni excellence.
+              ecosystem that supports collaboration, verified placement data,
+              competitions, JEE aspirants, and alumni visibility.
             </p>
 
-            {/* READ MORE — MOBILE ONLY */}
             <button
-              onClick={() => setExpanded(!expanded)}
-              className="sm:hidden mt-2 text-indigo-600 text-sm font-medium hover:underline"
+              onClick={() => setExpanded((prev) => !prev)}
+              className="mt-3 text-sm font-medium text-indigo-600 transition hover:text-indigo-700 sm:hidden"
             >
               {expanded ? "Read less" : "Read more"}
             </button>
 
-            {/* SOCIAL LINKS */}
             <div className="mt-6 sm:mt-8">
-              <h4 className="text-xs sm:text-sm font-semibold text-gray-900 mb-3 sm:mb-4">
+              <h4 className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-900 sm:text-sm">
                 Connect with us
               </h4>
 
-              <div className="flex flex-wrap gap-3 sm:gap-4">
+              <div className="mt-4 flex flex-wrap gap-3">
                 <Social
                   href="https://www.instagram.com/iiitiansnetwork?igsh=MW4wY2d1Z211aGF2NA=="
                   label="Instagram"
@@ -95,21 +80,19 @@ export default function Index2() {
           </div>
         </div>
 
-        {/* RIGHT — INITIATIVES (separate component) */}
         <Initiatives />
       </div>
     </section>
   );
 }
 
-/* ---------- SOCIAL LINK ---------- */
 function Social({ href, label, children }) {
   return (
     <a
       href={href}
       target="_blank"
       rel="noreferrer"
-      className="flex items-center gap-2 text-sm sm:text-base text-gray-700 hover:text-indigo-600 transition"
+      className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-600"
     >
       {children}
       {label}

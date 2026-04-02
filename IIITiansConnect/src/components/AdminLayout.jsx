@@ -2,7 +2,7 @@ import { LogOut, ShieldCheck } from "lucide-react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 
 const adminLinks = [
-  { label: "Alumni Requests", href: "/alumni/admin" },
+  { label: "Network Legacy", href: "/alumni/admin" },
   { label: "Events", href: "/events/admin" },
   { label: "Team", href: "/team/admin" },
   { label: "Placements", href: "/placement/admin" },

@@ -1,13 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../../api/axios";
-
 import EventCard from "../../Events/Sections/EventCard";
 
-const Index2_2 = () => {
+const EventsPreview = () => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
-
   const navigate = useNavigate();
   const LIMIT = 6;
 
@@ -22,22 +20,23 @@ const Index2_2 = () => {
   const visibleEvents = events.slice(0, LIMIT);
 
   return (
-    <section className=" py-10 sm:py-24 bg-white">
-      <div className="max-w-6xl mx-auto px-6">
+    <section className="bg-white py-12 sm:py-24">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <div className="mb-8 flex items-end justify-between gap-4 sm:mb-10">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-indigo-600">
+              Latest Highlights
+            </p>
+            <h2 className="mt-2 text-2xl font-extrabold text-slate-900 sm:text-4xl">
+              Events
+            </h2>
+          </div>
 
-        {/* HEADER */}
-        <div className="flex items-center justify-between mb-10">
-          <h2 className="text-2xl sm:text-4xl font-extrabold">Events</h2>
-
-          {/* VIEW MORE LINK */}
           <button
             onClick={() => navigate("/events")}
-            className="
-              text-indigo-600 font-medium
-              hover:underline text-sm sm:text-md 
-            "
+            className="rounded-full border border-indigo-200 px-4 py-2 text-sm font-semibold text-indigo-600 transition hover:bg-indigo-50"
           >
-            View More →
+            View more
           </button>
         </div>
 
@@ -46,20 +45,15 @@ const Index2_2 = () => {
         ) : events.length === 0 ? (
           <p className="text-gray-500">No events available.</p>
         ) : (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-8">
+          <div className="grid gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
             {visibleEvents.map((event) => (
-              <EventCard
-                key={event._id}
-                event={event}
-                isAdmin={false}
-              />
+              <EventCard key={event._id} event={event} isAdmin={false} />
             ))}
           </div>
         )}
-
       </div>
     </section>
   );
 };
 
-export default Index2_2;
+export default EventsPreview;

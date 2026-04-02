@@ -4,6 +4,8 @@ import {
   ArrowRight,
   LockKeyhole,
   ShieldCheck,
+  Trash2,
+  UserCog,
   UserPlus,
   Users,
 } from "lucide-react";
@@ -12,6 +14,12 @@ import useThemeMode from "../hooks/useThemeMode.jsx";
 
 const initialCreateAdminForm = {
   email: "",
+  password: "",
+};
+
+const initialEditAdminForm = {
+  email: "",
+  role: "admin",
   password: "",
 };
 
@@ -65,6 +73,13 @@ export default function AdminLogin() {
   const [adminListNotice, setAdminListNotice] = useState("");
   const [createAdminForm, setCreateAdminForm] = useState(initialCreateAdminForm);
   const [createAdminState, setCreateAdminState] = useState({
+    loading: false,
+    error: "",
+    success: "",
+  });
+  const [editAdminId, setEditAdminId] = useState("");
+  const [editAdminForm, setEditAdminForm] = useState(initialEditAdminForm);
+  const [adminActionState, setAdminActionState] = useState({
     loading: false,
     error: "",
     success: "",
@@ -165,6 +180,13 @@ export default function AdminLogin() {
       error: "",
       success: "",
     });
+    setEditAdminId("");
+    setEditAdminForm(initialEditAdminForm);
+    setAdminActionState({
+      loading: false,
+      error: "",
+      success: "",
+    });
     navigate("/admin", { replace: true });
   };
 
@@ -211,6 +233,109 @@ export default function AdminLogin() {
         loading: false,
         success: "",
         error: err.response?.data?.message || "Could not add admin right now.",
+      });
+    }
+  };
+
+  const startEditAdmin = (admin) => {
+    setEditAdminId(admin.id);
+    setEditAdminForm({
+      email: admin.email,
+      role: admin.role,
+      password: "",
+    });
+    setAdminActionState({
+      loading: false,
+      error: "",
+      success: "",
+    });
+  };
+
+  const cancelEditAdmin = () => {
+    setEditAdminId("");
+    setEditAdminForm(initialEditAdminForm);
+    setAdminActionState({
+      loading: false,
+      error: "",
+      success: "",
+    });
+  };
+
+  const handleEditAdminChange = (event) => {
+    setEditAdminForm((prev) => ({
+      ...prev,
+      [event.target.name]: event.target.value,
+    }));
+  };
+
+  const handleUpdateAdmin = async (id) => {
+    if (adminActionState.loading) return;
+
+    setAdminActionState({
+      loading: true,
+      error: "",
+      success: "",
+    });
+
+    try {
+      const payload = {
+        email: editAdminForm.email,
+        role: editAdminForm.role,
+      };
+
+      if (editAdminForm.password.trim()) {
+        payload.password = editAdminForm.password;
+      }
+
+      await api.patch(`/admin/${id}`, payload);
+      setAdminActionState({
+        loading: false,
+        error: "",
+        success: "Admin updated successfully.",
+      });
+      setEditAdminId("");
+      setEditAdminForm(initialEditAdminForm);
+      await loadAdminPanel();
+    } catch (err) {
+      setAdminActionState({
+        loading: false,
+        success: "",
+        error:
+          err.response?.status === 404
+            ? "The deployed backend does not support admin editing yet. Redeploy the backend first."
+            : err.response?.data?.message || "Could not update this admin.",
+      });
+    }
+  };
+
+  const handleDeleteAdmin = async (admin) => {
+    const confirmed = window.confirm(
+      `Remove ${admin.email} from admin access?`
+    );
+    if (!confirmed || adminActionState.loading) return;
+
+    setAdminActionState({
+      loading: true,
+      error: "",
+      success: "",
+    });
+
+    try {
+      await api.delete(`/admin/${admin.id}`);
+      setAdminActionState({
+        loading: false,
+        error: "",
+        success: "Admin removed successfully.",
+      });
+      await loadAdminPanel();
+    } catch (err) {
+      setAdminActionState({
+        loading: false,
+        success: "",
+        error:
+          err.response?.status === 404
+            ? "The deployed backend does not support admin removal yet. Redeploy the backend first."
+            : err.response?.data?.message || "Could not remove this admin.",
       });
     }
   };
@@ -456,10 +581,10 @@ export default function AdminLogin() {
                   }`}
                 >
                   <div className="text-sm font-semibold text-indigo-600">
-                    Alumni requests
+                    Network Legacy
                   </div>
                   <div className="mt-1 text-sm">
-                    Review pending, approved, and rejected alumni entries.
+                    Review pending, approved, and rejected legacy profiles.
                   </div>
                 </button>
 
@@ -572,47 +697,156 @@ export default function AdminLogin() {
                     </div>
                     <div>
                       <div className="text-xs font-semibold uppercase tracking-[0.24em] text-indigo-600">
-                        Admin List
+                        Admin Control
                       </div>
                       <h2
                         className={`text-xl font-semibold sm:text-2xl ${
                           isDarkMode ? "text-slate-100" : "text-slate-900"
                         }`}
                       >
-                        Current admins
+                        Edit or remove admins
                       </h2>
                     </div>
                   </div>
 
-                  <div className="space-y-3">
-                    {admins.map((admin) => (
-                      <div
-                        key={admin.id}
-                        className={`rounded-2xl border px-4 py-3.5 sm:py-4 ${
-                          isDarkMode
-                            ? "border-slate-800 bg-slate-950 text-slate-200"
-                            : "border-slate-200 bg-slate-50 text-slate-700"
-                        }`}
-                      >
-                        <div className="flex items-center justify-between gap-3">
-                          <div>
-                            <div className="font-semibold">{admin.email}</div>
-                            <div className="mt-1 text-sm capitalize text-indigo-600">
-                              {admin.role.replace("_", " ")}
+                  {adminActionState.error && (
+                    <StatusMessage tone="error">
+                      {adminActionState.error}
+                    </StatusMessage>
+                  )}
+                  {adminActionState.success && (
+                    <StatusMessage tone="success">
+                      {adminActionState.success}
+                    </StatusMessage>
+                  )}
+
+                  <div className="mt-5 space-y-3">
+                    {admins.map((admin) => {
+                      const isEditing = editAdminId === admin.id;
+                      const isSelf = currentAdmin?.id === admin.id;
+
+                      return (
+                        <div
+                          key={admin.id}
+                          className={`rounded-2xl border px-4 py-3.5 sm:py-4 ${
+                            isDarkMode
+                              ? "border-slate-800 bg-slate-950 text-slate-200"
+                              : "border-slate-200 bg-slate-50 text-slate-700"
+                          }`}
+                        >
+                          {isEditing ? (
+                            <div className="space-y-3">
+                              <input
+                                type="email"
+                                name="email"
+                                value={editAdminForm.email}
+                                onChange={handleEditAdminChange}
+                                placeholder="Admin email"
+                                className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition sm:text-base ${
+                                  isDarkMode
+                                    ? "border-slate-700 bg-slate-900 text-slate-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20"
+                                    : "border-slate-200 bg-white text-slate-900 focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100"
+                                }`}
+                              />
+
+                              <select
+                                name="role"
+                                value={editAdminForm.role}
+                                onChange={handleEditAdminChange}
+                                className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition sm:text-base ${
+                                  isDarkMode
+                                    ? "border-slate-700 bg-slate-900 text-slate-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20"
+                                    : "border-slate-200 bg-white text-slate-900 focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100"
+                                }`}
+                              >
+                                <option value="admin">Admin</option>
+                                <option value="super_admin">Super admin</option>
+                              </select>
+
+                              <input
+                                type="password"
+                                name="password"
+                                value={editAdminForm.password}
+                                onChange={handleEditAdminChange}
+                                placeholder="New password (optional)"
+                                className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition sm:text-base ${
+                                  isDarkMode
+                                    ? "border-slate-700 bg-slate-900 text-slate-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20"
+                                    : "border-slate-200 bg-white text-slate-900 focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100"
+                                }`}
+                              />
+
+                              <div className="flex flex-wrap gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => handleUpdateAdmin(admin.id)}
+                                  disabled={adminActionState.loading}
+                                  className="inline-flex items-center gap-2 rounded-full bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+                                >
+                                  <UserCog className="h-4 w-4" />
+                                  Save
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={cancelEditAdmin}
+                                  className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                                    isDarkMode
+                                      ? "border border-slate-700 bg-slate-900 text-slate-100 hover:bg-slate-800"
+                                      : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-100"
+                                  }`}
+                                >
+                                  Cancel
+                                </button>
+                              </div>
                             </div>
-                          </div>
-                          <div
-                            className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] ${
-                              admin.role === "super_admin"
-                                ? "bg-amber-100 text-amber-800"
-                                : "bg-slate-200 text-slate-700"
-                            }`}
-                          >
-                            {admin.role === "super_admin" ? "Owner" : "Admin"}
-                          </div>
+                          ) : (
+                            <div className="space-y-3">
+                              <div className="flex items-start justify-between gap-3">
+                                <div>
+                                  <div className="break-all font-semibold">{admin.email}</div>
+                                  <div className="mt-1 text-sm capitalize text-indigo-600">
+                                    {admin.role.replace("_", " ")}
+                                    {isSelf ? " · You" : ""}
+                                  </div>
+                                </div>
+                                <div
+                                  className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] ${
+                                    admin.role === "super_admin"
+                                      ? "bg-amber-100 text-amber-800"
+                                      : "bg-slate-200 text-slate-700"
+                                  }`}
+                                >
+                                  {admin.role === "super_admin" ? "Owner" : "Admin"}
+                                </div>
+                              </div>
+
+                              <div className="flex flex-wrap gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => startEditAdmin(admin)}
+                                  className="inline-flex items-center gap-2 rounded-full bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700"
+                                >
+                                  <UserCog className="h-4 w-4" />
+                                  Edit
+                                </button>
+
+                                {!isSelf && (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDeleteAdmin(admin)}
+                                    disabled={adminActionState.loading}
+                                    className="inline-flex items-center gap-2 rounded-full border border-rose-200 bg-white px-4 py-2 text-sm font-medium text-rose-700 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-60"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                    Remove
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          )}
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               </div>

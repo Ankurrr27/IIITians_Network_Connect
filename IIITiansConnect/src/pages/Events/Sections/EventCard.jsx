@@ -4,6 +4,7 @@ import {
   Users,
   Pencil,
   ExternalLink,
+  ArrowRight,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -19,184 +20,152 @@ const EventCard = ({ event, isAdmin = false, onEdit }) => {
   });
 
   return (
-    <div
-      className="
-        bg-white border
-        rounded-lg sm:rounded-2xl
-        overflow-hidden
-        transition hover:shadow-lg
-        w-full
-      "
-    >
-      {/* ================= MOBILE LAYOUT ================= */}
-      <div className="flex sm:hidden h-24 rounded-xl overflow-hidden bg-white shadow-sm ring-1 ring-black/5">
-        {/* IMAGE */}
-        <div className="relative w-[60%] bg-gray-200">
+    <div className="w-full overflow-hidden rounded-[1.5rem] border border-slate-200 bg-white transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_60px_rgba(79,70,229,0.14)]">
+      <div className="sm:hidden">
+        <div className="relative h-44 overflow-hidden">
           <img
             src={banner?.url || "/event-placeholder.jpg"}
             alt={title}
-            className="w-full h-full object-cover"
+            className="h-full w-full object-cover"
           />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-900/30 to-transparent" />
 
-          {/* PROPER GRADIENT OVERLAY */}
-          <div
-            className="
-        absolute inset-y-0 right-0 w-12
-      
-      "
-          />
-        </div>
-
-        {/* CONTENT */}
-        <div className="relative w-[40%] p-2 bg-white">
-          <h3 className="text-[11px] font-semibold text-gray-900 leading-snug line-clamp-2">
-            {title}
-          </h3>
-
-          <div className="mt-1 flex items-center gap-1 text-[9px] text-gray-500">
-            <CalendarDays size={10} />
-            {formattedDate}
-          </div>
-
-          <div className="mt-0.5 flex items-center gap-1 text-[9px] text-gray-500">
-            <MapPin size={10} />
-            {collegeName || "College"}
-          </div>
-
-          {!expanded && (
+          {isAdmin && (
             <button
-              onClick={() => setExpanded(true)}
-              className="
-      absolute bottom-1 right-2
-      text-[10px] font-medium text-indigo-600
-      hover:text-indigo-700
-      active:scale-95
-      transition
-    "
+              onClick={() => onEdit(event)}
+              className="absolute right-3 top-3 z-10 rounded-full bg-white/95 p-2 text-slate-700 shadow-sm"
             >
-              Details →
+              <Pencil size={16} />
             </button>
           )}
-        </div>
-      </div>
 
-      {/* ================= MOBILE EXPANDED ================= */}
-      {expanded && (
-        <div className="sm:hidden border-t p-3 bg-white">
-          <p className="text-xs text-gray-600 leading-relaxed">
-            {description || "No description provided."}
-          </p>
-
-          <div className="mt-3 space-y-1 text-xs text-gray-500">
-            {clubName && (
-              <div className="flex items-center gap-2">
-                <Users size={12} />
-                {clubName}
-              </div>
-            )}
+          <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] backdrop-blur">
+              <CalendarDays size={12} />
+              {formattedDate}
+            </div>
+            <h3 className="mt-3 text-lg font-semibold leading-tight">{title}</h3>
+            <div className="mt-2 flex flex-wrap gap-2 text-xs text-white/90">
+              <span className="inline-flex items-center gap-1 rounded-full bg-white/12 px-2.5 py-1 backdrop-blur">
+                <MapPin size={12} />
+                {collegeName || "College"}
+              </span>
+              {clubName && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-white/12 px-2.5 py-1 backdrop-blur">
+                  <Users size={12} />
+                  {clubName}
+                </span>
+              )}
+            </div>
           </div>
-
-          {link && (
-            <a
-              href={link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-3 inline-flex items-center gap-2 text-xs font-medium text-indigo-600"
-            >
-              <ExternalLink size={12} />
-              Open Event
-            </a>
-          )}
-
-          <button
-            onClick={() => setExpanded(false)}
-            className="mt-3 w-full text-xs border border-indigo-600 text-indigo-600 rounded-md py-1.5"
-          >
-            Close
-          </button>
-        </div>
-      )}
-
-      {/* ================= DESKTOP LAYOUT ================= */}
-      <div className="hidden sm:block relative">
-        {/* ADMIN EDIT */}
-        {isAdmin && (
-          <button
-            onClick={() => onEdit(event)}
-            className="
-              absolute top-3 right-3 z-10
-              bg-white border rounded-full
-              p-2 hover:bg-gray-100
-            "
-          >
-            <Pencil size={16} />
-          </button>
-        )}
-
-        {/* BANNER */}
-        <div className="h-44 bg-gray-200 overflow-hidden">
-          <img
-            src={banner?.url || "/event-placeholder.jpg"}
-            alt={title}
-            className="w-full h-full object-cover"
-          />
         </div>
 
-        {/* CONTENT */}
-        <div className="p-5">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
-
+        <div className="p-4">
           <p
-            className={`text-sm text-gray-600 ${
+            className={`text-sm leading-6 text-slate-600 transition-all duration-300 ${
               expanded ? "" : "line-clamp-3"
             }`}
           >
             {description || "No description provided."}
           </p>
 
-          <div className="space-y-2 text-sm text-gray-500 mt-4">
-            <div className="flex items-center gap-2">
-              <CalendarDays size={16} />
+          <div className="mt-4 flex flex-col gap-2">
+            <button
+              onClick={() => setExpanded((prev) => !prev)}
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700"
+            >
+              {expanded ? "Show less" : "View details"}
+              <ArrowRight size={14} />
+            </button>
+
+            {link && (
+              <a
+                href={link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-indigo-200 px-4 py-2.5 text-sm font-semibold text-indigo-600 transition hover:bg-indigo-50"
+              >
+                <ExternalLink size={14} />
+                Open Event
+              </a>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="hidden sm:block relative">
+        {isAdmin && (
+          <button
+            onClick={() => onEdit(event)}
+            className="absolute right-4 top-4 z-10 rounded-full bg-white/95 p-2 shadow-sm transition hover:bg-white"
+          >
+            <Pencil size={16} />
+          </button>
+        )}
+
+        <div className="relative h-48 overflow-hidden">
+          <img
+            src={banner?.url || "/event-placeholder.jpg"}
+            alt={title}
+            className="h-full w-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/35 via-transparent to-transparent" />
+        </div>
+
+        <div className="p-5">
+          <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-indigo-600">
+            <span>{formattedDate}</span>
+            <span className="h-1 w-1 rounded-full bg-indigo-300" />
+            <span>{collegeName || "College not specified"}</span>
+          </div>
+
+          <h3 className="mt-3 text-xl font-semibold text-slate-900">{title}</h3>
+
+          <p
+            className={`mt-3 text-sm leading-7 text-slate-600 ${
+              expanded ? "" : "line-clamp-3"
+            }`}
+          >
+            {description || "No description provided."}
+          </p>
+
+          <div className="mt-4 flex flex-wrap gap-2 text-sm text-slate-500">
+            <span className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1">
+              <CalendarDays size={14} />
               {formattedDate}
-            </div>
-
-            <div className="flex items-center gap-2">
-              <MapPin size={16} />
-              {collegeName || "College not specified"}
-            </div>
-
+            </span>
+            <span className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1">
+              <MapPin size={14} />
+              {collegeName || "College"}
+            </span>
             {clubName && (
-              <div className="flex items-center gap-2">
-                <Users size={16} />
+              <span className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1">
+                <Users size={14} />
                 {clubName}
-              </div>
+              </span>
             )}
           </div>
 
-          {expanded && link && (
-            <a
-              href={link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-indigo-600 hover:underline"
+          <div className="mt-5 flex gap-3">
+            <button
+              onClick={() => setExpanded((prev) => !prev)}
+              className="flex-1 rounded-full border border-indigo-600 px-4 py-2.5 text-sm font-semibold text-indigo-600 transition hover:bg-indigo-600 hover:text-white"
             >
-              <ExternalLink size={14} />
-              Open Event Link
-            </a>
-          )}
+              {expanded ? "Hide details" : "View details"}
+            </button>
 
-          <button
-            onClick={() => setExpanded(!expanded)}
-            className="
-              mt-4 w-full
-              border border-indigo-600 text-indigo-600
-              rounded-lg py-2
-              hover:bg-indigo-600 hover:text-white
-              transition
-            "
-          >
-            {expanded ? "Hide Details" : "View Details"}
-          </button>
+            {link && (
+              <a
+                href={link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
+              >
+                <ExternalLink size={14} />
+                Open
+              </a>
+            )}
+          </div>
         </div>
       </div>
     </div>

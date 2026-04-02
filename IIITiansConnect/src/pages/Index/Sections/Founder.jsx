@@ -1,40 +1,40 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import BigTeamCard from "../../../ui/BigTeamCard";
+import CurrentPresident from "./CurrentPresident";
 
-const Index3 = () => {
+const FounderSection = () => {
   const navigate = useNavigate();
 
   return (
-    <section className="py-20 bg-white">
-      <div className="max-w-7xl mx-auto px-6">
+    <section className="bg-white py-14 sm:py-20">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <CurrentPresident />
 
-        {/* ================= HEADER ================= */}
-        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-12">
+        <div className="mb-8 rounded-[1.5rem] border border-slate-200 bg-slate-50/70 p-5 sm:mb-12 sm:flex sm:items-end sm:justify-between sm:gap-6 sm:p-7">
           <div>
-            <h2 className="text-2xl sm:text-4xl font-extrabold text-gray-900">
-              Founders
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-indigo-600">
+              Leadership Story
+            </p>
+            <h2 className="mt-2 text-2xl font-extrabold text-slate-900 sm:text-4xl">
+              Founding Team
             </h2>
-            <p className="mt-2 text-gray-600 max-w-2xl text-sm sm:text-lg">
-              The students who initiated IIITians Network to build a unified,
-              transparent, and student-first platform for IIITs.
+            <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600 sm:text-lg">
+              Meet the people who started IIITians Network and laid the
+              foundation for a unified, transparent, and student-first platform
+              across IIIT campuses.
             </p>
           </div>
 
           <button
             onClick={() => navigate("/team")}
-            className="
-              text-indigo-600 text-sm font-semibold
-              hover:underline underline-offset-4
-              self-start sm:self-auto
-            "
+            className="mt-4 self-start rounded-full bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700 sm:mt-0 sm:self-auto"
           >
-            View current team →
+            View current team
           </button>
         </div>
 
-        {/* ================= FOUNDERS GRID ================= */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-7">
           <BigTeamCard
             name="Anant Mehra"
             role="Former President and CFO"
@@ -42,8 +42,9 @@ const Index3 = () => {
             image="/Founders/Anant.png"
             desc="I have witnessed the IIITians Network grow from its inception (January 2020) when it was first initiated, into a platform that has created a significant impact on the IIIT community. At the time, I could not have anticipated the scale and influence it would achieve. What excites me most is seeing new batches join the IIITians Network core team and actively contribute value to this remarkable community. I look forward to the innovative initiatives that will be launched under the leadership of the new generation."
             links={{
-              linkedin: "linkedin.com/in/anant-mehra-626952190",
-              instagram: "https://www.instagram.com/_.infinity7._?igshid=y3ei9hsdwle7",
+              linkedin: "https://linkedin.com/in/anant-mehra-626952190",
+              instagram:
+                "https://www.instagram.com/_.infinity7._?igshid=y3ei9hsdwle7",
             }}
           />
 
@@ -52,7 +53,7 @@ const Index3 = () => {
             role="Former COO"
             college="IIIT Gwalior"
             image="/Founders/Shaswat.png"
-            desc="IIITians Network began in the first year of college, driven by a long-standing desire to build something meaningful for the community. Taking on the role of COO, the focus was on growth and engagement, helping shape the journey from 0 to 1. Grateful to have met co-founders Anant and Prashant, and deeply thankful for their trust and support. Immensely proud of the juniors who are now carrying the vision forward and taking iiitians Network from 1 to 100. Excited for what lies ahead."
+            desc="IIITians Network began in the first year of college, driven by a long-standing desire to build something meaningful for the community. Taking on the role of COO, the focus was on growth and engagement, helping shape the journey from 0 to 1. Grateful to have met co-founders Anant and Prashant, and deeply thankful for their trust and support. Immensely proud of the juniors who are now carrying the vision forward and taking IIITians Network from 1 to 100. Excited for what lies ahead."
             links={{
               linkedin: "https://www.linkedin.com/in/shashwat-gupta-ab9675179/",
               instagram: "https://www.instagram.com/divisible_by_zero/",
@@ -71,10 +72,9 @@ const Index3 = () => {
             }}
           />
         </div>
-
       </div>
     </section>
   );
 };
 
-export default Index3;
+export default FounderSection;
