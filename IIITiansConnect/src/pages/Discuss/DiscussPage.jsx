@@ -40,7 +40,7 @@ const initialLoginForm = {
 
 const typeMeta = {
   announcement: { label: "Announcement", Icon: Megaphone },
-  event: { label: "Event Push", Icon: CalendarDays },
+  event: { label: "Push as event", Icon: CalendarDays },
   campaign: { label: "Campaign", Icon: Sparkles },
   collaboration: { label: "Collaboration", Icon: Handshake },
   opportunity: { label: "Opportunity", Icon: BriefcaseBusiness },
@@ -291,79 +291,87 @@ export default function DiscussPage() {
               </p>
             </div>
 
-            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap xl:max-w-xl xl:justify-end">
-              <button
-                type="button"
-                onClick={() => {
-                  setAuthState({ loading: false, error: "", success: "" });
-                  setPanelMode("auth");
-                }}
-                className="inline-flex items-center justify-center gap-2 rounded-full border border-sky-200 bg-white/90 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-sky-300 hover:bg-sky-50"
-              >
-                <LogIn className="h-4 w-4" />
-                Club account
-              </button>
-              <button
-                type="button"
-                onClick={openComposer}
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-sky-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-sky-700"
-              >
-                <Plus className="h-4 w-4" />
-                Post update
-              </button>
+            <div className="rounded-[1.7rem] border border-sky-100 bg-white/70 p-4 shadow-sm xl:max-w-md">
+              {accountLoading ? (
+                <div className="text-sm text-slate-600">Restoring your discuss account...</div>
+              ) : account ? (
+                <div className="space-y-3">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white">
+                      <ShieldCheck className="h-4 w-4" />
+                      {account.clubName}
+                    </span>
+                    <span className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] ${account.isAuthorized ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>
+                      {account.isAuthorized
+                        ? account.badgeLabel || "Verified by network"
+                        : account.badgeLabel || "Pending verification"}
+                    </span>
+                  </div>
+                  <div className="text-sm text-slate-600">
+                    <p className="font-medium text-slate-900">{account.collegeName}</p>
+                    <p className="mt-1">
+                      {account.contactName}
+                      {account.contactPhone ? ` · ${account.contactPhone}` : ""}
+                    </p>
+                  </div>
+                  <div className="flex flex-col gap-2 sm:flex-row">
+                    <button
+                      type="button"
+                      onClick={openComposer}
+                      className="inline-flex items-center justify-center gap-2 rounded-full bg-sky-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-sky-700"
+                    >
+                      <Plus className="h-4 w-4" />
+                      Post update
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAuthState({ loading: false, error: "", success: "" });
+                        setPanelMode("auth");
+                      }}
+                      className="inline-flex items-center justify-center gap-2 rounded-full border border-sky-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-sky-300 hover:bg-sky-50"
+                    >
+                      Manage account
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <p className="text-sm leading-6 text-slate-600">
+                    Create a club account once, then publish updates from the same board whenever you need.
+                  </p>
+                  <div className="flex flex-col gap-2 sm:flex-row">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAuthState({ loading: false, error: "", success: "" });
+                        setPanelMode("auth");
+                      }}
+                      className="inline-flex items-center justify-center gap-2 rounded-full border border-sky-200 bg-white/90 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-sky-300 hover:bg-sky-50"
+                    >
+                      <LogIn className="h-4 w-4" />
+                      Club account
+                    </button>
+                    <button
+                      type="button"
+                      onClick={openComposer}
+                      className="inline-flex items-center justify-center gap-2 rounded-full bg-sky-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-sky-700"
+                    >
+                      <Plus className="h-4 w-4" />
+                      Post update
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
-        <div className="mt-6 grid gap-3 sm:grid-cols-3">
+          <div className="mt-6 grid gap-3 sm:grid-cols-3">
             <StatCard label="Live updates" value={stats.total} />
             <StatCard label="Colleges active" value={stats.colleges} />
             <StatCard label="Communities posting" value={stats.clubs} />
           </div>
         </div>
-
-        {accountLoading ? (
-          <div className="mt-5 rounded-[1.7rem] border border-sky-100 bg-white/80 px-5 py-4 text-sm text-slate-600 shadow-sm">
-            Restoring your discuss account...
-          </div>
-        ) : account ? (
-          <div className="mt-5 flex flex-col gap-4 rounded-[1.8rem] border border-sky-100 bg-[linear-gradient(135deg,rgba(255,255,255,0.95),rgba(232,244,255,0.92))] p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white">
-                  <ShieldCheck className="h-4 w-4" />
-                  {account.clubName}
-                </span>
-                <span className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] ${account.isAuthorized ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>
-                  {account.badgeLabel || (account.isAuthorized ? "Authorized" : "Pending verification")}
-                </span>
-              </div>
-              <p className="mt-3 text-sm font-medium text-slate-900">{account.collegeName}</p>
-              <p className="mt-1 text-sm text-slate-600">
-                {account.contactName}
-                {account.contactPhone ? ` · ${account.contactPhone}` : ""}
-                {account.email ? ` · ${account.email}` : ""}
-              </p>
-            </div>
-
-            <div className="flex flex-wrap gap-3">
-              <button
-                type="button"
-                onClick={openComposer}
-                className="inline-flex items-center gap-2 rounded-full bg-sky-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-700"
-              >
-                <Plus className="h-4 w-4" />
-                Post now
-              </button>
-              <button
-                type="button"
-                onClick={() => setPanelMode("auth")}
-                className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-sky-50"
-              >
-                Manage account
-              </button>
-            </div>
-          </div>
-        ) : null}
 
         <div className="mt-6 flex items-center justify-between gap-4 px-1">
           <div>
@@ -372,15 +380,6 @@ export default function DiscussPage() {
               Browse the board first. Account access and post creation stay tucked away until you need them.
             </p>
           </div>
-
-          <button
-            type="button"
-            onClick={openComposer}
-            className="hidden items-center gap-2 rounded-full bg-sky-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-700 lg:inline-flex"
-          >
-            <Plus className="h-4 w-4" />
-            New update
-          </button>
         </div>
 
         <div className="mt-6 grid gap-5 lg:grid-cols-2 2xl:grid-cols-3">
@@ -422,7 +421,9 @@ export default function DiscussPage() {
                     {account.clubName}
                   </span>
                   <span className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] ${account.isAuthorized ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>
-                    {account.badgeLabel || (account.isAuthorized ? "Authorized" : "Pending verification")}
+                    {account.isAuthorized
+                      ? account.badgeLabel || "Verified by network"
+                      : account.badgeLabel || "Pending verification"}
                   </span>
                 </div>
                 <p className="mt-3 text-sm text-slate-600">{account.collegeName}</p>
@@ -530,9 +531,11 @@ export default function DiscussPage() {
                     <ShieldCheck className="h-4 w-4" />
                     {account.clubName}
                   </span>
-                  <span className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] ${account.isAuthorized ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>
-                    {account.badgeLabel || (account.isAuthorized ? "Authorized" : "Pending verification")}
-                  </span>
+                    <span className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] ${account.isAuthorized ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>
+                      {account.isAuthorized
+                        ? account.badgeLabel || "Verified by network"
+                        : account.badgeLabel || "Pending verification"}
+                    </span>
                 </div>
                 <div className="space-y-1 text-sm text-slate-600">
                   <p>{account.collegeName}</p>
@@ -734,7 +737,7 @@ function DiscussCard({ post }) {
           </span>
           {post.isAuthorisedPost && (
             <span className="rounded-full bg-blue-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-blue-700">
-              {post.badgeLabel || "Authorized"}
+              {post.badgeLabel || "Verified by network"}
             </span>
           )}
         </div>

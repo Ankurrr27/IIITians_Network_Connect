@@ -8,6 +8,7 @@ import CollegesGrid from "./Section/CollegesGrid";
 export default function CollegesPage() {
   const [colleges, setColleges] = useState([]);
   const [teamMembers, setTeamMembers] = useState([]);
+  const [discussClubs, setDiscussClubs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -15,10 +16,11 @@ export default function CollegesPage() {
   const [filter, setFilter] = useState("NONE");
 
   useEffect(() => {
-    Promise.all([api.get("/colleges"), api.get("/team")])
-      .then(([collegesRes, teamRes]) => {
+    Promise.all([api.get("/colleges"), api.get("/team"), api.get("/discuss-accounts/public")])
+      .then(([collegesRes, teamRes, discussAccountsRes]) => {
         setColleges(collegesRes.data);
         setTeamMembers(teamRes.data);
+        setDiscussClubs(discussAccountsRes.data || []);
       })
       .catch(() => setError("Failed to load colleges"))
       .finally(() => setLoading(false));
@@ -50,6 +52,7 @@ export default function CollegesPage() {
         <CollegesGrid
           colleges={filtered}
           teamMembers={teamMembers}
+          discussClubs={discussClubs}
         />
       </div>
     </section>

@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { ExternalLink, Link2, Users } from "lucide-react";
+import { ExternalLink, Link2, ShieldCheck, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 
-const CollegeCard = ({ college, teamCount = 0 }) => {
+const CollegeCard = ({ college, teamCount = 0, discussClubs = [] }) => {
   const [showFullDescription, setShowFullDescription] = useState(false);
   const { name, photo, logo, gallery, description, website, clubLink, clubLinks = [] } = college;
   const coverImage =
@@ -96,6 +96,41 @@ const CollegeCard = ({ college, teamCount = 0 }) => {
                 </a>
               ))}
             </div>
+          </div>
+        )}
+
+        {discussClubs.length > 0 && (
+          <div className="mb-4 rounded-2xl bg-sky-50/80 p-3 ring-1 ring-sky-100">
+            <div className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-sky-700">
+              Network Clubs on Discuss
+            </div>
+            <div className="space-y-2">
+              {discussClubs.slice(0, 4).map((club) => (
+                <div
+                  key={club.id}
+                  className="rounded-xl bg-white px-3 py-2 ring-1 ring-sky-100"
+                >
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-sm font-semibold text-slate-900">{club.clubName}</span>
+                    {club.isAuthorized && (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-emerald-700">
+                        <ShieldCheck size={12} />
+                        {club.badgeLabel || "Verified by network"}
+                      </span>
+                    )}
+                  </div>
+                  <div className="mt-1 text-xs text-slate-500">
+                    {club.contactName}
+                    {club.contactPhone ? ` · ${club.contactPhone}` : ""}
+                  </div>
+                </div>
+              ))}
+            </div>
+            {discussClubs.length > 4 && (
+              <p className="mt-3 text-xs font-medium text-sky-700">
+                +{discussClubs.length - 4} more club{discussClubs.length - 4 > 1 ? "s" : ""} active on Discuss
+              </p>
+            )}
           </div>
         )}
 

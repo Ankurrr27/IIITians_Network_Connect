@@ -1,6 +1,6 @@
 import CollegeCard from "./CollegeCard";
 
-export default function CollegesGrid({ colleges, teamMembers = [] }) {
+export default function CollegesGrid({ colleges, teamMembers = [], discussClubs = [] }) {
   const getUniqueCollegeTeamCount = (collegeName) => {
     const uniqueMembers = new Set();
 
@@ -40,6 +40,11 @@ export default function CollegesGrid({ colleges, teamMembers = [] }) {
           key={college._id}
           college={college}
           teamCount={getUniqueCollegeTeamCount(college.name)}
+          discussClubs={discussClubs.filter(
+            (club) =>
+              (club.collegeName || "").trim().toLowerCase() ===
+              (college.name || "").trim().toLowerCase()
+          )}
         />
       ))}
     </div>

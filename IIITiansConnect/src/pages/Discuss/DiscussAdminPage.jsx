@@ -1,11 +1,15 @@
 import { useEffect, useState } from "react";
 import {
+  Building2,
   CheckCircle2,
   Clock3,
-  Trash2,
-  XCircle,
+  Mail,
+  Newspaper,
+  Phone,
   ShieldCheck,
+  Trash2,
   UserCog,
+  XCircle,
 } from "lucide-react";
 import api from "../../api/axios";
 
@@ -96,6 +100,15 @@ export default function DiscussAdminPage() {
     }
   };
 
+  const getPostCount = (account) =>
+    posts.filter(
+      (post) =>
+        (post.clubName || "").trim().toLowerCase() ===
+          (account.clubName || "").trim().toLowerCase() &&
+        (post.collegeName || "").trim().toLowerCase() ===
+          (account.collegeName || "").trim().toLowerCase()
+    ).length;
+
   const stats = {
     accounts: accounts.length,
     authorised: accounts.filter((account) => account.isAuthorized).length,
@@ -110,11 +123,13 @@ export default function DiscussAdminPage() {
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-indigo-600">Discuss workspace</p>
             <h1 className="mt-2 text-3xl font-semibold text-slate-900">Discuss accounts and moderation</h1>
-            <p className="mt-2 text-sm text-slate-600">Manage club accounts, authorize them, assign power levels, and moderate posts.</p>
+            <p className="mt-2 text-sm text-slate-600">
+              Manage verified club identities, review who is posting, and moderate what goes live on the network board.
+            </p>
           </div>
           <div className="grid gap-3 sm:grid-cols-4">
             <StatCard label="Accounts" value={stats.accounts} />
-            <StatCard label="Authorized" value={stats.authorised} />
+            <StatCard label="Verified" value={stats.authorised} />
             <StatCard label="Pending accounts" value={stats.pendingAccounts} />
             <StatCard label="Pending posts" value={stats.pendingPosts} />
           </div>
@@ -136,10 +151,13 @@ export default function DiscussAdminPage() {
         ) : (
           <div className="grid gap-4 xl:grid-cols-2">
             {accounts.map((account) => (
-              <article key={account.id} className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5">
+              <article
+                key={account.id}
+                className="rounded-[1.6rem] border border-slate-200 bg-[linear-gradient(180deg,_#ffffff_0%,_#f8fafc_100%)] p-5 shadow-sm"
+              >
                 <div className="flex flex-wrap items-center gap-2">
                   <span className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] ${account.isAuthorized ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>
-                    {account.badgeLabel || (account.isAuthorized ? "Authorized" : "Pending verification")}
+                    {account.badgeLabel || (account.isAuthorized ? "Verified by network" : "Pending verification")}
                   </span>
                   <span className="rounded-full bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600 ring-1 ring-slate-200">
                     {account.role.replace("_", " ")}
@@ -147,12 +165,46 @@ export default function DiscussAdminPage() {
                 </div>
 
                 <h3 className="mt-3 text-lg font-semibold text-slate-900">{account.clubName}</h3>
-                <p className="mt-1 text-sm text-slate-600">{account.collegeName}</p>
-                <p className="mt-1 text-sm text-slate-500">
-                  {account.contactName}
-                  {account.contactPhone ? ` · ${account.contactPhone}` : ""}
-                  {account.email ? ` · ${account.email}` : ""}
-                </p>
+
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <span className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
+                    <Building2 className="h-3.5 w-3.5" />
+                    {account.collegeName}
+                  </span>
+                  <span className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
+                    <Newspaper className="h-3.5 w-3.5" />
+                    {getPostCount(account)} posts
+                  </span>
+                </div>
+
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  <div className="rounded-2xl bg-slate-50 p-3 ring-1 ring-slate-200/80">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Point of contact</p>
+                    <p className="mt-2 text-sm font-medium text-slate-900">{account.contactName}</p>
+                    {account.contactPhone && (
+                      <p className="mt-1 inline-flex items-center gap-2 text-sm text-slate-600">
+                        <Phone className="h-4 w-4" />
+                        {account.contactPhone}
+                      </p>
+                    )}
+                    {account.email && (
+                      <p className="mt-1 inline-flex items-center gap-2 break-all text-sm text-slate-600">
+                        <Mail className="h-4 w-4" />
+                        {account.email}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="rounded-2xl bg-slate-50 p-3 ring-1 ring-slate-200/80">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Activity</p>
+                    <p className="mt-2 text-sm text-slate-600">
+                      Created {account.createdAt ? new Date(account.createdAt).toLocaleDateString() : "recently"}
+                    </p>
+                    <p className="mt-1 text-sm text-slate-600">
+                      Last login {account.lastLogin ? new Date(account.lastLogin).toLocaleDateString() : "not yet"}
+                    </p>
+                  </div>
+                </div>
 
                 <div className="mt-4 grid gap-3 sm:grid-cols-2">
                   <select
@@ -162,7 +214,9 @@ export default function DiscussAdminPage() {
                     className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100"
                   >
                     {roleOptions.map((role) => (
-                      <option key={role} value={role}>{role.replace("_", " ")}</option>
+                      <option key={role} value={role}>
+                        {role.replace("_", " ")}
+                      </option>
                     ))}
                   </select>
 
@@ -181,13 +235,15 @@ export default function DiscussAdminPage() {
                     onClick={() =>
                       updateAccount(account.id, {
                         isAuthorized: !account.isAuthorized,
-                        badgeLabel: !account.isAuthorized ? account.badgeLabel || "Authorized club" : "Pending verification",
+                        badgeLabel: !account.isAuthorized
+                          ? account.badgeLabel || "Verified by network"
+                          : "Pending verification",
                       })
                     }
                     className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800"
                   >
                     <UserCog className="h-4 w-4" />
-                    {account.isAuthorized ? "Remove authorization" : "Authorize account"}
+                    {account.isAuthorized ? "Remove verification" : "Verify account"}
                   </button>
 
                   <button
@@ -226,12 +282,18 @@ export default function DiscussAdminPage() {
                   <div className="max-w-3xl">
                     <div className="flex flex-wrap items-center gap-2">
                       <StatusPill status={post.status} />
-                      <span className="rounded-full bg-white px-3 py-1 text-[11px] font-medium uppercase tracking-[0.16em] text-slate-600 ring-1 ring-slate-200">{post.type}</span>
-                      <span className="rounded-full bg-white px-3 py-1 text-[11px] font-medium uppercase tracking-[0.16em] text-slate-600 ring-1 ring-slate-200">{post.collegeName}</span>
-                      <span className="rounded-full bg-white px-3 py-1 text-[11px] font-medium uppercase tracking-[0.16em] text-slate-600 ring-1 ring-slate-200">{post.clubName}</span>
+                      <span className="rounded-full bg-white px-3 py-1 text-[11px] font-medium uppercase tracking-[0.16em] text-slate-600 ring-1 ring-slate-200">
+                        {post.type}
+                      </span>
+                      <span className="rounded-full bg-white px-3 py-1 text-[11px] font-medium uppercase tracking-[0.16em] text-slate-600 ring-1 ring-slate-200">
+                        {post.collegeName}
+                      </span>
+                      <span className="rounded-full bg-white px-3 py-1 text-[11px] font-medium uppercase tracking-[0.16em] text-slate-600 ring-1 ring-slate-200">
+                        {post.clubName}
+                      </span>
                       {post.isAuthorisedPost && (
                         <span className="rounded-full bg-indigo-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-indigo-700">
-                          {post.badgeLabel || "Authorized"}
+                          {post.badgeLabel || "Verified by network"}
                         </span>
                       )}
                     </div>
@@ -295,10 +357,25 @@ function StatCard({ label, value }) {
 
 function StatusPill({ status }) {
   if (status === "approved") {
-    return <span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-emerald-700"><CheckCircle2 className="h-4 w-4" />Approved</span>;
+    return (
+      <span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-emerald-700">
+        <CheckCircle2 className="h-4 w-4" />
+        Approved
+      </span>
+    );
   }
   if (status === "rejected") {
-    return <span className="inline-flex items-center gap-2 rounded-full bg-rose-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-rose-700"><XCircle className="h-4 w-4" />Rejected</span>;
+    return (
+      <span className="inline-flex items-center gap-2 rounded-full bg-rose-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-rose-700">
+        <XCircle className="h-4 w-4" />
+        Rejected
+      </span>
+    );
   }
-  return <span className="inline-flex items-center gap-2 rounded-full bg-amber-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-amber-700"><Clock3 className="h-4 w-4" />Pending</span>;
+  return (
+    <span className="inline-flex items-center gap-2 rounded-full bg-amber-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-amber-700">
+      <Clock3 className="h-4 w-4" />
+      Pending
+    </span>
+  );
 }
