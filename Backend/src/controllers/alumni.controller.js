@@ -1,4 +1,5 @@
 import Alumni from "../models/alumni.model.js";
+import { syncAllTeamMembersToLegacy } from "../services/legacySync.service.js";
 
 const escapeRegex = (value = "") =>
   value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -63,6 +64,8 @@ export const createAlumni = async (req, res) => {
 
 export const getAlumni = async (req, res) => {
   try {
+    await syncAllTeamMembersToLegacy();
+
     const { search = "", generation = "", iiit = "" } = req.query;
     const query = {
       $and: [{ $or: [{ status: "approved" }, { status: { $exists: false } }] }],
@@ -91,6 +94,9 @@ export const getAlumni = async (req, res) => {
           { currentRole: regex },
           { currentCompany: regex },
           { location: regex },
+          { "roleHistory.role": regex },
+          { "roleHistory.team": regex },
+          { "roleHistory.year": regex },
         ],
       });
     }
@@ -107,6 +113,8 @@ export const getAlumni = async (req, res) => {
 
 export const getAlumniRequests = async (req, res) => {
   try {
+    await syncAllTeamMembersToLegacy();
+
     const { status = "all", search = "" } = req.query;
     const query = { $and: [] };
 
@@ -131,6 +139,9 @@ export const getAlumniRequests = async (req, res) => {
           { networkPost: regex },
           { currentRole: regex },
           { currentCompany: regex },
+          { "roleHistory.role": regex },
+          { "roleHistory.team": regex },
+          { "roleHistory.year": regex },
         ],
       });
     }

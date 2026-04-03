@@ -1,5 +1,6 @@
 import TeamMember from "../models/teamMember.model.js";
 import cloudinary from "../config/cloudinary.js";
+import { syncTeamMemberToLegacy } from "../services/legacySync.service.js";
 
 export const createTeamMember = async (req, res) => {
   try {
@@ -46,6 +47,8 @@ export const createTeamMember = async (req, res) => {
         url: req.file.path,
       },
     });
+
+    await syncTeamMemberToLegacy(member);
 
     res.status(201).json(member);
   } catch (err) {
@@ -106,6 +109,7 @@ export const updateTeamMember = async (req, res) => {
     });
 
     await member.save();
+    await syncTeamMemberToLegacy(member);
     res.json(member);
   } catch (err) {
     res.status(400).json({

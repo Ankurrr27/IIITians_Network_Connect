@@ -1,5 +1,26 @@
 import mongoose from "mongoose";
 
+const roleHistorySchema = new mongoose.Schema(
+  {
+    role: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    team: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    year: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+  },
+  { _id: false }
+);
+
 const alumniSchema = new mongoose.Schema(
   {
     name: {
@@ -65,6 +86,11 @@ const alumniSchema = new mongoose.Schema(
       trim: true,
       default: "",
     },
+    twitter: {
+      type: String,
+      trim: true,
+      default: "",
+    },
     bio: {
       type: String,
       trim: true,
@@ -80,6 +106,22 @@ const alumniSchema = new mongoose.Schema(
     reviewedAt: {
       type: Date,
       default: null,
+    },
+    legacyType: {
+      type: String,
+      enum: ["alumni", "team_member"],
+      default: "alumni",
+      index: true,
+    },
+    sourceTeamMemberId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "TeamMember",
+      default: null,
+      index: true,
+    },
+    roleHistory: {
+      type: [roleHistorySchema],
+      default: [],
     },
   },
   { timestamps: true }
