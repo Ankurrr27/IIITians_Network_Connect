@@ -13,9 +13,9 @@ import {
 const router = express.Router();
 
 router.get("/", getApprovedDiscussPosts);
-router.post("/", discussAuth, upload.single("banner"), createDiscussPost);
+router.post("/", discussAuth, upload.array("banners", 6), createDiscussPost);
 router.get("/admin/all", adminAuth, getAllDiscussPosts);
-router.patch("/:id", adminAuth, upload.single("banner"), updateDiscussPost);
+router.patch("/:id", adminAuth, upload.array("banners", 6), updateDiscussPost);
 router.delete("/:id", adminAuth, deleteDiscussPost);
 
 export default router;

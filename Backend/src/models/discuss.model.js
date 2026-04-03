@@ -54,6 +54,18 @@ const discussSchema = new mongoose.Schema(
         trim: true,
       },
     },
+    photos: [
+      {
+        public_id: {
+          type: String,
+          trim: true,
+        },
+        url: {
+          type: String,
+          trim: true,
+        },
+      },
+    ],
     account: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "DiscussAccount",

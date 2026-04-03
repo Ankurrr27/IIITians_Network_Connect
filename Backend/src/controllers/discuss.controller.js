@@ -25,6 +25,11 @@ export const createDiscussPost = async (req, res) => {
     const isPrivilegedRole = ["club_manager", "publisher"].includes(account.role);
     const shouldAutoApprove = account.isAuthorized && isPrivilegedRole;
 
+    const uploadedPhotos = (req.files || []).map((file) => ({
+      public_id: file.filename,
+      url: file.path,
+    }));
+
     const post = await Discuss.create({
       title: req.body.title,
       description: req.body.description,
@@ -35,12 +40,15 @@ export const createDiscussPost = async (req, res) => {
       contactEmail: account.email,
       contactPhone: account.contactPhone,
       actionLink: req.body.actionLink,
-      banner: req.file
+      banner: uploadedPhotos[0]
+        ? uploadedPhotos[0]
+        : req.file
         ? {
             public_id: req.file.filename,
             url: req.file.path,
           }
         : undefined,
+      photos: uploadedPhotos,
       account: account._id,
       accountRole: account.role,
       isAuthorisedPost: account.isAuthorized,
@@ -85,7 +93,7 @@ export const updateDiscussPost = async (req, res) => {
       }
     });
 
-    if (req.file) {
+    if (req.file || (req.files && req.files.length > 0)) {
       const existingPost = await Discuss.findById(req.params.id);
 
       if (!existingPost) {
@@ -96,10 +104,29 @@ export const updateDiscussPost = async (req, res) => {
         await cloudinary.uploader.destroy(existingPost.banner.public_id);
       }
 
-      updates.banner = {
-        public_id: req.file.filename,
-        url: req.file.path,
-      };
+      if (Array.isArray(existingPost.photos)) {
+        await Promise.all(
+          existingPost.photos
+            .filter((photo) => photo?.public_id)
+            .map((photo) => cloudinary.uploader.destroy(photo.public_id))
+        );
+      }
+
+      const uploadedPhotos = (req.files || []).map((file) => ({
+        public_id: file.filename,
+        url: file.path,
+      }));
+
+      if (uploadedPhotos.length > 0) {
+        updates.photos = uploadedPhotos;
+        updates.banner = uploadedPhotos[0];
+      } else if (req.file) {
+        updates.banner = {
+          public_id: req.file.filename,
+          url: req.file.path,
+        };
+        updates.photos = [updates.banner];
+      }
     }
 
     const post = await Discuss.findByIdAndUpdate(
@@ -126,9 +153,17 @@ export const deleteDiscussPost = async (req, res) => {
       return res.status(404).json({ message: "Discuss post not found" });
     }
 
-    if (post.banner?.public_id) {
-      await cloudinary.uploader.destroy(post.banner.public_id);
+    const imageIds = new Set();
+    if (post.banner?.public_id) imageIds.add(post.banner.public_id);
+    if (Array.isArray(post.photos)) {
+      post.photos.forEach((photo) => {
+        if (photo?.public_id) imageIds.add(photo.public_id);
+      });
     }
+
+    await Promise.all(
+      Array.from(imageIds).map((publicId) => cloudinary.uploader.destroy(publicId))
+    );
 
     res.json({ message: "Discuss post deleted successfully" });
   } catch (error) {
