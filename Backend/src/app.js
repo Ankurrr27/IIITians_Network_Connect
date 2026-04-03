@@ -7,6 +7,8 @@ import eventRoutes from "./routes/event.routes.js";
 import teamMemberRoutes from "./routes/teamMember.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
 import alumniRoutes from "./routes/alumni.routes.js";
+import discussRoutes from "./routes/discuss.routes.js";
+import discussAccountRoutes from "./routes/discussAccount.routes.js";
 
 const app = express();
 
@@ -52,6 +54,8 @@ app.use("/api/placements", placementRoutes);
 app.use("/api/team", teamMemberRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/alumni", alumniRoutes);
+app.use("/api/discuss", discussRoutes);
+app.use("/api/discuss-accounts", discussAccountRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: "Route not found" });
