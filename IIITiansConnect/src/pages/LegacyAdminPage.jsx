@@ -44,7 +44,7 @@ function StatCard({ label, value }) {
   );
 }
 
-export default function AlumniAdminPage() {
+export default function LegacyAdminPage() {
   const navigate = useNavigate();
   const { status: routeStatus } = useParams();
   const [entries, setEntries] = useState([]);
@@ -311,7 +311,9 @@ export default function AlumniAdminPage() {
                         {entry.generation}
                       </span>
                       <span className="rounded-full bg-slate-100 px-3 py-1">
-                        Class of {entry.graduationYear}
+                        {entry.legacyType === "team_member"
+                          ? `Team term ${entry.generation}`
+                          : `Class of ${entry.graduationYear}`}
                       </span>
                     </div>
                   </div>

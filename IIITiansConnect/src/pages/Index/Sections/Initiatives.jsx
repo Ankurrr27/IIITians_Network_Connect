@@ -28,7 +28,7 @@ const projects = [
     description:
       "Highlighting impactful career journeys, achievements, and contributions of IIIT alumni across domains.",
     icon: <Award size={28} />,
-    route: "/alumni",
+    route: "/legacy",
   },
 ];
 

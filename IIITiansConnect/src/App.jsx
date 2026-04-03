@@ -22,8 +22,8 @@ import AdminLogin from "./pages/AdminLogin.jsx";
 import RequireAdmin from "./components/RequireAdmin";
 import PublicEvents from "./pages/Events/Events.jsx";
 import ScrollToTop from "./components/ScrollToTop.jsx";
-import AlumniAdminPage from "./pages/AlumniAdminPage.jsx";
-import Alumni from "./pages/AlumniPage.jsx";
+import LegacyAdminPage from "./pages/LegacyAdminPage.jsx";
+import LegacyPage from "./pages/LegacyPage.jsx";
 
 function LegacyAdminRedirect() {
   const { status } = useParams();
@@ -66,7 +66,7 @@ function App() {
           <Route path="/colleges" element={<Colleges />} />
           <Route path="/events" element={<PublicEvents />} />
           <Route path="/placement" element={<Placement />} />
-          <Route path="/legacy" element={<Alumni />} />
+          <Route path="/legacy" element={<LegacyPage />} />
           <Route path="/alumni" element={<Navigate to="/legacy" replace />} />
           <Route path="/team" element={<TeamPage />} />
           <Route path="/contact" element={<ContactPage />} />
@@ -77,8 +77,8 @@ function App() {
           {/* 🔐 ADMIN PROTECTED ROUTES */}
           <Route element={<RequireAdmin />}>
             <Route element={<AdminLayout />}>
-              <Route path="/legacy/admin" element={<AlumniAdminPage />} />
-              <Route path="/legacy/admin/:status" element={<AlumniAdminPage />} />
+              <Route path="/legacy/admin" element={<LegacyAdminPage />} />
+              <Route path="/legacy/admin/:status" element={<LegacyAdminPage />} />
               <Route path="/alumni/admin" element={<LegacyAdminRedirect />} />
               <Route path="/alumni/admin/:status" element={<LegacyAdminRedirect />} />
               <Route path="/team/admin" element={<TeamAdmin />} />

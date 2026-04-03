@@ -13,17 +13,17 @@ export default function PlacementSearchBar({
   onYearChange,
 }) {
   return (
-    <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+    <div className="space-y-4 sm:space-y-5">
       <PlacementHeader collegeName={searched ? college : null} />
 
       <section
-        className={`grid gap-4 ${
-          searched ? "lg:grid-cols-[1fr_auto]" : "grid-cols-1"
+        className={`grid gap-3 sm:gap-4 ${
+          searched ? "grid-cols-1 lg:grid-cols-[minmax(0,1fr)_auto]" : "grid-cols-1"
         }`}
       >
         <div
-          className={`rounded-[1.5rem] border border-slate-200 bg-white shadow-sm ${
-            searched ? "p-3 sm:p-4" : "mx-auto max-w-xl p-4 sm:p-6"
+          className={`w-full rounded-[1.25rem] border border-slate-200 bg-white shadow-sm ${
+            searched ? "p-3 sm:p-4" : "p-3 sm:p-5"
           }`}
         >
           <CollegeSearch
@@ -46,7 +46,7 @@ export default function PlacementSearchBar({
         </div>
 
         {data && (
-          <div className="hidden rounded-[1.5rem] border border-slate-200 bg-white px-4 py-3 shadow-sm lg:flex lg:items-center">
+          <div className="hidden rounded-[1.25rem] border border-slate-200 bg-white px-4 py-3 shadow-sm lg:flex lg:items-center">
             <YearSelector
               years={data.yearlyPlacements.map((item) => item.year)}
               value={year}

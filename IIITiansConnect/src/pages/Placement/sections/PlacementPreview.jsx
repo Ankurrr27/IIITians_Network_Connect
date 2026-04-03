@@ -77,26 +77,13 @@ export default function PlacementPreview() {
                 key={college.id}
                 className="rounded-[1.15rem] border border-slate-200 bg-slate-50 p-3.5 transition hover:-translate-y-0.5 hover:bg-white hover:shadow-sm sm:rounded-[1.25rem] sm:p-4"
               >
-                <div className="flex items-center gap-3">
-                  <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-xl bg-white sm:h-16 sm:w-16">
-                    <img
-                      src={college.collegeLogo}
-                      alt={`${college.collegeName} logo`}
-                      className="max-h-10 object-contain"
-                      onError={(event) => {
-                        event.target.src = "/fallback-college.png";
-                      }}
-                    />
-                  </div>
-
-                  <div className="min-w-0 flex-1 text-left">
-                    <p className="text-sm font-semibold leading-tight text-slate-900 sm:text-base">
-                      {college.collegeName}
-                    </p>
-                    <p className="mt-1 text-xs text-slate-500 sm:text-sm">
-                      Latest visible year: {college.year}
-                    </p>
-                  </div>
+                <div className="min-w-0 text-left">
+                  <p className="text-sm font-semibold leading-tight text-slate-900 sm:text-base">
+                    {college.collegeName}
+                  </p>
+                  <p className="mt-1 text-xs text-slate-500 sm:text-sm">
+                    Latest visible year: {college.year}
+                  </p>
                 </div>
 
                 <div className="mt-3 grid grid-cols-2 gap-2 text-left">

@@ -10,6 +10,7 @@ import {
   LoaderCircle,
   Mail,
   MapPin,
+  Pencil,
   Search,
   ShieldCheck,
   Sparkles,
@@ -42,14 +43,19 @@ const cardShell = {
     "border-slate-800 bg-slate-900 shadow-[0_18px_50px_rgba(15,23,42,0.26)]",
 };
 
-export default function AlumniPage() {
+export default function LegacyPage() {
   const { isDarkMode } = useThemeMode();
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [apiUnavailable, setApiUnavailable] = useState(false);
   const [search, setSearch] = useState("");
   const [generationFilter, setGenerationFilter] = useState("");
+  const [iiitFilter, setIiitFilter] = useState("");
+  const [professionalStatusFilter, setProfessionalStatusFilter] = useState("");
+  const [legacyTypeFilter, setLegacyTypeFilter] = useState("");
+  const [networkPostFilter, setNetworkPostFilter] = useState("");
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingEntryId, setEditingEntryId] = useState("");
   const [submitState, setSubmitState] = useState({
     loading: false,
     error: "",
@@ -65,6 +71,11 @@ export default function AlumniPage() {
         params: {
           search: filters.search ?? search,
           generation: filters.generation ?? generationFilter,
+          iiit: filters.iiit ?? iiitFilter,
+          professionalStatus:
+            filters.professionalStatus ?? professionalStatusFilter,
+          legacyType: filters.legacyType ?? legacyTypeFilter,
+          networkPost: filters.networkPost ?? networkPostFilter,
         },
       });
 
@@ -85,11 +96,28 @@ export default function AlumniPage() {
     }, 250);
 
     return () => clearTimeout(timeout);
-  }, [search, generationFilter]);
+  }, [
+    search,
+    generationFilter,
+    iiitFilter,
+    professionalStatusFilter,
+    legacyTypeFilter,
+    networkPostFilter,
+  ]);
 
   const generationOptions = useMemo(() => {
     const values = entries.map((entry) => entry.generation).filter(Boolean);
     return [...new Set(values)].sort((a, b) => b.localeCompare(a));
+  }, [entries]);
+
+  const iiitOptions = useMemo(() => {
+    const values = entries.map((entry) => entry.iiit).filter(Boolean);
+    return [...new Set(values)].sort((a, b) => a.localeCompare(b));
+  }, [entries]);
+
+  const networkPostOptions = useMemo(() => {
+    const values = entries.map((entry) => entry.networkPost).filter(Boolean);
+    return [...new Set(values)].sort((a, b) => a.localeCompare(b));
   }, [entries]);
 
   const stats = useMemo(
@@ -132,20 +160,30 @@ export default function AlumniPage() {
     });
 
     try {
-      await api.post("/alumni", {
+      const payload = {
         ...form,
         graduationYear: Number(form.graduationYear),
-      });
+      };
+
+      if (editingEntryId) {
+        await api.put(`/alumni/${editingEntryId}`, payload);
+      } else {
+        await api.post("/alumni", payload);
+      }
 
       setForm(initialForm);
       setIsFormOpen(false);
+      setEditingEntryId("");
       setSubmitState({
         loading: false,
         error: "",
         success:
-          "Your Network Legacy request has been submitted. It will appear after admin approval.",
+          editingEntryId
+            ? "Your Network Legacy profile has been updated."
+            : "Your Network Legacy request has been submitted. It will appear after admin approval.",
       });
       setApiUnavailable(false);
+      fetchEntries();
     } catch (error) {
       const notDeployed = error.response?.status === 404;
 
@@ -159,9 +197,31 @@ export default function AlumniPage() {
         error: notDeployed
           ? "The Network Legacy API is not live on the backend yet. Redeploy the backend service first."
           : error.response?.data?.message ||
-            "Could not submit your details right now.",
+            "Could not save your details right now.",
       });
     }
+  };
+
+  const handleEdit = (entry) => {
+    setEditingEntryId(entry._id);
+    setForm({
+      name: entry.name || "",
+      email: entry.email || "",
+      iiit: entry.iiit || "",
+      graduationYear: entry.graduationYear || "",
+      generation: entry.generation || "",
+      branch: entry.branch || "",
+      networkPost: entry.networkPost || "",
+      currentRole: entry.currentRole || "",
+      currentCompany: entry.currentCompany || "",
+      location: entry.location || "",
+      linkedin: entry.linkedin || "",
+      instagram: entry.instagram || "",
+      bio: entry.bio || "",
+    });
+    setSubmitState({ loading: false, error: "", success: "" });
+    setIsFormOpen(true);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
@@ -283,7 +343,8 @@ export default function AlumniPage() {
                   }`}
                 >
                   Send your profile for review. Only approved entries are shown
-                  in the public legacy page.
+                  in the public legacy page. You can also reopen the same
+                  profile later and update your current role or company.
                 </p>
               </div>
 
@@ -292,7 +353,7 @@ export default function AlumniPage() {
                 onClick={() => setIsFormOpen((prev) => !prev)}
                 className="inline-flex items-center justify-center gap-2 rounded-full bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700"
               >
-                {isFormOpen ? "Close form" : "Open form"}
+                {isFormOpen ? "Close form" : editingEntryId ? "Continue edit" : "Open form"}
                 {isFormOpen ? (
                   <ChevronUp className="h-4 w-4" />
                 ) : (
@@ -303,6 +364,18 @@ export default function AlumniPage() {
 
             {isFormOpen && (
               <form onSubmit={handleSubmit} className="mt-5 space-y-4">
+                {editingEntryId && (
+                  <div
+                    className={`rounded-2xl border px-4 py-3 text-sm ${
+                      isDarkMode
+                        ? "border-indigo-900 bg-indigo-950/40 text-indigo-100"
+                        : "border-indigo-200 bg-indigo-50 text-indigo-800"
+                    }`}
+                  >
+                    Editing an existing legacy profile. Use the same registered
+                    email and save the latest professional details.
+                  </div>
+                )}
                 <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
                   {[
                     ["name", "Full name", "text", true, ""],
@@ -313,7 +386,7 @@ export default function AlumniPage() {
                     ["branch", "Branch", "text", true, ""],
                     ["networkPost", "Network post", "text", false, ""],
                     ["currentRole", "Current role / designation", "text", false, ""],
-                    ["currentCompany", "Current company (if placed)", "text", false, ""],
+                    ["currentCompany", "Current company / organization", "text", false, ""],
                     ["location", "Location", "text", false, ""],
                     ["linkedin", "LinkedIn profile URL", "text", false, "sm:col-span-2"],
                     ["instagram", "Instagram profile URL", "text", false, "sm:col-span-2"],
@@ -353,7 +426,13 @@ export default function AlumniPage() {
                   disabled={submitState.loading}
                   className="w-full rounded-2xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60 sm:text-base"
                 >
-                  {submitState.loading ? "Submitting..." : "Send legacy request"}
+                  {submitState.loading
+                    ? editingEntryId
+                      ? "Saving..."
+                      : "Submitting..."
+                    : editingEntryId
+                      ? "Save profile update"
+                      : "Send legacy request"}
                 </button>
               </form>
             )}
@@ -377,11 +456,12 @@ export default function AlumniPage() {
                   isDarkMode ? "text-slate-400" : "text-slate-600"
                 }`}
               >
-                Filter by name, batch, post, role, company, or institute.
+                Filter by name, batch, network post, professional role,
+                company, or institute.
               </p>
             </div>
 
-            <div className="mt-4 grid gap-3 md:grid-cols-[1fr_220px]">
+            <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
               <label className="relative block">
                 <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                 <input
@@ -413,6 +493,91 @@ export default function AlumniPage() {
                   </option>
                 ))}
               </select>
+
+              <select
+                value={iiitFilter}
+                onChange={(event) => setIiitFilter(event.target.value)}
+                className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition sm:text-base ${
+                  isDarkMode
+                    ? "border-slate-700 bg-slate-950 text-slate-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20"
+                    : "border-slate-200 bg-slate-50 text-slate-900 focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100"
+                }`}
+              >
+                <option value="">All institutes</option>
+                {iiitOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                value={professionalStatusFilter}
+                onChange={(event) =>
+                  setProfessionalStatusFilter(event.target.value)
+                }
+                className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition sm:text-base ${
+                  isDarkMode
+                    ? "border-slate-700 bg-slate-950 text-slate-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20"
+                    : "border-slate-200 bg-slate-50 text-slate-900 focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100"
+                }`}
+              >
+                <option value="">All professional stages</option>
+                <option value="working">Working professionals</option>
+                <option value="open">Open to next move</option>
+              </select>
+            </div>
+
+            <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+              <select
+                value={legacyTypeFilter}
+                onChange={(event) => setLegacyTypeFilter(event.target.value)}
+                className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition sm:text-base ${
+                  isDarkMode
+                    ? "border-slate-700 bg-slate-950 text-slate-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20"
+                    : "border-slate-200 bg-slate-50 text-slate-900 focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100"
+                }`}
+              >
+                <option value="">All legacy types</option>
+                <option value="team_member">Team members</option>
+                <option value="alumni">Submitted alumni</option>
+              </select>
+
+              <select
+                value={networkPostFilter}
+                onChange={(event) => setNetworkPostFilter(event.target.value)}
+                className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition sm:text-base ${
+                  isDarkMode
+                    ? "border-slate-700 bg-slate-950 text-slate-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20"
+                    : "border-slate-200 bg-slate-50 text-slate-900 focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100"
+                }`}
+              >
+                <option value="">All network posts</option>
+                {networkPostOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setSearch("");
+                  setGenerationFilter("");
+                  setIiitFilter("");
+                  setProfessionalStatusFilter("");
+                  setLegacyTypeFilter("");
+                  setNetworkPostFilter("");
+                }}
+                className={`rounded-2xl border px-4 py-3 text-sm font-semibold transition sm:text-base ${
+                  isDarkMode
+                    ? "border-slate-700 bg-slate-950 text-slate-100 hover:bg-slate-900"
+                    : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                }`}
+              >
+                Clear filters
+              </button>
             </div>
           </div>
 
@@ -531,7 +696,11 @@ export default function AlumniPage() {
                     >
                       <div className="font-semibold">{entry.iiit}</div>
                       <div>{entry.branch}</div>
-                      <div>Class of {entry.graduationYear}</div>
+                      <div>
+                        {entry.legacyType === "team_member"
+                          ? `Team term ${entry.generation}`
+                          : `Class of ${entry.graduationYear}`}
+                      </div>
                     </div>
                   </div>
 
@@ -582,6 +751,15 @@ export default function AlumniPage() {
                   )}
 
                   <div className="mt-4 flex flex-wrap gap-4 text-sm">
+                    <button
+                      type="button"
+                      onClick={() => handleEdit(entry)}
+                      className="inline-flex items-center gap-2 font-medium text-indigo-600 transition hover:text-indigo-500"
+                    >
+                      <Pencil className="h-4 w-4" />
+                      Edit profile
+                    </button>
+
                     <a
                       href={`mailto:${entry.email}`}
                       className="inline-flex items-center gap-2 font-medium text-indigo-600 transition hover:text-indigo-500"
