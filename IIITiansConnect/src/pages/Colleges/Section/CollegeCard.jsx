@@ -4,10 +4,21 @@ import { Link } from "react-router-dom";
 
 const CollegeCard = ({ college, teamCount = 0, discussClubs = [] }) => {
   const [showFullDescription, setShowFullDescription] = useState(false);
-  const { name, photo, logo, gallery, description, website, clubLink, clubLinks = [] } = college;
+  const {
+    name,
+    photo,
+    logo,
+    gallery,
+    description,
+    website,
+    clubLink,
+    clubLinks = [],
+  } = college;
+
   const coverImage =
     photo?.url || gallery?.[0]?.url || logo?.url || "/placeholder-logo.png";
   const logoImage = logo?.url || "/placeholder-logo.png";
+
   const visibleClubLinks = clubLinks.filter((item) => item?.name && item?.url);
   const displayClubLinks =
     visibleClubLinks.length > 0
@@ -15,6 +26,11 @@ const CollegeCard = ({ college, teamCount = 0, discussClubs = [] }) => {
       : clubLink
         ? [{ name: "Club / Community", url: clubLink }]
         : [];
+
+  const hasExpandableDetails =
+    (description && description.length > 140) ||
+    displayClubLinks.length > 0 ||
+    discussClubs.length > 0;
 
   return (
     <div
@@ -66,19 +82,20 @@ const CollegeCard = ({ college, teamCount = 0, discussClubs = [] }) => {
             >
               {description}
             </p>
-            {description.length > 140 && (
-              <button
-                type="button"
-                onClick={() => setShowFullDescription((prev) => !prev)}
-                className="mt-2 text-sm font-medium text-indigo-600 transition hover:text-indigo-700"
-              >
-                {showFullDescription ? "See less" : "See more"}
-              </button>
-            )}
           </div>
         )}
 
-        {displayClubLinks.length > 0 && (
+        {hasExpandableDetails && (
+          <button
+            type="button"
+            onClick={() => setShowFullDescription((prev) => !prev)}
+            className="mb-3 w-fit text-sm font-medium text-indigo-600 transition hover:text-indigo-700"
+          >
+            {showFullDescription ? "See less" : "See more"}
+          </button>
+        )}
+
+        {showFullDescription && displayClubLinks.length > 0 && (
           <div className="mb-4 rounded-2xl bg-slate-50 p-3 ring-1 ring-slate-200/80">
             <div className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
               Clubs & Societies
@@ -99,7 +116,7 @@ const CollegeCard = ({ college, teamCount = 0, discussClubs = [] }) => {
           </div>
         )}
 
-        {discussClubs.length > 0 && (
+        {showFullDescription && discussClubs.length > 0 && (
           <div className="mb-4 rounded-2xl bg-sky-50/80 p-3 ring-1 ring-sky-100">
             <div className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-sky-700">
               Network Clubs on Discuss
@@ -111,7 +128,9 @@ const CollegeCard = ({ college, teamCount = 0, discussClubs = [] }) => {
                   className="rounded-xl bg-white px-3 py-2 ring-1 ring-sky-100"
                 >
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-sm font-semibold text-slate-900">{club.clubName}</span>
+                    <span className="text-sm font-semibold text-slate-900">
+                      {club.clubName}
+                    </span>
                     {club.isAuthorized && (
                       <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-emerald-700">
                         <ShieldCheck size={12} />
@@ -119,16 +138,13 @@ const CollegeCard = ({ college, teamCount = 0, discussClubs = [] }) => {
                       </span>
                     )}
                   </div>
-                  <div className="mt-1 text-xs text-slate-500">
-                    {club.contactName}
-                    {club.contactPhone ? ` · ${club.contactPhone}` : ""}
-                  </div>
                 </div>
               ))}
             </div>
             {discussClubs.length > 4 && (
               <p className="mt-3 text-xs font-medium text-sky-700">
-                +{discussClubs.length - 4} more club{discussClubs.length - 4 > 1 ? "s" : ""} active on Discuss
+                +{discussClubs.length - 4} more club
+                {discussClubs.length - 4 > 1 ? "s" : ""} active on Discuss
               </p>
             )}
           </div>

@@ -16,11 +16,25 @@ export default function CollegesPage() {
   const [filter, setFilter] = useState("NONE");
 
   useEffect(() => {
-    Promise.all([api.get("/colleges"), api.get("/team"), api.get("/discuss-accounts/public")])
-      .then(([collegesRes, teamRes, discussAccountsRes]) => {
-        setColleges(collegesRes.data);
-        setTeamMembers(teamRes.data);
-        setDiscussClubs(discussAccountsRes.data || []);
+    Promise.allSettled([
+      api.get("/colleges"),
+      api.get("/team"),
+      api.get("/discuss-accounts/public"),
+    ])
+      .then(([collegesResult, teamResult, discussAccountsResult]) => {
+        if (collegesResult.status !== "fulfilled") {
+          throw new Error("Failed to load colleges");
+        }
+
+        setColleges(collegesResult.value.data || []);
+        setTeamMembers(
+          teamResult.status === "fulfilled" ? teamResult.value.data || [] : []
+        );
+        setDiscussClubs(
+          discussAccountsResult.status === "fulfilled"
+            ? discussAccountsResult.value.data || []
+            : []
+        );
       })
       .catch(() => setError("Failed to load colleges"))
       .finally(() => setLoading(false));

@@ -19,6 +19,7 @@ import {
 import api from "../api/axios";
 import useThemeMode from "../hooks/useThemeMode.jsx";
 import { useSearchParams } from "react-router-dom";
+import ImageCropModal from "../components/ImageCropModal";
 
 const initialForm = {
   name: "",
@@ -70,6 +71,10 @@ export default function LegacyPage() {
     success: "",
   });
   const [form, setForm] = useState(initialForm);
+  const [teamMembers, setTeamMembers] = useState([]);
+  const [photo, setPhoto] = useState(null);
+  const [rawPhoto, setRawPhoto] = useState(null);
+  const [useTeamPhoto, setUseTeamPhoto] = useState(true);
 
   const fetchEntries = async (filters = {}) => {
     setLoading(true);
@@ -97,6 +102,19 @@ export default function LegacyPage() {
       setLoading(false);
     }
   };
+
+  const fetchTeamMembers = async () => {
+    try {
+      const response = await api.get("/team");
+      setTeamMembers(response.data || []);
+    } catch {
+      setTeamMembers([]);
+    }
+  };
+
+  useEffect(() => {
+    fetchTeamMembers();
+  }, []);
 
   useEffect(() => {
     setSearch(searchParams.get("search") || "");
@@ -126,6 +144,18 @@ export default function LegacyPage() {
     const values = entries.map((entry) => entry.generation).filter(Boolean);
     return [...new Set(values)].sort((a, b) => b.localeCompare(a));
   }, [entries]);
+
+  const matchedTeamMember = useMemo(() => {
+    const normalizedEmail = form.email.trim().toLowerCase();
+    if (!normalizedEmail) return null;
+
+    return (
+      [...teamMembers]
+        .filter((member) => (member.email || "").trim().toLowerCase() === normalizedEmail)
+        .sort((a, b) => String(b.year || "").localeCompare(String(a.year || ""), undefined, { numeric: true }))[0] ||
+      null
+    );
+  }, [form.email, teamMembers]);
 
   const iiitOptions = useMemo(() => {
     const values = entries.map((entry) => entry.iiit).filter(Boolean);
@@ -177,12 +207,25 @@ export default function LegacyPage() {
     });
 
     try {
-      await api.post("/alumni", {
-        ...form,
-        graduationYear: Number(form.graduationYear),
+      const formData = new FormData();
+      Object.entries(form).forEach(([key, value]) => {
+        formData.append(key, key === "graduationYear" ? Number(value) : value);
+      });
+
+      if (photo) {
+        formData.append("photo", photo);
+      } else if (useTeamPhoto && matchedTeamMember?._id) {
+        formData.append("photoSourceMemberId", matchedTeamMember._id);
+      }
+
+      await api.post("/alumni", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
 
       setForm(initialForm);
+      setPhoto(null);
+      setRawPhoto(null);
+      setUseTeamPhoto(true);
       setIsFormOpen(false);
       setSubmitState({
         loading: false,
@@ -394,6 +437,87 @@ export default function LegacyPage() {
                   />
                 </div>
 
+                <div
+                  className={`rounded-2xl border p-4 ${
+                    isDarkMode
+                      ? "border-slate-700 bg-slate-950"
+                      : "border-slate-200 bg-slate-50"
+                  }`}
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p
+                        className={`text-sm font-semibold ${
+                          isDarkMode ? "text-slate-100" : "text-slate-900"
+                        }`}
+                      >
+                        Legacy photo
+                      </p>
+                      <p
+                        className={`mt-1 text-sm ${
+                          isDarkMode ? "text-slate-400" : "text-slate-600"
+                        }`}
+                      >
+                        Upload a photo, or reuse your team photo if you already appear on the team page.
+                      </p>
+                    </div>
+
+                    <label
+                      htmlFor="legacy-photo-upload"
+                      className="inline-flex cursor-pointer items-center rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-800 transition hover:bg-slate-100"
+                    >
+                      {photo ? "Replace photo" : "Upload photo"}
+                    </label>
+                  </div>
+
+                  <input
+                    id="legacy-photo-upload"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(event) => {
+                      const nextFile = event.target.files?.[0];
+                      if (nextFile) {
+                        setRawPhoto(nextFile);
+                        setUseTeamPhoto(false);
+                      }
+                      event.target.value = "";
+                    }}
+                  />
+
+                  {matchedTeamMember?.photo?.url && (
+                    <label
+                      className={`mt-4 flex items-center gap-3 rounded-xl px-3 py-3 text-sm ${
+                        isDarkMode ? "bg-slate-900 text-slate-300" : "bg-white text-slate-700"
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={useTeamPhoto && !photo}
+                        onChange={(event) => setUseTeamPhoto(event.target.checked)}
+                        className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                      />
+                      Use same photo as your team profile
+                      <span className="font-medium text-indigo-600">
+                        {matchedTeamMember.name}
+                      </span>
+                    </label>
+                  )}
+
+                  {(photo || (useTeamPhoto && matchedTeamMember?.photo?.url)) && (
+                    <div className="mt-4 flex items-center gap-3">
+                      <img
+                        src={photo ? URL.createObjectURL(photo) : matchedTeamMember.photo.url}
+                        alt="Legacy profile preview"
+                        className="h-20 w-20 rounded-2xl object-cover ring-1 ring-slate-200"
+                      />
+                      <div className="text-sm text-slate-600">
+                        {photo ? "Cropped photo ready for upload" : "Using existing team photo"}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
                 <button
                   type="submit"
                   disabled={submitState.loading}
@@ -591,7 +715,15 @@ export default function LegacyPage() {
                   }`}
                 >
                   <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                    <div>
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+                      {entry.photo?.url && (
+                        <img
+                          src={entry.photo.url}
+                          alt={entry.name}
+                          className="h-24 w-24 rounded-[1.5rem] object-cover ring-1 ring-slate-200 sm:h-28 sm:w-28"
+                        />
+                      )}
+                      <div>
                       <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-indigo-600 sm:text-xs sm:tracking-[0.24em]">
                         {entry.generation}
                       </p>
@@ -651,6 +783,7 @@ export default function LegacyPage() {
                             {entry.location}
                           </span>
                         )}
+                      </div>
                       </div>
                     </div>
 
@@ -756,6 +889,18 @@ export default function LegacyPage() {
           </div>
         </div>
       </section>
+
+      {rawPhoto && (
+        <ImageCropModal
+          file={rawPhoto}
+          aspect={1}
+          onClose={() => setRawPhoto(null)}
+          onCrop={(croppedFile) => {
+            setPhoto(croppedFile);
+            setRawPhoto(null);
+          }}
+        />
+      )}
     </div>
   );
 }
