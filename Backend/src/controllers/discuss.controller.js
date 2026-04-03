@@ -231,3 +231,23 @@ export const deleteDiscussPost = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+export const deleteMyDiscussPost = async (req, res) => {
+  try {
+    const post = await Discuss.findOneAndDelete({
+      _id: req.params.id,
+      account: req.discussAccountId,
+    });
+
+    if (!post) {
+      return res.status(404).json({ message: "Discuss post not found" });
+    }
+
+    await Event.findOneAndDelete({ sourceDiscussPostId: post._id });
+    await removePostAssets(post);
+
+    res.json({ message: "Your post was deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
