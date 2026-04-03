@@ -97,14 +97,25 @@ export default function CollegesAdmin() {
     teamMembers.forEach((member) => {
       const key = (member.iiit || "").trim().toLowerCase();
       if (!key) return;
-      map.set(key, (map.get(key) || 0) + 1);
+
+      const uniqueMemberKey =
+        (member.email || "").trim().toLowerCase() ||
+        `${(member.name || "").trim().toLowerCase()}::${key}`;
+
+      if (!uniqueMemberKey) return;
+
+      if (!map.has(key)) {
+        map.set(key, new Set());
+      }
+
+      map.get(key).add(uniqueMemberKey);
     });
 
     return map;
   }, [teamMembers]);
 
   const getCollegeTeamCount = (collegeName) =>
-    teamCountMap.get((collegeName || "").trim().toLowerCase()) || 0;
+    teamCountMap.get((collegeName || "").trim().toLowerCase())?.size || 0;
 
   const sanitizeClubLinks = (links = []) =>
     links

@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { ExternalLink, Link2, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const CollegeCard = ({ college, teamCount = 0 }) => {
+  const [showFullDescription, setShowFullDescription] = useState(false);
   const { name, photo, logo, gallery, description, website, clubLink, clubLinks = [] } = college;
   const coverImage =
     photo?.url || gallery?.[0]?.url || logo?.url || "/placeholder-logo.png";
@@ -56,9 +58,24 @@ const CollegeCard = ({ college, teamCount = 0 }) => {
         </div>
 
         {description && (
-          <p className="mb-3 line-clamp-4 text-sm text-gray-600">
-            {description}
-          </p>
+          <div className="mb-3">
+            <p
+              className={`text-sm text-gray-600 ${
+                showFullDescription ? "" : "line-clamp-4"
+              }`}
+            >
+              {description}
+            </p>
+            {description.length > 140 && (
+              <button
+                type="button"
+                onClick={() => setShowFullDescription((prev) => !prev)}
+                className="mt-2 text-sm font-medium text-indigo-600 transition hover:text-indigo-700"
+              >
+                {showFullDescription ? "See less" : "See more"}
+              </button>
+            )}
+          </div>
         )}
 
         {displayClubLinks.length > 0 && (

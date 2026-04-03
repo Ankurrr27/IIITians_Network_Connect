@@ -25,6 +25,8 @@ import PublicEvents from "./pages/Events/Events.jsx";
 import ScrollToTop from "./components/ScrollToTop.jsx";
 import LegacyAdminPage from "./pages/LegacyAdminPage.jsx";
 import LegacyPage from "./pages/LegacyPage.jsx";
+import DiscussPage from "./pages/Discuss/DiscussPage.jsx";
+import DiscussAdminPage from "./pages/Discuss/DiscussAdminPage.jsx";
 
 function LegacyAdminRedirect() {
   const { status } = useParams();
@@ -70,6 +72,7 @@ function App() {
           <Route path="/legacy" element={<LegacyPage />} />
           <Route path="/alumni" element={<Navigate to="/legacy" replace />} />
           <Route path="/team" element={<TeamPage />} />
+          <Route path="/discuss" element={<DiscussPage />} />
           <Route path="/contact" element={<ContactPage />} />
 
           {/* ADMIN LOGIN (public) */}
@@ -86,6 +89,7 @@ function App() {
               <Route path="/team/admin" element={<TeamAdmin />} />
               <Route path="/placement/admin" element={<PlacementPage />} />
               <Route path="/events/admin" element={<Events />} />
+              <Route path="/discuss/admin" element={<DiscussAdminPage />} />
             </Route>
           </Route>
           

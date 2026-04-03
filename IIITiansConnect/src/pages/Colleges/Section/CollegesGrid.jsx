@@ -1,6 +1,30 @@
 import CollegeCard from "./CollegeCard";
 
 export default function CollegesGrid({ colleges, teamMembers = [] }) {
+  const getUniqueCollegeTeamCount = (collegeName) => {
+    const uniqueMembers = new Set();
+
+    teamMembers.forEach((member) => {
+      const sameCollege =
+        (member.iiit || "").trim().toLowerCase() ===
+        (collegeName || "").trim().toLowerCase();
+
+      if (!sameCollege) return;
+
+      const uniqueKey =
+        (member.email || "").trim().toLowerCase() ||
+        `${(member.name || "").trim().toLowerCase()}::${(member.iiit || "")
+          .trim()
+          .toLowerCase()}`;
+
+      if (uniqueKey) {
+        uniqueMembers.add(uniqueKey);
+      }
+    });
+
+    return uniqueMembers.size;
+  };
+
   if (colleges.length === 0) {
     return (
       <p className="text-center text-gray-500">
@@ -15,13 +39,7 @@ export default function CollegesGrid({ colleges, teamMembers = [] }) {
         <CollegeCard
           key={college._id}
           college={college}
-          teamCount={
-            teamMembers.filter(
-              (member) =>
-                (member.iiit || "").trim().toLowerCase() ===
-                (college.name || "").trim().toLowerCase()
-            ).length
-          }
+          teamCount={getUniqueCollegeTeamCount(college.name)}
         />
       ))}
     </div>

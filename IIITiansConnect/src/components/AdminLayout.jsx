@@ -5,6 +5,7 @@ const adminLinks = [
   { label: "Network Legacy", href: "/legacy/admin" },
   { label: "Colleges", href: "/colleges/admin" },
   { label: "Events", href: "/events/admin" },
+  { label: "Discuss", href: "/discuss/admin" },
   { label: "Team", href: "/team/admin" },
   { label: "Placements", href: "/placement/admin" },
 ];
