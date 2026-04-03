@@ -86,6 +86,16 @@ const alumniSchema = new mongoose.Schema(
       trim: true,
       default: "",
     },
+    photo: {
+      public_id: {
+        type: String,
+        trim: true,
+      },
+      url: {
+        type: String,
+        trim: true,
+      },
+    },
     twitter: {
       type: String,
       trim: true,

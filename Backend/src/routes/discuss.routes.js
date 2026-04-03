@@ -7,13 +7,17 @@ import {
   deleteDiscussPost,
   getAllDiscussPosts,
   getApprovedDiscussPosts,
+  getMyDiscussPosts,
   updateDiscussPost,
+  updateMyDiscussPost,
 } from "../controllers/discuss.controller.js";
 
 const router = express.Router();
 
 router.get("/", getApprovedDiscussPosts);
 router.post("/", discussAuth, upload.array("banners", 6), createDiscussPost);
+router.get("/mine", discussAuth, getMyDiscussPosts);
+router.patch("/mine/:id", discussAuth, upload.array("banners", 6), updateMyDiscussPost);
 router.get("/admin/all", adminAuth, getAllDiscussPosts);
 router.patch("/:id", adminAuth, upload.array("banners", 6), updateDiscussPost);
 router.delete("/:id", adminAuth, deleteDiscussPost);

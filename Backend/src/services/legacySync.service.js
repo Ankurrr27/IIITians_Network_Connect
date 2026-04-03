@@ -86,6 +86,12 @@ async function syncLegacyByEmail(email) {
     location: latestMember.iiit || "",
     linkedin: latestMember.linkedin || "",
     instagram: latestMember.instagram || "",
+    photo: latestMember.photo?.url
+      ? {
+          public_id: latestMember.photo.public_id,
+          url: latestMember.photo.url,
+        }
+      : undefined,
     twitter: latestMember.twitter || "",
     bio: `${latestMember.name} is part of the IIITians Network team and has contributed across leadership roles in the network.`,
     status: "approved",

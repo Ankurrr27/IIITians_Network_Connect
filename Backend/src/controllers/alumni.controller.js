@@ -1,5 +1,7 @@
 import Alumni from "../models/alumni.model.js";
 import { ensureLegacyBackfill } from "../services/legacySync.service.js";
+import TeamMember from "../models/teamMember.model.js";
+import cloudinary from "../config/cloudinary.js";
 
 const escapeRegex = (value = "") =>
   value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -21,10 +23,51 @@ const normalizePayload = (body = {}) => ({
   graduationYear: Number(body.graduationYear),
 });
 
+const resolveLegacyPhoto = async (req, body = {}, existingPhoto = null) => {
+  if (req.file) {
+    if (
+      existingPhoto?.public_id &&
+      existingPhoto.public_id !== req.file.filename
+    ) {
+      await cloudinary.uploader.destroy(existingPhoto.public_id);
+    }
+
+    return {
+      public_id: req.file.filename,
+      url: req.file.path,
+    };
+  }
+
+  const sourceTeamMemberId = body.photoSourceMemberId?.trim();
+  const sourceEmail = body.email?.trim().toLowerCase();
+
+  let sourceMember = null;
+  if (sourceTeamMemberId) {
+    sourceMember = await TeamMember.findById(sourceTeamMemberId);
+  } else if (sourceEmail) {
+    sourceMember = await TeamMember.findOne({ email: sourceEmail }).sort({
+      year: -1,
+      order: 1,
+      createdAt: -1,
+    });
+  }
+
+  if (sourceMember?.photo?.url) {
+    return {
+      public_id: sourceMember.photo.public_id,
+      url: sourceMember.photo.url,
+    };
+  }
+
+  return existingPhoto || undefined;
+};
+
 export const createAlumni = async (req, res) => {
   try {
+    const normalizedPayload = normalizePayload(req.body);
     const payload = {
-      ...normalizePayload(req.body),
+      ...normalizedPayload,
+      photo: await resolveLegacyPhoto(req, normalizedPayload),
       status: "pending",
       reviewedAt: null,
     };
@@ -102,6 +145,7 @@ export const updateLegacyProfile = async (req, res) => {
       req.params.id,
       {
         ...payload,
+        photo: await resolveLegacyPhoto(req, payload, alumni.photo),
         status: nextStatus,
         reviewedAt:
           nextStatus === "approved" ? alumni.reviewedAt || new Date() : null,
@@ -148,6 +192,7 @@ export const updateLegacyProfileByAdmin = async (req, res) => {
       req.params.id,
       {
         ...payload,
+        photo: await resolveLegacyPhoto(req, payload, alumni.photo),
         status: alumni.status || "approved",
         reviewedAt: alumni.reviewedAt,
       },

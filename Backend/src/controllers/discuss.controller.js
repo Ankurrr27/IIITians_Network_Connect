@@ -15,6 +15,26 @@ const writableFields = [
     "status",
 ];
 
+const buildUploadedPhotos = (req) =>
+  (req.files || []).map((file) => ({
+    public_id: file.filename,
+    url: file.path,
+  }));
+
+const removePostAssets = async (post) => {
+  const imageIds = new Set();
+  if (post.banner?.public_id) imageIds.add(post.banner.public_id);
+  if (Array.isArray(post.photos)) {
+    post.photos.forEach((photo) => {
+      if (photo?.public_id) imageIds.add(photo.public_id);
+    });
+  }
+
+  await Promise.all(
+    Array.from(imageIds).map((publicId) => cloudinary.uploader.destroy(publicId))
+  );
+};
+
 export const createDiscussPost = async (req, res) => {
   try {
     const account = await DiscussAccount.findById(req.discussAccountId);
@@ -25,10 +45,7 @@ export const createDiscussPost = async (req, res) => {
     const isPrivilegedRole = ["club_manager", "publisher"].includes(account.role);
     const shouldAutoApprove = account.isAuthorized && isPrivilegedRole;
 
-    const uploadedPhotos = (req.files || []).map((file) => ({
-      public_id: file.filename,
-      url: file.path,
-    }));
+    const uploadedPhotos = buildUploadedPhotos(req);
 
     const post = await Discuss.create({
       title: req.body.title,
@@ -83,6 +100,18 @@ export const getAllDiscussPosts = async (req, res) => {
   }
 };
 
+export const getMyDiscussPosts = async (req, res) => {
+  try {
+    const posts = await Discuss.find({ account: req.discussAccountId }).sort({
+      createdAt: -1,
+    });
+
+    res.json(posts);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 export const updateDiscussPost = async (req, res) => {
   try {
     const updates = {};
@@ -100,22 +129,9 @@ export const updateDiscussPost = async (req, res) => {
         return res.status(404).json({ message: "Discuss post not found" });
       }
 
-      if (existingPost.banner?.public_id) {
-        await cloudinary.uploader.destroy(existingPost.banner.public_id);
-      }
+      await removePostAssets(existingPost);
 
-      if (Array.isArray(existingPost.photos)) {
-        await Promise.all(
-          existingPost.photos
-            .filter((photo) => photo?.public_id)
-            .map((photo) => cloudinary.uploader.destroy(photo.public_id))
-        );
-      }
-
-      const uploadedPhotos = (req.files || []).map((file) => ({
-        public_id: file.filename,
-        url: file.path,
-      }));
+      const uploadedPhotos = buildUploadedPhotos(req);
 
       if (uploadedPhotos.length > 0) {
         updates.photos = uploadedPhotos;
@@ -145,6 +161,51 @@ export const updateDiscussPost = async (req, res) => {
   }
 };
 
+export const updateMyDiscussPost = async (req, res) => {
+  try {
+    const post = await Discuss.findOne({
+      _id: req.params.id,
+      account: req.discussAccountId,
+    });
+
+    if (!post) {
+      return res.status(404).json({ message: "Discuss post not found" });
+    }
+
+    const allowedFields = [
+      "title",
+      "description",
+      "type",
+      "actionLink",
+    ];
+
+    allowedFields.forEach((field) => {
+      if (req.body[field] !== undefined) {
+        post[field] = req.body[field];
+      }
+    });
+
+    if (req.files && req.files.length > 0) {
+      await removePostAssets(post);
+      const uploadedPhotos = buildUploadedPhotos(req);
+      post.photos = uploadedPhotos;
+      post.banner = uploadedPhotos[0] || undefined;
+    }
+
+    const account = await DiscussAccount.findById(req.discussAccountId);
+    const isPrivilegedRole = ["club_manager", "publisher"].includes(account?.role);
+    post.status = account?.isAuthorized && isPrivilegedRole ? "approved" : "pending";
+    post.isAuthorisedPost = Boolean(account?.isAuthorized);
+    post.badgeLabel = account?.badgeLabel || post.badgeLabel;
+    post.accountRole = account?.role || post.accountRole;
+
+    await post.save();
+    res.json(post);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 export const deleteDiscussPost = async (req, res) => {
   try {
     const post = await Discuss.findByIdAndDelete(req.params.id);
@@ -153,17 +214,7 @@ export const deleteDiscussPost = async (req, res) => {
       return res.status(404).json({ message: "Discuss post not found" });
     }
 
-    const imageIds = new Set();
-    if (post.banner?.public_id) imageIds.add(post.banner.public_id);
-    if (Array.isArray(post.photos)) {
-      post.photos.forEach((photo) => {
-        if (photo?.public_id) imageIds.add(photo.public_id);
-      });
-    }
-
-    await Promise.all(
-      Array.from(imageIds).map((publicId) => cloudinary.uploader.destroy(publicId))
-    );
+    await removePostAssets(post);
 
     res.json({ message: "Discuss post deleted successfully" });
   } catch (error) {
