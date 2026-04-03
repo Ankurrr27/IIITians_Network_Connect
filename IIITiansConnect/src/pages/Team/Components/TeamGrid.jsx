@@ -116,7 +116,7 @@ export default function TeamGrid({ members = [] }) {
               Lead Team
             </h2>
           </div>
-          <div className="mx-auto grid max-w-6xl gap-5 sm:grid-cols-2 md:grid-cols-3">
+          <div className="mx-auto grid max-w-7xl gap-5 sm:grid-cols-2 xl:grid-cols-4">
             {leads.map((member) => (
               <LeadCard key={member._id} member={member} />
             ))}
