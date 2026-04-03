@@ -13,6 +13,7 @@ import {
   Search,
   ShieldCheck,
   Sparkles,
+  Milestone,
   Users,
 } from "lucide-react";
 import api from "../api/axios";
@@ -542,6 +543,42 @@ export default function AlumniPage() {
                     >
                       {entry.bio}
                     </p>
+                  )}
+
+                  {entry.roleHistory?.length > 0 && (
+                    <div
+                      className={`mt-4 rounded-2xl border p-3 sm:p-4 ${
+                        isDarkMode
+                          ? "border-slate-800 bg-slate-950/50"
+                          : "border-slate-200 bg-slate-50"
+                      }`}
+                    >
+                      <div
+                        className={`inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] ${
+                          isDarkMode ? "text-slate-300" : "text-slate-600"
+                        }`}
+                      >
+                        <Milestone className="h-4 w-4 text-indigo-600" />
+                        Network Journey
+                      </div>
+
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {entry.roleHistory.map((item, index) => (
+                          <div
+                            key={`${item.year}-${item.team}-${item.role}-${index}`}
+                            className={`rounded-full px-3 py-1.5 text-xs font-medium ${
+                              isDarkMode
+                                ? "bg-slate-800 text-slate-200"
+                                : "bg-white text-slate-700 ring-1 ring-slate-200"
+                            }`}
+                          >
+                            {item.year ? `${item.year}: ` : ""}
+                            {item.role}
+                            {item.team ? ` (${item.team})` : ""}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   )}
 
                   <div className="mt-4 flex flex-wrap gap-4 text-sm">
