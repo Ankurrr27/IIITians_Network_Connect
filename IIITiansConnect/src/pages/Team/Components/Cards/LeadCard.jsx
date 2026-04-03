@@ -14,27 +14,20 @@ export default function LeadCard({ member }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
       whileHover={{ y: -3 }}
-      className="group overflow-hidden rounded-[1.6rem] border border-slate-200 bg-white shadow-[0_18px_48px_rgba(15,23,42,0.07)] transition-shadow hover:shadow-[0_26px_62px_rgba(79,70,229,0.12)]"
+      className="group overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-[0_18px_48px_rgba(15,23,42,0.07)] transition-shadow hover:shadow-[0_26px_62px_rgba(79,70,229,0.12)]"
     >
-      <div className="h-1 bg-gradient-to-r from-indigo-500 to-sky-400" />
-
       <div className="flex flex-col">
-        <div className="relative h-56 w-full overflow-hidden bg-slate-100 sm:h-64">
+        <div className="relative h-60 w-full overflow-hidden bg-slate-100 sm:h-72">
           <img
             src={member.photo?.url}
             alt={member.name}
             className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
           />
-          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-slate-950/55 to-transparent" />
-          <div className="absolute left-4 right-4 bottom-4 flex items-end justify-between gap-3">
-            <div className="min-w-0">
-              <p className="line-clamp-2 text-lg font-semibold leading-tight text-white sm:text-xl">
-                {member.name}
-              </p>
-              <p className="mt-1 text-xs font-semibold uppercase tracking-[0.12em] text-white/80 sm:text-sm">
-                {member.role}
-              </p>
-            </div>
+          {/* <div className="absolute inset-0 bg-gradient-to-t from-slate-950/72 via-slate-950/18 to-transparent" /> */}
+          <div className="absolute left-4 right-4 top-4 flex items-start justify-between gap-3">
+            <span className="rounded-full bg-white/88 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-700 backdrop-blur">
+              Lead Team
+            </span>
 
             <div className="flex flex-shrink-0 gap-2">
               {socialLinks.map(({ key, Icon }) =>
@@ -52,10 +45,21 @@ export default function LeadCard({ member }) {
               )}
             </div>
           </div>
+
+          <div className="absolute left-4 right-4 bottom-4">
+            <div className="min-w-0">
+              <p className="line-clamp-2 text-lg font-semibold leading-tight text-white sm:text-xl">
+                {member.name}
+              </p>
+              <p className="mt-1 text-xs font-semibold uppercase tracking-[0.12em] text-white/80 sm:text-sm">
+                {member.role}
+              </p>
+            </div>
+          </div>
         </div>
 
-        <div className="p-4 sm:p-5">
-          <div className="rounded-[1.15rem] border border-slate-200 bg-slate-50 px-4 py-3">
+        <div className="space-y-3 p-4 sm:p-5">
+          <div className="rounded-[1.2rem] bg-slate-50 px-4 py-3  ring-slate-200/80">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
               Institute
             </p>
@@ -63,7 +67,9 @@ export default function LeadCard({ member }) {
               {member.iiit}
             </p>
           </div>
-        </div>
+
+       
+          </div>
       </div>
     </motion.article>
   );

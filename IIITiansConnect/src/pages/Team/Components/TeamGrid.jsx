@@ -118,7 +118,7 @@ export default function TeamGrid({ members = [] }) {
           <div className="mb-5 text-center sm:mb-6">
            
             <h2 className="mt-2 text-2xl font-semibold text-slate-900 sm:text-3xl">
-              Lead Team
+              Team Lead 
             </h2>
           </div>
           <div className={leadGridClass}>

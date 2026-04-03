@@ -59,8 +59,23 @@ function buildFormFromMember(member, transitionType, currentYear) {
   };
 }
 
+function getLatestTeamYear(members = []) {
+  const years = members
+    .map((member) => member.year)
+    .filter(Boolean)
+    .sort((a, b) =>
+      String(b).localeCompare(String(a), undefined, { numeric: true })
+    );
+
+  return years[0] || "2025-26";
+}
+
 export default function TeamMemberForm({ onSuccess, members = [] }) {
-  const [form, setForm] = useState(initialForm);
+  const latestTeamYear = useMemo(() => getLatestTeamYear(members), [members]);
+  const [form, setForm] = useState(() => ({
+    ...initialForm,
+    year: getLatestTeamYear(members),
+  }));
   const [transitionType, setTransitionType] = useState("fresh");
   const [selectedMemberId, setSelectedMemberId] = useState("");
   const [endPreviousTenure, setEndPreviousTenure] = useState(true);
@@ -85,8 +100,20 @@ export default function TeamMemberForm({ onSuccess, members = [] }) {
     setRawPhoto(null);
   }, [selectedMemberId, transitionType]);
 
+  useEffect(() => {
+    if (transitionType !== "fresh" || selectedMemberId) return;
+
+    setForm((prev) => ({
+      ...prev,
+      year: latestTeamYear,
+    }));
+  }, [latestTeamYear, transitionType, selectedMemberId]);
+
   const resetState = () => {
-    setForm(initialForm);
+    setForm({
+      ...initialForm,
+      year: latestTeamYear,
+    });
     setTransitionType("fresh");
     setSelectedMemberId("");
     setEndPreviousTenure(true);
@@ -193,7 +220,10 @@ export default function TeamMemberForm({ onSuccess, members = [] }) {
                 setTransitionType(option.value);
                 setSelectedMemberId("");
                 if (option.value === "fresh") {
-                  setForm(initialForm);
+                  setForm({
+                    ...initialForm,
+                    year: latestTeamYear,
+                  });
                   setPhoto(null);
                   setRawPhoto(null);
                 }
