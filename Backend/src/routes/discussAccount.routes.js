@@ -5,6 +5,7 @@ import {
   deleteDiscussAccountByAdmin,
   getDiscussAccountMe,
   getDiscussAccounts,
+  getPublicDiscussAccounts,
   loginDiscussAccount,
   registerDiscussAccount,
   updateDiscussAccountByAdmin,
@@ -15,6 +16,7 @@ const router = express.Router();
 router.post("/register", registerDiscussAccount);
 router.post("/login", loginDiscussAccount);
 router.get("/me", discussAuth, getDiscussAccountMe);
+router.get("/public", getPublicDiscussAccounts);
 
 router.get("/admin/all", adminAuth, getDiscussAccounts);
 router.patch("/admin/:id", adminAuth, updateDiscussAccountByAdmin);

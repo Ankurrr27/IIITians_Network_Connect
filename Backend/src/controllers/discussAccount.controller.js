@@ -136,6 +136,18 @@ export const getDiscussAccounts = async (req, res) => {
   }
 };
 
+export const getPublicDiscussAccounts = async (req, res) => {
+  try {
+    const accounts = await DiscussAccount.find({ isAuthorized: true })
+      .select("collegeName clubName contactName contactPhone email role badgeLabel createdAt lastLogin isAuthorized")
+      .sort({ clubName: 1 });
+
+    res.json(accounts.map(sanitizeDiscussAccount));
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 export const updateDiscussAccountByAdmin = async (req, res) => {
   try {
     const account = await DiscussAccount.findById(req.params.id);
