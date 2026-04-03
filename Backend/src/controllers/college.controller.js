@@ -1,9 +1,44 @@
 import College from "../models/College.model.js";
 import cloudinary from "../config/cloudinary.js";
 
+function normalizeClubLinks(input = []) {
+  let normalizedInput = input;
+
+  if (typeof normalizedInput === "string") {
+    try {
+      normalizedInput = JSON.parse(normalizedInput);
+    } catch {
+      normalizedInput = [];
+    }
+  }
+
+  if (
+    normalizedInput &&
+    typeof normalizedInput === "object" &&
+    !Array.isArray(normalizedInput)
+  ) {
+    normalizedInput = Object.values(normalizedInput);
+  }
+
+  if (!Array.isArray(normalizedInput)) return [];
+
+  return normalizedInput
+    .map((item) => ({
+      name: (item?.name || "").trim(),
+      url: (item?.url || "").trim(),
+    }))
+    .filter((item) => item.name && item.url);
+}
+
 export const createCollege = async (req, res) => {
   try {
-    const college = await College.create(req.body);
+    const college = await College.create({
+      name: req.body.name,
+      website: req.body.website,
+      clubLink: req.body.clubLink,
+      clubLinks: normalizeClubLinks(req.body.clubLinks),
+      description: req.body.description,
+    });
     res.status(201).json(college);
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -41,7 +76,7 @@ export const updateCollege = async (req, res) => {
       });
     }
 
-    const allowedFields = ["description", "website"];
+    const allowedFields = ["description", "website", "clubLink"];
     const updates = {};
 
     allowedFields.forEach((field) => {
@@ -49,6 +84,10 @@ export const updateCollege = async (req, res) => {
         updates[field] = req.body[field];
       }
     });
+
+    if (req.body.clubLinks !== undefined) {
+      updates.clubLinks = normalizeClubLinks(req.body.clubLinks);
+    }
 
     const college = await College.findByIdAndUpdate(
       req.params.id,
@@ -95,6 +134,39 @@ export const updateCollegeLogo = async (req, res) => {
     });
   } catch (error) {
     console.error("updateCollegeLogo error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const updateCollegePhoto = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: "Photo file is required" });
+    }
+
+    const college = await College.findById(req.params.id);
+
+    if (!college) {
+      return res.status(404).json({ message: "College not found" });
+    }
+
+    if (college.photo?.public_id) {
+      await cloudinary.uploader.destroy(college.photo.public_id);
+    }
+
+    college.photo = {
+      public_id: req.file.filename,
+      url: req.file.path,
+    };
+
+    await college.save();
+
+    res.status(200).json({
+      message: "College photo updated successfully",
+      photo: college.photo,
+    });
+  } catch (error) {
+    console.error("updateCollegePhoto error:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };

@@ -16,6 +16,7 @@ export const createTeamMember = async (req, res) => {
       instagram,
       twitter,
       order,
+      photoSourceMemberId,
     } = req.body;
 
     if (!roleType || !["EXEC", "LEAD", "MEMBER"].includes(roleType)) {
@@ -24,7 +25,28 @@ export const createTeamMember = async (req, res) => {
       });
     }
 
-    if (!req.file) {
+    let photoPayload = null;
+
+    if (req.file) {
+      photoPayload = {
+        public_id: req.file.filename,
+        url: req.file.path,
+      };
+    } else if (photoSourceMemberId) {
+      const sourceMember = await TeamMember.findById(photoSourceMemberId);
+      if (!sourceMember?.photo?.url) {
+        return res.status(400).json({
+          error: "Could not reuse the previous member photo",
+        });
+      }
+
+      photoPayload = {
+        public_id: sourceMember.photo.public_id,
+        url: sourceMember.photo.url,
+      };
+    }
+
+    if (!photoPayload) {
       return res.status(400).json({
         error: "Profile photo is required",
       });
@@ -42,10 +64,7 @@ export const createTeamMember = async (req, res) => {
       instagram,
       twitter,
       order,
-      photo: {
-        public_id: req.file.filename,
-        url: req.file.path,
-      },
+      photo: photoPayload,
     });
 
     await syncTeamMemberToLegacy(member);

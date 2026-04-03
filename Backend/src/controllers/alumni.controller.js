@@ -118,6 +118,51 @@ export const updateLegacyProfile = async (req, res) => {
   }
 };
 
+export const updateLegacyProfileByAdmin = async (req, res) => {
+  try {
+    const payload = normalizePayload(req.body);
+
+    const requiredFields = [
+      "name",
+      "email",
+      "iiit",
+      "generation",
+      "branch",
+      "graduationYear",
+    ];
+
+    const missingField = requiredFields.find((field) => !payload[field]);
+    if (missingField) {
+      return res.status(400).json({
+        message: `${missingField} is required`,
+      });
+    }
+
+    const alumni = await Alumni.findById(req.params.id);
+
+    if (!alumni) {
+      return res.status(404).json({ message: "Legacy profile not found" });
+    }
+
+    const updated = await Alumni.findByIdAndUpdate(
+      req.params.id,
+      {
+        ...payload,
+        status: alumni.status || "approved",
+        reviewedAt: alumni.reviewedAt,
+      },
+      { new: true, runValidators: true }
+    );
+
+    res.json({
+      message: "Legacy profile updated successfully.",
+      alumni: updated,
+    });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
 export const getAlumni = async (req, res) => {
   try {
     ensureLegacyBackfill();

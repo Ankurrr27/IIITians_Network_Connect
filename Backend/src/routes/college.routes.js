@@ -1,43 +1,44 @@
 import express from "express";
+import adminAuth from "../middlewares/adminAuth.js";
 import {
-  createCollege,
-  getColleges,
-  getCollegeById,
-  updateCollege,
   addCollegeGallery,
+  createCollege,
+  getCollegeById,
+  getCollegeLogo,
+  getColleges,
+  updateCollege,
   updateCollegeLogo,
-  getCollegeLogo, // 👈 ADD THIS
+  updateCollegePhoto,
 } from "../controllers/college.controller.js";
-
 import { upload } from "../middlewares/upload.middleware.js";
 
 const router = express.Router();
 
-// CREATE & READ
-router.post("/", createCollege);
+router.post("/", adminAuth, createCollege);
 router.get("/", getColleges);
 
-/* ===== SPECIFIC ROUTES FIRST ===== */
-
-// GET LOGO
 router.get("/:id/logo", getCollegeLogo);
-
-// GET BY ID
 router.get("/:id", getCollegeById);
 
-// UPDATE DETAILS
-router.patch("/:id", updateCollege);
+router.patch("/:id", adminAuth, updateCollege);
 
-// UPDATE LOGO
+router.patch(
+  "/:id/photo",
+  adminAuth,
+  upload.single("photo"),
+  updateCollegePhoto
+);
+
 router.patch(
   "/:id/logo",
+  adminAuth,
   upload.single("logo"),
   updateCollegeLogo
 );
 
-// UPDATE GALLERY
 router.patch(
   "/:id/gallery",
+  adminAuth,
   upload.array("images", 10),
   addCollegeGallery
 );

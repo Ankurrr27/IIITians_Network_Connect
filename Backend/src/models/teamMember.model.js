@@ -55,6 +55,7 @@ const teamMemberSchema = new mongoose.Schema(
       enum: [
         "Core",
         "Tech",
+        "Development",
         "Design",
         "Content",
         "Social Media",

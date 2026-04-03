@@ -5,6 +5,7 @@ import {
   deleteAlumni,
   getAlumni,
   getAlumniRequests,
+  updateLegacyProfileByAdmin,
   updateLegacyProfile,
   updateAlumniStatus,
 } from "../controllers/alumni.controller.js";
@@ -12,6 +13,7 @@ import {
 const router = express.Router();
 
 router.get("/admin/requests", adminAuth, getAlumniRequests);
+router.patch("/admin/:id", adminAuth, updateLegacyProfileByAdmin);
 router.patch("/:id/status", adminAuth, updateAlumniStatus);
 router.delete("/:id", adminAuth, deleteAlumni);
 router.put("/:id", updateLegacyProfile);
