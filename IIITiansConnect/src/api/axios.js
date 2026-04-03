@@ -9,7 +9,10 @@ const api = axios.create({
 api.interceptors.request.use(
   (req) => {
     const token = localStorage.getItem("adminToken");
-    if (token) {
+    const hasCustomAuthorization =
+      Boolean(req.headers?.Authorization) || Boolean(req.headers?.authorization);
+
+    if (token && !hasCustomAuthorization) {
       req.headers.Authorization = `Bearer ${token}`;
     }
     return req;
