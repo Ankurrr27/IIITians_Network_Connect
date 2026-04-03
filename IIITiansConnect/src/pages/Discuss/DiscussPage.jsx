@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import {
+  Trash2,
   ImagePlus,
   LogIn,
   LogOut,
@@ -208,6 +209,36 @@ export default function DiscussPage() {
     setAccount(null);
     setMyPosts([]);
     closePanel();
+  };
+
+  const handleDeletePost = async (postId) => {
+    const token = localStorage.getItem("discussToken");
+    if (!token) return;
+
+    const confirmed = window.confirm(
+      "Delete this post permanently from Discuss?"
+    );
+    if (!confirmed) return;
+
+    setAuthState({ loading: false, error: "", success: "" });
+
+    try {
+      await api.delete(`/discuss/mine/${postId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      await Promise.all([loadPosts(), loadAccount()]);
+      setAuthState({
+        loading: false,
+        error: "",
+        success: "Post deleted successfully.",
+      });
+    } catch (error) {
+      setAuthState({
+        loading: false,
+        success: "",
+        error: error.response?.data?.message || "Could not delete the post.",
+      });
+    }
   };
 
   const handleSubmitPost = async (event) => {
@@ -450,24 +481,42 @@ export default function DiscussPage() {
                     </p>
                     <div className="mt-3 space-y-2">
                       {myPosts.map((post) => (
-                        <button
+                        <div
                           key={post._id}
-                          type="button"
-                          onClick={() => openEditPost(post)}
-                          className="flex w-full items-center justify-between rounded-xl bg-slate-50 px-3 py-3 text-left ring-1 ring-slate-200 transition hover:bg-sky-50"
+                          className="rounded-xl bg-slate-50 px-3 py-3 ring-1 ring-slate-200"
                         >
-                          <div className="min-w-0">
-                            <p className="truncate text-sm font-semibold text-slate-900">
-                              {post.title}
-                            </p>
-                            <p className="mt-1 text-xs capitalize text-slate-500">
-                              {post.status}
-                            </p>
+                          <div className="flex items-start justify-between gap-3">
+                            <button
+                              type="button"
+                              onClick={() => openEditPost(post)}
+                              className="min-w-0 flex-1 text-left transition hover:text-sky-700"
+                            >
+                              <p className="truncate text-sm font-semibold text-slate-900">
+                                {post.title}
+                              </p>
+                              <p className="mt-1 text-xs capitalize text-slate-500">
+                                {post.status}
+                              </p>
+                            </button>
+                            <div className="flex items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => openEditPost(post)}
+                                className="rounded-full bg-white px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-600 ring-1 ring-slate-200"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleDeletePost(post._id)}
+                                aria-label={`Delete ${post.title}`}
+                                className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white text-rose-600 ring-1 ring-rose-200 transition hover:bg-rose-50"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            </div>
                           </div>
-                          <span className="rounded-full bg-white px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-600 ring-1 ring-slate-200">
-                            Edit
-                          </span>
-                        </button>
+                        </div>
                       ))}
                     </div>
                   </div>
