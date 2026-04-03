@@ -44,6 +44,10 @@ const discussSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    eventDate: {
+      type: Date,
+      default: null,
+    },
     banner: {
       public_id: {
         type: String,

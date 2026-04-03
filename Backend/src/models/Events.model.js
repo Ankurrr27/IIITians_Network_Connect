@@ -41,6 +41,12 @@ const eventSchema = new mongoose.Schema(
       public_id: String,
       url: String,
     },
+    sourceDiscussPostId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Discuss",
+      default: null,
+      index: true,
+    },
   },
   {
     timestamps: true,

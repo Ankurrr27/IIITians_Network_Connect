@@ -1,6 +1,8 @@
 import Discuss from "../models/discuss.model.js";
 import DiscussAccount from "../models/discussAccount.model.js";
+import Event from "../models/Events.model.js";
 import cloudinary from "../config/cloudinary.js";
+import { syncDiscussPostToEvent } from "../services/discussEventSync.service.js";
 
 const writableFields = [
   "title",
@@ -12,6 +14,7 @@ const writableFields = [
     "contactEmail",
     "contactPhone",
     "actionLink",
+    "eventDate",
     "status",
 ];
 
@@ -57,6 +60,7 @@ export const createDiscussPost = async (req, res) => {
       contactEmail: account.email,
       contactPhone: account.contactPhone,
       actionLink: req.body.actionLink,
+      eventDate: req.body.eventDate || null,
       banner: uploadedPhotos[0]
         ? uploadedPhotos[0]
         : req.file
@@ -72,6 +76,8 @@ export const createDiscussPost = async (req, res) => {
       badgeLabel: account.badgeLabel,
       status: shouldAutoApprove ? "approved" : "pending",
     });
+
+    await syncDiscussPostToEvent(post);
 
     res.status(201).json(post);
   } catch (error) {
@@ -155,6 +161,7 @@ export const updateDiscussPost = async (req, res) => {
       return res.status(404).json({ message: "Discuss post not found" });
     }
 
+    await syncDiscussPostToEvent(post);
     res.json(post);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -177,6 +184,7 @@ export const updateMyDiscussPost = async (req, res) => {
       "description",
       "type",
       "actionLink",
+      "eventDate",
     ];
 
     allowedFields.forEach((field) => {
@@ -200,6 +208,7 @@ export const updateMyDiscussPost = async (req, res) => {
     post.accountRole = account?.role || post.accountRole;
 
     await post.save();
+    await syncDiscussPostToEvent(post);
     res.json(post);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -214,6 +223,7 @@ export const deleteDiscussPost = async (req, res) => {
       return res.status(404).json({ message: "Discuss post not found" });
     }
 
+    await Event.findOneAndDelete({ sourceDiscussPostId: post._id });
     await removePostAssets(post);
 
     res.json({ message: "Discuss post deleted successfully" });

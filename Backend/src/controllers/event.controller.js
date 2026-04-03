@@ -1,5 +1,6 @@
 import Event from "../models/Events.model.js";
 import cloudinary from "../config/cloudinary.js";
+import { backfillApprovedDiscussEvents } from "../services/discussEventSync.service.js";
 
 /* =========================
    CREATE EVENT
@@ -50,6 +51,7 @@ export const createEvent = async (req, res) => {
 ========================= */
 export const getEvents = async (req, res) => {
   try {
+    await backfillApprovedDiscussEvents();
     const events = await Event.find().sort({ createdAt: -1 });
     res.json(events);
   } catch (err) {
