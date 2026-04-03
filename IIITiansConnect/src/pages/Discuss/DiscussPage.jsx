@@ -52,8 +52,8 @@ export default function DiscussPage() {
   const [panelMode, setPanelMode] = useState("");
   const [authMode, setAuthMode] = useState("login");
   const [postForm, setPostForm] = useState(initialPostForm);
-  const [postImage, setPostImage] = useState(null);
-  const [postPreview, setPostPreview] = useState("");
+  const [postImages, setPostImages] = useState([]);
+  const [postPreviews, setPostPreviews] = useState([]);
   const [postState, setPostState] = useState({ loading: false, error: "", success: "" });
   const [registerForm, setRegisterForm] = useState(initialRegisterForm);
   const [loginForm, setLoginForm] = useState(initialLoginForm);
@@ -101,16 +101,16 @@ export default function DiscussPage() {
   }, []);
 
   useEffect(() => {
-    if (!postImage) {
-      setPostPreview("");
+    if (!postImages.length) {
+      setPostPreviews([]);
       return undefined;
     }
 
-    const nextPreview = URL.createObjectURL(postImage);
-    setPostPreview(nextPreview);
+    const nextPreviews = postImages.map((file) => URL.createObjectURL(file));
+    setPostPreviews(nextPreviews);
 
-    return () => URL.revokeObjectURL(nextPreview);
-  }, [postImage]);
+    return () => nextPreviews.forEach((preview) => URL.revokeObjectURL(preview));
+  }, [postImages]);
 
   const stats = useMemo(
     () => ({
@@ -155,8 +155,8 @@ export default function DiscussPage() {
   };
 
   const handleBannerChange = (event) => {
-    const file = event.target.files?.[0] || null;
-    setPostImage(file);
+    const files = Array.from(event.target.files || []).slice(0, 6);
+    setPostImages(files);
   };
 
   const handleRegister = async (event) => {
@@ -208,8 +208,8 @@ export default function DiscussPage() {
     localStorage.removeItem("discussToken");
     setAccount(null);
     setPostForm(initialPostForm);
-    setPostImage(null);
-    setPostPreview("");
+    setPostImages([]);
+    setPostPreviews([]);
     if (panelMode === "composer") {
       setPanelMode("");
     }
@@ -236,9 +236,7 @@ export default function DiscussPage() {
       formData.append("description", postForm.description);
       formData.append("type", postForm.type);
       formData.append("actionLink", postForm.actionLink);
-      if (postImage) {
-        formData.append("banner", postImage);
-      }
+      postImages.forEach((image) => formData.append("banners", image));
 
       await api.post("/discuss", formData, {
         headers: {
@@ -248,8 +246,8 @@ export default function DiscussPage() {
       });
 
       setPostForm(initialPostForm);
-      setPostImage(null);
-      setPostPreview("");
+      setPostImages([]);
+      setPostPreviews([]);
       setPostState({
         loading: false,
         error: "",
@@ -316,12 +314,56 @@ export default function DiscussPage() {
             </div>
           </div>
 
-          <div className="mt-6 grid gap-3 sm:grid-cols-3">
+        <div className="mt-6 grid gap-3 sm:grid-cols-3">
             <StatCard label="Live updates" value={stats.total} />
             <StatCard label="Colleges active" value={stats.colleges} />
             <StatCard label="Communities posting" value={stats.clubs} />
           </div>
         </div>
+
+        {accountLoading ? (
+          <div className="mt-5 rounded-[1.7rem] border border-sky-100 bg-white/80 px-5 py-4 text-sm text-slate-600 shadow-sm">
+            Restoring your discuss account...
+          </div>
+        ) : account ? (
+          <div className="mt-5 flex flex-col gap-4 rounded-[1.8rem] border border-sky-100 bg-[linear-gradient(135deg,rgba(255,255,255,0.95),rgba(232,244,255,0.92))] p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white">
+                  <ShieldCheck className="h-4 w-4" />
+                  {account.clubName}
+                </span>
+                <span className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] ${account.isAuthorized ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>
+                  {account.badgeLabel || (account.isAuthorized ? "Authorized" : "Pending verification")}
+                </span>
+              </div>
+              <p className="mt-3 text-sm font-medium text-slate-900">{account.collegeName}</p>
+              <p className="mt-1 text-sm text-slate-600">
+                {account.contactName}
+                {account.contactPhone ? ` · ${account.contactPhone}` : ""}
+                {account.email ? ` · ${account.email}` : ""}
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+              <button
+                type="button"
+                onClick={openComposer}
+                className="inline-flex items-center gap-2 rounded-full bg-sky-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-700"
+              >
+                <Plus className="h-4 w-4" />
+                Post now
+              </button>
+              <button
+                type="button"
+                onClick={() => setPanelMode("auth")}
+                className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-sky-50"
+              >
+                Manage account
+              </button>
+            </div>
+          </div>
+        ) : null}
 
         <div className="mt-6 flex items-center justify-between gap-4 px-1">
           <div>
@@ -430,19 +472,24 @@ export default function DiscussPage() {
                     <ImagePlus className="h-5 w-5" />
                   </span>
                   <div>
-                    <p className="text-sm font-semibold">Add event banner / promo image</p>
-                    <p className="text-xs text-slate-500">Optional, but great for event pushes and campaigns.</p>
+                    <p className="text-sm font-semibold">Add event photos / promo creatives</p>
+                    <p className="text-xs text-slate-500">Upload one or multiple images, up to 6 files.</p>
                   </div>
                 </div>
-                <input type="file" accept="image/*" onChange={handleBannerChange} className="mt-4 block w-full text-sm text-slate-500" />
+                <input type="file" accept="image/*" multiple onChange={handleBannerChange} className="mt-4 block w-full text-sm text-slate-500" />
               </label>
 
-              {postPreview && (
-                <img
-                  src={postPreview}
-                  alt="Discuss banner preview"
-                  className="h-44 w-full rounded-[1.5rem] object-cover ring-1 ring-slate-200"
-                />
+              {postPreviews.length > 0 && (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {postPreviews.map((preview, index) => (
+                    <img
+                      key={`${preview}-${index}`}
+                      src={preview}
+                      alt={`Discuss preview ${index + 1}`}
+                      className="h-40 w-full rounded-[1.5rem] object-cover ring-1 ring-slate-200"
+                    />
+                  ))}
+                </div>
               )}
 
               <textarea
@@ -656,15 +703,21 @@ function StatCard({ label, value }) {
 function DiscussCard({ post }) {
   const meta = typeMeta[post.type] || typeMeta.announcement;
   const Icon = meta.Icon;
+  const gallery = Array.isArray(post.photos) && post.photos.length > 0 ? post.photos : post.banner?.url ? [post.banner] : [];
 
   return (
     <article className="overflow-hidden rounded-[1.9rem] border border-sky-100 bg-[linear-gradient(180deg,_rgba(255,255,255,0.98),rgba(242,248,255,0.96))] shadow-[0_18px_48px_-34px_rgba(37,99,235,0.45)] transition hover:-translate-y-0.5 hover:shadow-[0_24px_60px_-34px_rgba(37,99,235,0.5)]">
-      {post.banner?.url && (
-        <img
-          src={post.banner.url}
-          alt={post.title}
-          className="h-52 w-full object-cover sm:h-60"
-        />
+      {gallery.length > 0 && (
+        <div className={`grid ${gallery.length > 1 ? "grid-cols-2" : "grid-cols-1"} gap-1 bg-sky-50`}>
+          {gallery.slice(0, 4).map((photo, index) => (
+            <img
+              key={photo.public_id || photo.url || index}
+              src={photo.url}
+              alt={`${post.title} ${index + 1}`}
+              className={`w-full object-cover ${gallery.length === 1 ? "h-52 sm:h-60" : "h-40 sm:h-44"}`}
+            />
+          ))}
+        </div>
       )}
 
       <div className="p-5 sm:p-6">
