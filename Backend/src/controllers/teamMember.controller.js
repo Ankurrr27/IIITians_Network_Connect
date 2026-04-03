@@ -15,6 +15,8 @@ export const createTeamMember = async (req, res) => {
       linkedin,
       instagram,
       twitter,
+      aboutText,
+      messageText,
       order,
       photoSourceMemberId,
     } = req.body;
@@ -63,6 +65,8 @@ export const createTeamMember = async (req, res) => {
       linkedin,
       instagram,
       twitter,
+      aboutText,
+      messageText,
       order,
       photo: photoPayload,
     });
@@ -115,6 +119,8 @@ export const updateTeamMember = async (req, res) => {
       "linkedin",
       "instagram",
       "twitter",
+      "aboutText",
+      "messageText",
       "team",
       "year",
       "isActive",

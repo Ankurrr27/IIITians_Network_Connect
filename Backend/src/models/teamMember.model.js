@@ -48,6 +48,16 @@ const teamMemberSchema = new mongoose.Schema(
     instagram: String,
     twitter: String,
 
+    aboutText: {
+      type: String,
+      trim: true,
+    },
+
+    messageText: {
+      type: String,
+      trim: true,
+    },
+
     /* ================= META ================= */
     team: {
       type: String,
