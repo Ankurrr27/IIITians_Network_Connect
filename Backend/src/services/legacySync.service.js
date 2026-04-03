@@ -1,6 +1,10 @@
 import Alumni from "../models/alumni.model.js";
 import TeamMember from "../models/teamMember.model.js";
 
+const LEGACY_SYNC_INTERVAL_MS = 5 * 60 * 1000;
+let lastLegacySyncAt = 0;
+let legacySyncPromise = null;
+
 function normalizeYearValue(value = "") {
   return String(value).trim().replace(/\s+/g, " ");
 }
@@ -117,4 +121,28 @@ export async function syncAllTeamMembersToLegacy() {
   for (const email of emails) {
     await syncLegacyByEmail(email);
   }
+}
+
+export function ensureLegacyBackfill({ waitForCompletion = false } = {}) {
+  const now = Date.now();
+  const isFresh = now - lastLegacySyncAt < LEGACY_SYNC_INTERVAL_MS;
+
+  if (!legacySyncPromise && !isFresh) {
+    legacySyncPromise = syncAllTeamMembersToLegacy()
+      .then(() => {
+        lastLegacySyncAt = Date.now();
+      })
+      .catch((error) => {
+        console.error("Legacy sync failed:", error);
+      })
+      .finally(() => {
+        legacySyncPromise = null;
+      });
+  }
+
+  if (waitForCompletion && legacySyncPromise) {
+    return legacySyncPromise;
+  }
+
+  return Promise.resolve();
 }

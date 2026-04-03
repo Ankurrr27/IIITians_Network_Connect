@@ -1,5 +1,5 @@
 import Alumni from "../models/alumni.model.js";
-import { syncAllTeamMembersToLegacy } from "../services/legacySync.service.js";
+import { ensureLegacyBackfill } from "../services/legacySync.service.js";
 
 const escapeRegex = (value = "") =>
   value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -62,11 +62,74 @@ export const createAlumni = async (req, res) => {
   }
 };
 
+export const updateLegacyProfile = async (req, res) => {
+  try {
+    const payload = normalizePayload(req.body);
+    const alumni = await Alumni.findById(req.params.id);
+
+    if (!alumni) {
+      return res.status(404).json({ message: "Legacy profile not found" });
+    }
+
+    if (!payload.email || payload.email !== alumni.email) {
+      return res.status(403).json({
+        message: "Use the same registered email to update this profile.",
+      });
+    }
+
+    const requiredFields = [
+      "name",
+      "email",
+      "iiit",
+      "generation",
+      "branch",
+      "graduationYear",
+    ];
+
+    const missingField = requiredFields.find((field) => !payload[field]);
+    if (missingField) {
+      return res.status(400).json({
+        message: `${missingField} is required`,
+      });
+    }
+
+    const nextStatus =
+      alumni.legacyType === "team_member"
+        ? "approved"
+        : alumni.status || "approved";
+
+    const updated = await Alumni.findByIdAndUpdate(
+      req.params.id,
+      {
+        ...payload,
+        status: nextStatus,
+        reviewedAt:
+          nextStatus === "approved" ? alumni.reviewedAt || new Date() : null,
+      },
+      { new: true, runValidators: true }
+    );
+
+    res.json({
+      message: "Legacy profile updated successfully.",
+      alumni: updated,
+    });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
 export const getAlumni = async (req, res) => {
   try {
-    await syncAllTeamMembersToLegacy();
+    ensureLegacyBackfill();
 
-    const { search = "", generation = "", iiit = "" } = req.query;
+    const {
+      search = "",
+      generation = "",
+      iiit = "",
+      professionalStatus = req.query.placed || "",
+      legacyType = "",
+      networkPost = "",
+    } = req.query;
     const query = {
       $and: [{ $or: [{ status: "approved" }, { status: { $exists: false } }] }],
     };
@@ -80,6 +143,48 @@ export const getAlumni = async (req, res) => {
     if (iiit.trim()) {
       query.$and.push({
         iiit: new RegExp(escapeRegex(iiit.trim()), "i"),
+      });
+    }
+
+    if (legacyType.trim()) {
+      query.$and.push({
+        legacyType: legacyType.trim(),
+      });
+    }
+
+    if (networkPost.trim()) {
+      query.$and.push({
+        networkPost: new RegExp(escapeRegex(networkPost.trim()), "i"),
+      });
+    }
+
+    if (professionalStatus.trim() === "working") {
+      query.$and.push({
+        $or: [
+          { currentCompany: { $exists: true, $nin: ["", null] } },
+          { currentRole: { $exists: true, $nin: ["", null] } },
+        ],
+      });
+    }
+
+    if (professionalStatus.trim() === "open") {
+      query.$and.push({
+        $and: [
+          {
+            $or: [
+              { currentCompany: { $exists: false } },
+              { currentCompany: "" },
+              { currentCompany: null },
+            ],
+          },
+          {
+            $or: [
+              { currentRole: { $exists: false } },
+              { currentRole: "" },
+              { currentRole: null },
+            ],
+          },
+        ],
       });
     }
 
@@ -113,7 +218,7 @@ export const getAlumni = async (req, res) => {
 
 export const getAlumniRequests = async (req, res) => {
   try {
-    await syncAllTeamMembersToLegacy();
+    ensureLegacyBackfill();
 
     const { status = "all", search = "" } = req.query;
     const query = { $and: [] };
