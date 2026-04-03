@@ -4,6 +4,10 @@ import { typeMeta } from "../discuss.constants";
 export default function DiscussFeedCard({ post }) {
   const meta = typeMeta[post.type] || typeMeta.announcement;
   const Icon = meta.Icon;
+  const normalizedCollege = (post.collegeName || "").trim().toLowerCase();
+  const normalizedClub = (post.clubName || "").trim().toLowerCase();
+  const showClubChip =
+    post.clubName && normalizedClub && normalizedClub !== normalizedCollege;
   const gallery =
     Array.isArray(post.photos) && post.photos.length > 0
       ? post.photos
@@ -32,17 +36,16 @@ export default function DiscussFeedCard({ post }) {
               <Icon className="h-4 w-4" />
               {meta.label}
             </span>
-            <span className="rounded-full bg-white/90 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.16em] text-slate-600 ring-1 ring-sky-100">{post.collegeName}</span>
-            <span className="rounded-full bg-white/90 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.16em] text-slate-600 ring-1 ring-sky-100">{post.clubName}</span>
+            {post.collegeName && (
+              <span className="rounded-full bg-white/90 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.16em] text-slate-600 ring-1 ring-sky-100">{post.collegeName}</span>
+            )}
+            {showClubChip && (
+              <span className="rounded-full bg-white/90 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.16em] text-slate-600 ring-1 ring-sky-100">{post.clubName}</span>
+            )}
             {post.isAuthorisedPost && <span className="rounded-full bg-blue-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-blue-700">{post.badgeLabel || "Verified by network"}</span>}
           </div>
           <h2 className="mt-4 text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl">{post.title}</h2>
           <p className="mt-3 line-clamp-4 text-sm leading-7 text-slate-600">{post.description}</p>
-          <div className="mt-4 flex flex-wrap gap-3 text-sm text-slate-500">
-            {post.contactName && <span>{post.contactName}</span>}
-            {post.contactPhone && <span>{post.contactPhone}</span>}
-            {post.contactEmail && <span className="truncate">{post.contactEmail}</span>}
-          </div>
           {post.actionLink && (
             <a href={post.actionLink} target="_blank" rel="noreferrer" className="mt-5 inline-flex items-center gap-2 rounded-full bg-sky-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-sky-700">
               Open link

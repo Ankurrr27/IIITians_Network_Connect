@@ -24,9 +24,9 @@ const projects = [
     route: "/events",
   },
   {
-    title: "Alumni Achievements",
+    title: "Network Legacy",
     description:
-      "Highlighting impactful career journeys, achievements, and contributions of IIIT alumni across domains.",
+      "Showcasing the journeys, contributions, and evolving network story of IIITians across batches and roles.",
     icon: <Award size={28} />,
     route: "/legacy",
   },

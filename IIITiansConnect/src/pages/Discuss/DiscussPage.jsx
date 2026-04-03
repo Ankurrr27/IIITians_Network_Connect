@@ -135,6 +135,7 @@ export default function DiscussPage() {
       description: post.description || "",
       type: post.type || "announcement",
       actionLink: post.actionLink || "",
+      eventDate: post.eventDate ? String(post.eventDate).slice(0, 10) : "",
     });
     setPostImages([]);
     setPostPreviews(
@@ -221,6 +222,7 @@ export default function DiscussPage() {
       formData.append("description", postForm.description);
       formData.append("type", postForm.type);
       formData.append("actionLink", postForm.actionLink);
+      formData.append("eventDate", postForm.eventDate);
       postImages.forEach((image) => formData.append("banners", image));
 
       if (editingPostId) {
@@ -300,31 +302,6 @@ export default function DiscussPage() {
                       Manage account
                     </button>
                   </div>
-                  {myPosts.length > 0 && (
-                    <div className="rounded-2xl bg-sky-50/80 p-3 ring-1 ring-sky-100">
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-sky-700">
-                        Past posts
-                      </p>
-                      <div className="mt-3 space-y-2">
-                        {myPosts.slice(0, 4).map((post) => (
-                          <button
-                            key={post._id}
-                            type="button"
-                            onClick={() => openEditPost(post)}
-                            className="flex w-full items-center justify-between rounded-xl bg-white px-3 py-3 text-left ring-1 ring-sky-100 transition hover:bg-sky-50"
-                          >
-                            <div className="min-w-0">
-                              <p className="truncate text-sm font-semibold text-slate-900">{post.title}</p>
-                              <p className="mt-1 text-xs text-slate-500">{post.status}</p>
-                            </div>
-                            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-600">
-                              Edit
-                            </span>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -406,6 +383,15 @@ export default function DiscussPage() {
                 </select>
               </div>
               <TextInput name="actionLink" value={postForm.actionLink} onChange={(e) => setPostForm((p) => ({ ...p, actionLink: e.target.value }))} placeholder="Registration or event link" />
+              {postForm.type === "event" && (
+                <TextInput
+                  name="eventDate"
+                  type="date"
+                  value={postForm.eventDate}
+                  onChange={(e) => setPostForm((p) => ({ ...p, eventDate: e.target.value }))}
+                  required
+                />
+              )}
               <label className="block rounded-[1.5rem] border border-dashed border-slate-300 bg-slate-50 p-4">
                 <div className="flex items-center gap-3 text-slate-700">
                   <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white ring-1 ring-slate-200">
@@ -457,6 +443,35 @@ export default function DiscussPage() {
                   {account.contactPhone && <p>{account.contactPhone}</p>}
                   <p>{account.email}</p>
                 </div>
+                {myPosts.length > 0 && (
+                  <div className="rounded-[1.4rem] bg-white p-3 ring-1 ring-slate-200">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-700">
+                      Past posts
+                    </p>
+                    <div className="mt-3 space-y-2">
+                      {myPosts.map((post) => (
+                        <button
+                          key={post._id}
+                          type="button"
+                          onClick={() => openEditPost(post)}
+                          className="flex w-full items-center justify-between rounded-xl bg-slate-50 px-3 py-3 text-left ring-1 ring-slate-200 transition hover:bg-sky-50"
+                        >
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-semibold text-slate-900">
+                              {post.title}
+                            </p>
+                            <p className="mt-1 text-xs capitalize text-slate-500">
+                              {post.status}
+                            </p>
+                          </div>
+                          <span className="rounded-full bg-white px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-600 ring-1 ring-slate-200">
+                            Edit
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 <button
                   type="button"
                   onClick={handleLogout}
@@ -551,3 +566,4 @@ function HandleInput({ value, onChange }) {
 
 const inputClassName =
   "w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-emerald-600 focus:bg-white focus:ring-4 focus:ring-emerald-100";
+ 

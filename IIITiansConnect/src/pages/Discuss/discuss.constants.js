@@ -11,6 +11,7 @@ export const initialPostForm = {
   description: "",
   type: "announcement",
   actionLink: "",
+  eventDate: "",
 };
 
 export const initialRegisterForm = {

@@ -44,6 +44,8 @@ const cardShell = {
     "border-slate-800 bg-slate-900 shadow-[0_18px_50px_rgba(15,23,42,0.26)]",
 };
 
+const normalizeText = (value = "") => value.trim().toLowerCase();
+
 export default function LegacyPage() {
   const { isDarkMode } = useThemeMode();
   const [searchParams] = useSearchParams();
@@ -707,184 +709,242 @@ export default function LegacyPage() {
                 </p>
               </div>
             ) : (
-              entries.map((entry) => (
-                <article
-                  key={entry._id}
-                  className={`rounded-[1.5rem] border p-4 transition sm:rounded-[2rem] sm:p-6 ${
-                    isDarkMode ? cardShell.dark : cardShell.light
-                  }`}
-                >
-                  <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                    <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
-                      {entry.photo?.url && (
+              entries.map((entry) => {
+                const normalizedNetworkPost = normalizeText(entry.networkPost);
+                const normalizedCurrentRole = normalizeText(entry.currentRole);
+                const normalizedCurrentCompany = normalizeText(
+                  entry.currentCompany
+                );
+                const normalizedIiit = normalizeText(entry.iiit);
+                const normalizedLocation = normalizeText(entry.location);
+                const showRoleChip =
+                  entry.currentRole &&
+                  normalizedCurrentRole !== normalizedNetworkPost;
+                const showCompanyChip =
+                  entry.currentCompany &&
+                  normalizedCurrentCompany !== normalizedIiit;
+                const showLocationChip =
+                  entry.location &&
+                  normalizedLocation !== normalizedIiit &&
+                  normalizedLocation !== normalizedCurrentCompany;
+                const dedupedRoleHistory = (entry.roleHistory || []).filter(
+                  (item, index, list) => {
+                    const signature = `${normalizeText(item.year || "")}|${normalizeText(
+                      item.team || ""
+                    )}|${normalizeText(item.role || "")}`;
+                    return (
+                      index ===
+                      list.findIndex((candidate) => {
+                        const candidateSignature = `${normalizeText(
+                          candidate.year || ""
+                        )}|${normalizeText(candidate.team || "")}|${normalizeText(
+                          candidate.role || ""
+                        )}`;
+                        return candidateSignature === signature;
+                      })
+                    );
+                  }
+                );
+
+                return (
+                  <article
+                    key={entry._id}
+                    className={`overflow-hidden rounded-[1.5rem] border transition sm:rounded-[2rem] ${
+                      isDarkMode ? cardShell.dark : cardShell.light
+                    }`}
+                  >
+                    <div className="flex flex-col lg:grid lg:grid-cols-[16rem_minmax(0,1fr)]">
+                      {entry.photo?.url ? (
+                      <div className="relative h-64 overflow-hidden sm:h-72 lg:h-[22rem]">
                         <img
                           src={entry.photo.url}
                           alt={entry.name}
-                          className="h-24 w-24 rounded-[1.5rem] object-cover ring-1 ring-slate-200 sm:h-28 sm:w-28"
+                          className="h-full w-full object-cover"
                         />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/55 via-slate-900/10 to-transparent" />
+                        <div className="absolute left-4 top-4">
+                          <span className="inline-flex items-center rounded-full bg-white/88 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-indigo-700 backdrop-blur sm:text-xs">
+                            {entry.generation}
+                          </span>
+                        </div>
+                      </div>
+                      ) : (
+                      <div
+                        className={`flex min-h-[16rem] items-end p-5 sm:min-h-[18rem] lg:min-h-[22rem] ${
+                          isDarkMode
+                            ? "bg-gradient-to-br from-slate-900 via-slate-950 to-indigo-950"
+                            : "bg-gradient-to-br from-indigo-100 via-indigo-50 to-white"
+                        }`}
+                      >
+                        <span className="inline-flex items-center rounded-full bg-white/90 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-indigo-700 shadow-sm sm:text-xs">
+                          {entry.generation}
+                        </span>
+                      </div>
                       )}
-                      <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-indigo-600 sm:text-xs sm:tracking-[0.24em]">
-                        {entry.generation}
-                      </p>
-                      <h3
-                        className={`mt-2 text-xl font-semibold sm:text-2xl ${
-                          isDarkMode ? "text-slate-100" : "text-slate-900"
-                        }`}
-                      >
-                        {entry.name}
-                      </h3>
 
-                      <div
-                        className={`mt-3 flex flex-wrap gap-2 text-sm ${
-                          isDarkMode ? "text-slate-300" : "text-slate-600"
-                        }`}
-                      >
-                        {entry.networkPost && (
-                          <span
-                            className={`inline-flex items-center gap-2 rounded-full px-3 py-1 ${
-                              isDarkMode ? "bg-slate-800" : "bg-indigo-50"
-                            }`}
-                          >
-                            <ShieldCheck className="h-4 w-4 text-indigo-600" />
-                            {entry.networkPost}
-                          </span>
-                        )}
+                      <div className="p-4 sm:p-6 lg:p-7">
+                        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                          <div className="min-w-0">
+                            <h3
+                              className={`text-2xl font-semibold sm:text-[2rem] ${
+                                isDarkMode ? "text-slate-100" : "text-slate-900"
+                              }`}
+                            >
+                              {entry.name}
+                            </h3>
 
-                        {entry.currentRole && (
-                          <span
-                            className={`inline-flex items-center gap-2 rounded-full px-3 py-1 ${
-                              isDarkMode ? "bg-slate-800" : "bg-slate-100"
-                            }`}
-                          >
-                            <Briefcase className="h-4 w-4 text-indigo-600" />
-                            {entry.currentRole}
-                          </span>
-                        )}
+                            <div
+                              className={`mt-3 flex flex-wrap gap-2 text-sm ${
+                                isDarkMode ? "text-slate-300" : "text-slate-600"
+                              }`}
+                            >
+                              {entry.networkPost && (
+                                <span
+                                  className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 ${
+                                    isDarkMode ? "bg-slate-800" : "bg-indigo-50"
+                                  }`}
+                                >
+                                  <ShieldCheck className="h-4 w-4 text-indigo-600" />
+                                  {entry.networkPost}
+                                </span>
+                              )}
 
-                        {entry.currentCompany && (
-                          <span
-                            className={`inline-flex items-center gap-2 rounded-full px-3 py-1 ${
-                              isDarkMode ? "bg-slate-800" : "bg-slate-100"
-                            }`}
-                          >
-                            <Building2 className="h-4 w-4 text-indigo-600" />
-                            {entry.currentCompany}
-                          </span>
-                        )}
+                              {showRoleChip && (
+                                <span
+                                  className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 ${
+                                    isDarkMode ? "bg-slate-800" : "bg-slate-100"
+                                  }`}
+                                >
+                                  <Briefcase className="h-4 w-4 text-indigo-600" />
+                                  {entry.currentRole}
+                                </span>
+                              )}
 
-                        {entry.location && (
-                          <span
-                            className={`inline-flex items-center gap-2 rounded-full px-3 py-1 ${
-                              isDarkMode ? "bg-slate-800" : "bg-slate-100"
-                            }`}
-                          >
-                            <MapPin className="h-4 w-4 text-indigo-600" />
-                            {entry.location}
-                          </span>
-                        )}
-                      </div>
-                      </div>
-                    </div>
+                              {showCompanyChip && (
+                                <span
+                                  className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 ${
+                                    isDarkMode ? "bg-slate-800" : "bg-slate-100"
+                                  }`}
+                                >
+                                  <Building2 className="h-4 w-4 text-indigo-600" />
+                                  {entry.currentCompany}
+                                </span>
+                              )}
 
-                    <div
-                      className={`rounded-2xl px-4 py-3 text-sm ${
-                        isDarkMode
-                          ? "bg-slate-800 text-indigo-200"
-                          : "bg-indigo-50 text-indigo-900"
-                      }`}
-                    >
-                      <div className="font-semibold">{entry.iiit}</div>
-                      <div>{entry.branch}</div>
-                      <div>
-                        {entry.legacyType === "team_member"
-                          ? `Team term ${entry.generation}`
-                          : `Class of ${entry.graduationYear}`}
-                      </div>
-                    </div>
-                  </div>
-
-                  {entry.bio && (
-                    <p
-                      className={`mt-4 text-sm leading-7 ${
-                        isDarkMode ? "text-slate-400" : "text-slate-600"
-                      }`}
-                    >
-                      {entry.bio}
-                    </p>
-                  )}
-
-                  {entry.roleHistory?.length > 0 && (
-                    <div
-                      className={`mt-4 rounded-2xl border p-3 sm:p-4 ${
-                        isDarkMode
-                          ? "border-slate-800 bg-slate-950/50"
-                          : "border-slate-200 bg-slate-50"
-                      }`}
-                    >
-                      <div
-                        className={`inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] ${
-                          isDarkMode ? "text-slate-300" : "text-slate-600"
-                        }`}
-                      >
-                        <Milestone className="h-4 w-4 text-indigo-600" />
-                        Network Journey
-                      </div>
-
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        {entry.roleHistory.map((item, index) => (
-                          <div
-                            key={`${item.year}-${item.team}-${item.role}-${index}`}
-                            className={`rounded-full px-3 py-1.5 text-xs font-medium ${
-                              isDarkMode
-                                ? "bg-slate-800 text-slate-200"
-                                : "bg-white text-slate-700 ring-1 ring-slate-200"
-                            }`}
-                          >
-                            {item.year ? `${item.year}: ` : ""}
-                            {item.role}
-                            {item.team ? ` (${item.team})` : ""}
+                              {showLocationChip && (
+                                <span
+                                  className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 ${
+                                    isDarkMode ? "bg-slate-800" : "bg-slate-100"
+                                  }`}
+                                >
+                                  <MapPin className="h-4 w-4 text-indigo-600" />
+                                  {entry.location}
+                                </span>
+                              )}
+                            </div>
                           </div>
-                        ))}
+
+                          <div
+                            className={`rounded-[1.4rem] px-4 py-3 text-sm sm:min-w-[13rem] ${
+                              isDarkMode
+                                ? "bg-slate-800 text-indigo-200"
+                                : "bg-indigo-50 text-indigo-900"
+                            }`}
+                          >
+                            <div className="font-semibold">{entry.iiit}</div>
+                            <div>{entry.branch}</div>
+                          <div>
+                            {entry.legacyType === "team_member"
+                              ? `Team term ${entry.generation}`
+                              : `Class of ${entry.graduationYear}`}
+                            </div>
+                          </div>
+                        </div>
+
+                        {entry.bio && (
+                          <p
+                            className={`mt-5 text-sm leading-7 sm:text-[15px] ${
+                              isDarkMode ? "text-slate-400" : "text-slate-600"
+                            }`}
+                          >
+                            {entry.bio}
+                          </p>
+                        )}
+
+                        {dedupedRoleHistory.length > 0 && (
+                          <div
+                            className={`mt-5 rounded-[1.5rem] border p-3 sm:p-4 ${
+                              isDarkMode
+                                ? "border-slate-800 bg-slate-950/50"
+                                : "border-slate-200 bg-slate-50"
+                            }`}
+                          >
+                            <div
+                              className={`inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] ${
+                                isDarkMode ? "text-slate-300" : "text-slate-600"
+                              }`}
+                            >
+                              <Milestone className="h-4 w-4 text-indigo-600" />
+                              Network Journey
+                            </div>
+
+                            <div className="mt-3 flex flex-wrap gap-2">
+                              {dedupedRoleHistory.map((item, index) => (
+                                <div
+                                  key={`${item.year}-${item.team}-${item.role}-${index}`}
+                                  className={`rounded-full px-3 py-1.5 text-xs font-medium ${
+                                    isDarkMode
+                                      ? "bg-slate-800 text-slate-200"
+                                      : "bg-white text-slate-700 ring-1 ring-slate-200"
+                                  }`}
+                                >
+                                  {item.year ? `${item.year}: ` : ""}
+                                  {item.role}
+                                  {item.team ? ` (${item.team})` : ""}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="mt-5 flex flex-wrap gap-4 text-sm">
+                          <a
+                            href={`mailto:${entry.email}`}
+                            className="inline-flex items-center gap-2 font-medium text-indigo-600 transition hover:text-indigo-500"
+                          >
+                            <Mail className="h-4 w-4" />
+                            Email
+                          </a>
+
+                          {entry.linkedin && (
+                            <a
+                              href={entry.linkedin}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex items-center gap-2 font-medium text-indigo-600 transition hover:text-indigo-500"
+                            >
+                              <Linkedin className="h-4 w-4" />
+                              LinkedIn
+                            </a>
+                          )}
+
+                          {entry.instagram && (
+                            <a
+                              href={entry.instagram}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex items-center gap-2 font-medium text-indigo-600 transition hover:text-indigo-500"
+                            >
+                              <Instagram className="h-4 w-4" />
+                              Instagram
+                            </a>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  )}
-
-                  <div className="mt-4 flex flex-wrap gap-4 text-sm">
-                    <a
-                      href={`mailto:${entry.email}`}
-                      className="inline-flex items-center gap-2 font-medium text-indigo-600 transition hover:text-indigo-500"
-                    >
-                      <Mail className="h-4 w-4" />
-                      Email
-                    </a>
-
-                    {entry.linkedin && (
-                      <a
-                        href={entry.linkedin}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-2 font-medium text-indigo-600 transition hover:text-indigo-500"
-                      >
-                        <Linkedin className="h-4 w-4" />
-                        LinkedIn
-                      </a>
-                    )}
-
-                    {entry.instagram && (
-                      <a
-                        href={entry.instagram}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-2 font-medium text-indigo-600 transition hover:text-indigo-500"
-                      >
-                        <Instagram className="h-4 w-4" />
-                        Instagram
-                      </a>
-                    )}
-                  </div>
-                </article>
-              ))
+                  </article>
+                );
+              })
             )}
           </div>
         </div>

@@ -5,6 +5,7 @@ export default function EventsGrid({
   events,
   onEdit,
   onDelete,
+  isPublic = false,
 }) {
   if (loading) {
     return <p className="text-gray-500">Loading events...</p>;
@@ -15,12 +16,12 @@ export default function EventsGrid({
   }
 
   return (
-    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-8">
+    <div className="grid items-stretch gap-2 sm:gap-8 sm:grid-cols-2 lg:grid-cols-3">
       {events.map((event) => (
         <EventCard
           key={event._id}
           event={event}
-          isAdmin
+          isAdmin={!isPublic && typeof onEdit === "function"}
           onEdit={onEdit}
           onDelete={onDelete}
         />
