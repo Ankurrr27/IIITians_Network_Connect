@@ -85,6 +85,11 @@ export default function TeamGrid({ members = [] }) {
     .filter((member) => member.roleType === "MEMBER")
     .sort((a, b) => compareMembers(a, b));
 
+  const leadGridClass =
+    leads.length === 3
+      ? "mx-auto grid max-w-6xl gap-5 sm:grid-cols-2 xl:grid-cols-3"
+      : "mx-auto grid max-w-7xl gap-5 sm:grid-cols-2 xl:grid-cols-4";
+
   if (!members.length) {
     return (
       <div className="py-20 text-center text-slate-500">No team members found.</div>
@@ -100,7 +105,7 @@ export default function TeamGrid({ members = [] }) {
               Executive Team
             </h2>
           </div>
-          <div className="mx-auto grid max-w-5xl gap-5 md:grid-cols-2">
+          <div className="mx-auto grid max-w-6xl gap-5 md:grid-cols-2">
             {execs.map((member) => (
               <ExecCard key={member._id} member={member} />
             ))}
@@ -116,7 +121,7 @@ export default function TeamGrid({ members = [] }) {
               Lead Team
             </h2>
           </div>
-          <div className="mx-auto grid max-w-7xl gap-5 sm:grid-cols-2 xl:grid-cols-4">
+          <div className={leadGridClass}>
             {leads.map((member) => (
               <LeadCard key={member._id} member={member} />
             ))}

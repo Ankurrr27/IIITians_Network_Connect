@@ -88,8 +88,12 @@ export default function CurrentPresident() {
     return null;
   }
 
-  const about = `${currentPresident.name} is leading the current IIITians Network team with a focus on student coordination, continuity, and building a stronger network across campuses.`;
-  const message = `${currentPresident.name} and the current team are working to make IIITians Network more useful, accessible, and active for the wider IIIT community.`;
+  const about =
+    currentPresident.aboutText ||
+    `${currentPresident.name} is leading the current IIITians Network team with a focus on student coordination, continuity, and building a stronger network across campuses.`;
+  const message =
+    currentPresident.messageText ||
+    `${currentPresident.name} and the current team are working to make IIITians Network more useful, accessible, and active for the wider IIIT community.`;
 
   return (
     <div className="mb-5 overflow-hidden rounded-[1.35rem] border border-slate-200 bg-gradient-to-br from-slate-50 via-white to-indigo-50 shadow-[0_20px_60px_rgba(79,70,229,0.08)] sm:mb-12 sm:rounded-[1.9rem]">

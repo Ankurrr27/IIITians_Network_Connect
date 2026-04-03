@@ -13,6 +13,8 @@ const initialForm = {
   linkedin: "",
   instagram: "",
   twitter: "",
+  aboutText: "",
+  messageText: "",
   order: 0,
 };
 
@@ -39,6 +41,24 @@ const transitionOptions = [
   },
 ];
 
+function buildFormFromMember(member, transitionType, currentYear) {
+  return {
+    name: member?.name || "",
+    role: transitionType === "continue" ? member?.role || "" : "",
+    roleType: member?.roleType || "",
+    iiit: member?.iiit || "",
+    team: member?.team || "Tech",
+    year: currentYear || member?.year || "2025-26",
+    email: member?.email || "",
+    linkedin: member?.linkedin || "",
+    instagram: member?.instagram || "",
+    twitter: member?.twitter || "",
+    aboutText: member?.aboutText || "",
+    messageText: member?.messageText || "",
+    order: member?.order ?? 0,
+  };
+}
+
 export default function TeamMemberForm({ onSuccess, members = [] }) {
   const [form, setForm] = useState(initialForm);
   const [transitionType, setTransitionType] = useState("fresh");
@@ -58,20 +78,9 @@ export default function TeamMemberForm({ onSuccess, members = [] }) {
       return;
     }
 
-    setForm({
-      name: selectedMember.name || "",
-      role:
-        transitionType === "continue" ? selectedMember.role || "" : "",
-      roleType: selectedMember.roleType || "",
-      iiit: selectedMember.iiit || "",
-      team: selectedMember.team || "Tech",
-      year: form.year || selectedMember.year || "2025-26",
-      email: selectedMember.email || "",
-      linkedin: selectedMember.linkedin || "",
-      instagram: selectedMember.instagram || "",
-      twitter: selectedMember.twitter || "",
-      order: selectedMember.order ?? 0,
-    });
+    setForm((prev) =>
+      buildFormFromMember(selectedMember, transitionType, prev.year)
+    );
     setPhoto(null);
     setRawPhoto(null);
   }, [selectedMemberId, transitionType]);
@@ -230,6 +239,57 @@ export default function TeamMemberForm({ onSuccess, members = [] }) {
 
           {selectedMember && transitionType !== "end" && (
             <div className="space-y-3">
+              <div className="rounded-[1.25rem] border border-slate-200 bg-white p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                  Imported from previous tenure
+                </p>
+                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                  <div className="rounded-2xl bg-slate-50 px-4 py-3">
+                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                      Identity
+                    </p>
+                    <p className="mt-2 text-sm font-semibold text-slate-900">
+                      {selectedMember.name}
+                    </p>
+                    <p className="mt-1 text-sm text-slate-600">
+                      {selectedMember.role} - {selectedMember.iiit}
+                    </p>
+                    <p className="mt-1 text-sm text-slate-500">
+                      {selectedMember.email}
+                    </p>
+                  </div>
+
+                  <div className="rounded-2xl bg-slate-50 px-4 py-3">
+                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                      Imported handles
+                    </p>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {[
+                        selectedMember.linkedin && "LinkedIn",
+                        selectedMember.instagram && "Instagram",
+                        selectedMember.twitter && "Twitter",
+                      ]
+                        .filter(Boolean)
+                        .map((label) => (
+                          <span
+                            key={label}
+                            className="rounded-full bg-white px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-200"
+                          >
+                            {label}
+                          </span>
+                        ))}
+                      {!selectedMember.linkedin &&
+                        !selectedMember.instagram &&
+                        !selectedMember.twitter && (
+                          <span className="text-sm text-slate-500">
+                            No social handles saved in previous record.
+                          </span>
+                        )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <label className="flex items-center gap-3 rounded-2xl bg-white px-4 py-3 text-sm text-slate-700">
                 <input
                   type="checkbox"
@@ -241,7 +301,7 @@ export default function TeamMemberForm({ onSuccess, members = [] }) {
               </label>
 
               <div className="rounded-2xl border border-indigo-100 bg-indigo-50 px-4 py-3 text-sm text-indigo-900">
-                Promotion and continuation will reuse the selected member photo automatically unless you upload a new one.
+                Promotion and continuation will carry forward the selected member details, handles, leadership text, and photo automatically unless you change them.
               </div>
             </div>
           )}
@@ -278,12 +338,31 @@ export default function TeamMemberForm({ onSuccess, members = [] }) {
                   name={key}
                   value={form[key]}
                   onChange={handleChange}
-                  placeholder={key.toUpperCase()}
+                  placeholder={key === "iiit" ? "IIIT" : key.toUpperCase()}
                   className="w-full rounded-2xl border border-slate-200 px-3 py-3 text-sm outline-none transition focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100"
                   required={!["linkedin", "instagram", "twitter"].includes(key)}
                 />
               )
             )}
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <textarea
+              name="aboutText"
+              value={form.aboutText}
+              onChange={handleChange}
+              placeholder="Leadership about text"
+              rows={4}
+              className="w-full rounded-2xl border border-slate-200 px-3 py-3 text-sm outline-none transition focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100"
+            />
+            <textarea
+              name="messageText"
+              value={form.messageText}
+              onChange={handleChange}
+              placeholder="Leadership message text"
+              rows={4}
+              className="w-full rounded-2xl border border-slate-200 px-3 py-3 text-sm outline-none transition focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100"
+            />
           </div>
 
           <div className="space-y-3 rounded-[1.4rem] border border-slate-200 bg-slate-50 p-4">

@@ -9,7 +9,117 @@ const socialLinks = [
   { key: "website", Icon: Globe },
 ];
 
+function getLeadershipLabel(role = "") {
+  const normalizedRole = role.toLowerCase();
+
+  if (normalizedRole.includes("vice president")) {
+    return "Vice President";
+  }
+
+  if (normalizedRole.includes("president")) {
+    return "President";
+  }
+
+  return "Executive Team";
+}
+
 export default function ExecCard({ member }) {
+  const normalizedRole = (member.role || "").toLowerCase();
+  const isTopExecutive =
+    normalizedRole.includes("president") ||
+    normalizedRole.includes("vice president");
+
+  const about =
+    member.aboutText ||
+    `${member.name} is serving as ${member.role?.toLowerCase() || "a core executive"} and helping guide IIITians Network with stronger continuity, coordination, and student-facing leadership.`;
+  const message =
+    member.messageText ||
+    `${member.name} is working with the team to keep the network more active, accessible, and useful across the IIIT community.`;
+
+  if (isTopExecutive) {
+    return (
+      <motion.article
+        initial={{ opacity: 0, y: 14 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, ease: "easeOut" }}
+        whileHover={{ y: -4 }}
+        className="overflow-hidden rounded-[1.6rem] border border-slate-200 bg-gradient-to-br from-slate-50 via-white to-indigo-50 shadow-[0_20px_60px_rgba(79,70,229,0.08)] lg:col-span-2"
+      >
+        <div className="grid grid-cols-1 gap-0 sm:grid-cols-[170px_1fr] lg:grid-cols-[280px_1fr]">
+          <div className="relative mx-3 mt-3 overflow-hidden rounded-[1rem] bg-indigo-100 sm:mx-0 sm:mt-0 sm:rounded-none">
+            <img
+              src={member.photo?.url}
+              alt={member.name}
+              className="aspect-square w-full object-cover object-center sm:h-full sm:aspect-auto"
+            />
+            <div className="absolute inset-y-0 right-0 hidden w-8 bg-gradient-to-l from-white/18 to-transparent sm:block" />
+          </div>
+
+          <div className="p-4 sm:p-5 lg:p-6">
+            <div className="flex flex-col gap-3 sm:gap-4">
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="inline-flex items-center rounded-full bg-indigo-600 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-white sm:text-xs">
+                  {getLeadershipLabel(member.role)}
+                </div>
+                {member.year && (
+                  <div className="text-[10px] font-medium uppercase tracking-[0.14em] text-slate-500 sm:text-xs">
+                    {member.year}
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <h3 className="text-xl font-bold text-slate-900 sm:text-3xl">
+                  {member.name}
+                </h3>
+                <p className="mt-1 text-sm font-medium text-indigo-600 sm:text-base">
+                  {member.role}
+                  {member.iiit ? ` - ${member.iiit}` : ""}
+                </p>
+              </div>
+
+              <div className="grid gap-3 lg:grid-cols-[0.92fr_1.08fr]">
+                <div className="rounded-[1rem] border border-slate-200 bg-white p-3 shadow-sm sm:rounded-[1.2rem] sm:p-4">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500 sm:text-xs">
+                    About
+                  </p>
+                  <p className="mt-2 text-[12px] leading-5 text-slate-700 sm:mt-3 sm:text-sm sm:leading-6">
+                    {about}
+                  </p>
+                </div>
+
+                <div className="rounded-[1rem] border border-indigo-100 bg-indigo-50/60 p-3 shadow-sm sm:rounded-[1.2rem] sm:p-4">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-indigo-600 sm:text-xs">
+                    Message
+                  </p>
+                  <p className="mt-2 text-[12px] leading-5 text-slate-700 sm:mt-3 sm:text-sm sm:leading-6">
+                    "{message}"
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                {socialLinks.map(({ key, Icon }) =>
+                  member[key] ? (
+                    <a
+                      key={key}
+                      href={member[key]}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700"
+                    >
+                      <Icon size={18} />
+                    </a>
+                  ) : null
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </motion.article>
+    );
+  }
+
   return (
     <motion.article
       initial={{ opacity: 0, y: 14 }}
