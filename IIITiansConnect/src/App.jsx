@@ -10,6 +10,7 @@ import Loader from "./components/Loader";
 
 import Index from "./pages/Index/index.jsx";
 import Colleges from "./pages/Colleges/Colleges.jsx";
+import CollegesAdmin from "./pages/Colleges/CollegesAdmin.jsx";
 
 import Events from "./pages/Events/EventsAdmin.jsx";
 
@@ -81,6 +82,7 @@ function App() {
               <Route path="/legacy/admin/:status" element={<LegacyAdminPage />} />
               <Route path="/alumni/admin" element={<LegacyAdminRedirect />} />
               <Route path="/alumni/admin/:status" element={<LegacyAdminRedirect />} />
+              <Route path="/colleges/admin" element={<CollegesAdmin />} />
               <Route path="/team/admin" element={<TeamAdmin />} />
               <Route path="/placement/admin" element={<PlacementPage />} />
               <Route path="/events/admin" element={<Events />} />

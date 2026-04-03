@@ -61,7 +61,6 @@ export default function AdminLogin() {
     error: "",
     success: "",
   });
-
   const loadAdminPanel = async () => {
     const token = localStorage.getItem("adminToken");
     if (!token) {

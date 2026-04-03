@@ -36,6 +36,17 @@ export default function TeamAdmin() {
     );
   }, [members, query]);
 
+  const stats = useMemo(() => {
+    const activeMembers = members.filter((member) => member.isActive !== false);
+
+    return {
+      total: members.length,
+      active: activeMembers.length,
+      exec: activeMembers.filter((member) => member.roleType === "EXEC").length,
+      leads: activeMembers.filter((member) => member.roleType === "LEAD").length,
+    };
+  }, [members]);
+
   return (
     <div className="space-y-8">
       <header className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
@@ -46,12 +57,19 @@ export default function TeamAdmin() {
           Team Management
         </h1>
         <p className="mt-2 text-sm text-slate-600">
-          Add, edit, search, and manage the public team directory.
+          Add, promote, continue, end tenure, and manage the public team directory.
         </p>
+
+        <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <StatCard label="All records" value={stats.total} />
+          <StatCard label="Active team" value={stats.active} />
+          <StatCard label="Executives" value={stats.exec} />
+          <StatCard label="Leads" value={stats.leads} />
+        </div>
       </header>
 
       <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
-        <TeamMemberForm onSuccess={load} />
+        <TeamMemberForm members={members} onSuccess={load} />
       </section>
 
       <section className="space-y-4 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
@@ -91,6 +109,15 @@ export default function TeamAdmin() {
           }}
         />
       )}
+    </div>
+  );
+}
+
+function StatCard({ label, value }) {
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+      <div className="text-sm font-medium text-slate-600">{label}</div>
+      <div className="mt-1 text-2xl font-semibold text-slate-900">{value}</div>
     </div>
   );
 }

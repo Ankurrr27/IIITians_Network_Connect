@@ -3,6 +3,7 @@ import { NavLink, Outlet, useNavigate } from "react-router-dom";
 
 const adminLinks = [
   { label: "Network Legacy", href: "/legacy/admin" },
+  { label: "Colleges", href: "/colleges/admin" },
   { label: "Events", href: "/events/admin" },
   { label: "Team", href: "/team/admin" },
   { label: "Placements", href: "/placement/admin" },

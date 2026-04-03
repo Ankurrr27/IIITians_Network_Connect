@@ -16,6 +16,7 @@ export default function EditMemberModal({ member, onClose, onUpdated }) {
     instagram: member.instagram || "",
     twitter: member.twitter || "",
     order: member.order ?? 0,
+    isActive: member.isActive === false ? "false" : "true",
   });
 
   const [photo, setPhoto] = useState(null);
@@ -132,6 +133,7 @@ export default function EditMemberModal({ member, onClose, onUpdated }) {
             >
               <option value="Core">Core</option>
               <option value="Tech">Tech</option>
+              <option value="Development">Development</option>
               <option value="Design">Design</option>
               <option value="Content">Content</option>
               <option value="Social Media">Social Media</option>
@@ -154,6 +156,16 @@ export default function EditMemberModal({ member, onClose, onUpdated }) {
               placeholder="Order"
               className="input"
             />
+
+            <select
+              name="isActive"
+              value={form.isActive}
+              onChange={handleChange}
+              className="input"
+            >
+              <option value="true">Active</option>
+              <option value="false">Inactive</option>
+            </select>
           </div>
 
           {/* SOCIALS */}

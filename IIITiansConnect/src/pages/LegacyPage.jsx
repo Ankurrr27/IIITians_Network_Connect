@@ -10,7 +10,6 @@ import {
   LoaderCircle,
   Mail,
   MapPin,
-  Pencil,
   Search,
   ShieldCheck,
   Sparkles,
@@ -19,6 +18,7 @@ import {
 } from "lucide-react";
 import api from "../api/axios";
 import useThemeMode from "../hooks/useThemeMode.jsx";
+import { useSearchParams } from "react-router-dom";
 
 const initialForm = {
   name: "",
@@ -45,17 +45,25 @@ const cardShell = {
 
 export default function LegacyPage() {
   const { isDarkMode } = useThemeMode();
+  const [searchParams] = useSearchParams();
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [apiUnavailable, setApiUnavailable] = useState(false);
-  const [search, setSearch] = useState("");
-  const [generationFilter, setGenerationFilter] = useState("");
-  const [iiitFilter, setIiitFilter] = useState("");
-  const [professionalStatusFilter, setProfessionalStatusFilter] = useState("");
-  const [legacyTypeFilter, setLegacyTypeFilter] = useState("");
-  const [networkPostFilter, setNetworkPostFilter] = useState("");
+  const [search, setSearch] = useState(searchParams.get("search") || "");
+  const [generationFilter, setGenerationFilter] = useState(
+    searchParams.get("generation") || ""
+  );
+  const [iiitFilter, setIiitFilter] = useState(searchParams.get("iiit") || "");
+  const [professionalStatusFilter, setProfessionalStatusFilter] = useState(
+    searchParams.get("professionalStatus") || ""
+  );
+  const [legacyTypeFilter, setLegacyTypeFilter] = useState(
+    searchParams.get("legacyType") || ""
+  );
+  const [networkPostFilter, setNetworkPostFilter] = useState(
+    searchParams.get("networkPost") || ""
+  );
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingEntryId, setEditingEntryId] = useState("");
   const [submitState, setSubmitState] = useState({
     loading: false,
     error: "",
@@ -89,6 +97,15 @@ export default function LegacyPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    setSearch(searchParams.get("search") || "");
+    setGenerationFilter(searchParams.get("generation") || "");
+    setIiitFilter(searchParams.get("iiit") || "");
+    setProfessionalStatusFilter(searchParams.get("professionalStatus") || "");
+    setLegacyTypeFilter(searchParams.get("legacyType") || "");
+    setNetworkPostFilter(searchParams.get("networkPost") || "");
+  }, [searchParams]);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -160,27 +177,18 @@ export default function LegacyPage() {
     });
 
     try {
-      const payload = {
+      await api.post("/alumni", {
         ...form,
         graduationYear: Number(form.graduationYear),
-      };
-
-      if (editingEntryId) {
-        await api.put(`/alumni/${editingEntryId}`, payload);
-      } else {
-        await api.post("/alumni", payload);
-      }
+      });
 
       setForm(initialForm);
       setIsFormOpen(false);
-      setEditingEntryId("");
       setSubmitState({
         loading: false,
         error: "",
         success:
-          editingEntryId
-            ? "Your Network Legacy profile has been updated."
-            : "Your Network Legacy request has been submitted. It will appear after admin approval.",
+          "Your Network Legacy request has been submitted. It will appear after admin approval.",
       });
       setApiUnavailable(false);
       fetchEntries();
@@ -200,28 +208,6 @@ export default function LegacyPage() {
             "Could not save your details right now.",
       });
     }
-  };
-
-  const handleEdit = (entry) => {
-    setEditingEntryId(entry._id);
-    setForm({
-      name: entry.name || "",
-      email: entry.email || "",
-      iiit: entry.iiit || "",
-      graduationYear: entry.graduationYear || "",
-      generation: entry.generation || "",
-      branch: entry.branch || "",
-      networkPost: entry.networkPost || "",
-      currentRole: entry.currentRole || "",
-      currentCompany: entry.currentCompany || "",
-      location: entry.location || "",
-      linkedin: entry.linkedin || "",
-      instagram: entry.instagram || "",
-      bio: entry.bio || "",
-    });
-    setSubmitState({ loading: false, error: "", success: "" });
-    setIsFormOpen(true);
-    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
@@ -343,8 +329,7 @@ export default function LegacyPage() {
                   }`}
                 >
                   Send your profile for review. Only approved entries are shown
-                  in the public legacy page. You can also reopen the same
-                  profile later and update your current role or company.
+                  in the public legacy page.
                 </p>
               </div>
 
@@ -353,7 +338,7 @@ export default function LegacyPage() {
                 onClick={() => setIsFormOpen((prev) => !prev)}
                 className="inline-flex items-center justify-center gap-2 rounded-full bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700"
               >
-                {isFormOpen ? "Close form" : editingEntryId ? "Continue edit" : "Open form"}
+                {isFormOpen ? "Close form" : "Open form"}
                 {isFormOpen ? (
                   <ChevronUp className="h-4 w-4" />
                 ) : (
@@ -364,18 +349,6 @@ export default function LegacyPage() {
 
             {isFormOpen && (
               <form onSubmit={handleSubmit} className="mt-5 space-y-4">
-                {editingEntryId && (
-                  <div
-                    className={`rounded-2xl border px-4 py-3 text-sm ${
-                      isDarkMode
-                        ? "border-indigo-900 bg-indigo-950/40 text-indigo-100"
-                        : "border-indigo-200 bg-indigo-50 text-indigo-800"
-                    }`}
-                  >
-                    Editing an existing legacy profile. Use the same registered
-                    email and save the latest professional details.
-                  </div>
-                )}
                 <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
                   {[
                     ["name", "Full name", "text", true, ""],
@@ -426,13 +399,7 @@ export default function LegacyPage() {
                   disabled={submitState.loading}
                   className="w-full rounded-2xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60 sm:text-base"
                 >
-                  {submitState.loading
-                    ? editingEntryId
-                      ? "Saving..."
-                      : "Submitting..."
-                    : editingEntryId
-                      ? "Save profile update"
-                      : "Send legacy request"}
+                  {submitState.loading ? "Submitting..." : "Send legacy request"}
                 </button>
               </form>
             )}
@@ -751,15 +718,6 @@ export default function LegacyPage() {
                   )}
 
                   <div className="mt-4 flex flex-wrap gap-4 text-sm">
-                    <button
-                      type="button"
-                      onClick={() => handleEdit(entry)}
-                      className="inline-flex items-center gap-2 font-medium text-indigo-600 transition hover:text-indigo-500"
-                    >
-                      <Pencil className="h-4 w-4" />
-                      Edit profile
-                    </button>
-
                     <a
                       href={`mailto:${entry.email}`}
                       className="inline-flex items-center gap-2 font-medium text-indigo-600 transition hover:text-indigo-500"

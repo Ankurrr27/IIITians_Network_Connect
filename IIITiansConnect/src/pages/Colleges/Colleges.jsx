@@ -7,6 +7,7 @@ import CollegesGrid from "./Section/CollegesGrid";
 
 export default function CollegesPage() {
   const [colleges, setColleges] = useState([]);
+  const [teamMembers, setTeamMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -14,18 +15,14 @@ export default function CollegesPage() {
   const [filter, setFilter] = useState("NONE");
 
   useEffect(() => {
-    api
-      .get("/colleges")
-      .then((res) => setColleges(res.data))
+    Promise.all([api.get("/colleges"), api.get("/team")])
+      .then(([collegesRes, teamRes]) => {
+        setColleges(collegesRes.data);
+        setTeamMembers(teamRes.data);
+      })
       .catch(() => setError("Failed to load colleges"))
       .finally(() => setLoading(false));
   }, []);
-
-  const handleCollegeUpdate = (updated) => {
-    setColleges((prev) =>
-      prev.map((c) => (c._id === updated._id ? updated : c))
-    );
-  };
 
   // 🔍 FILTER LOGIC (belongs here)
   let filtered = colleges.filter((c) =>
@@ -52,7 +49,7 @@ export default function CollegesPage() {
 
         <CollegesGrid
           colleges={filtered}
-          onUpdated={handleCollegeUpdate}
+          teamMembers={teamMembers}
         />
       </div>
     </section>

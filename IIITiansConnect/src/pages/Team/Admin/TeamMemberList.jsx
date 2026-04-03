@@ -49,12 +49,16 @@ export default function TeamMemberList({ members, reload, onEdit }) {
           <h3 className="font-semibold text-slate-900">{member.name}</h3>
 
           <p className="text-sm text-slate-600">
-            {member.role} · {member.iiit}
+            {member.role} - {member.iiit}
           </p>
 
           <p className="mt-1 text-xs text-slate-500">
-            {member.team} · {member.year}
+            {member.team} - {member.year}
           </p>
+
+          <div className="mt-2 inline-flex rounded-full bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600 ring-1 ring-slate-200">
+            {member.isActive === false ? "inactive" : "active"}
+          </div>
         </div>
       ))}
     </div>

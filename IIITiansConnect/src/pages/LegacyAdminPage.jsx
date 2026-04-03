@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   CheckCircle2,
   Clock3,
+  Pencil,
   Search,
   Trash2,
   XCircle,
@@ -52,6 +53,22 @@ export default function LegacyAdminPage() {
   const [query, setQuery] = useState("");
   const [error, setError] = useState("");
   const [busyId, setBusyId] = useState("");
+  const [editEntryId, setEditEntryId] = useState("");
+  const [editForm, setEditForm] = useState({
+    name: "",
+    email: "",
+    iiit: "",
+    generation: "",
+    graduationYear: "",
+    branch: "",
+    networkPost: "",
+    currentRole: "",
+    currentCompany: "",
+    location: "",
+    linkedin: "",
+    instagram: "",
+    bio: "",
+  });
   const status = filters.some((filter) => filter.value === routeStatus)
     ? routeStatus
     : "all";
@@ -179,6 +196,76 @@ export default function LegacyAdminPage() {
     }
   };
 
+  const startEdit = (entry) => {
+    setEditEntryId(entry._id);
+    setEditForm({
+      name: entry.name || "",
+      email: entry.email || "",
+      iiit: entry.iiit || "",
+      generation: entry.generation || "",
+      graduationYear: entry.graduationYear || "",
+      branch: entry.branch || "",
+      networkPost: entry.networkPost || "",
+      currentRole: entry.currentRole || "",
+      currentCompany: entry.currentCompany || "",
+      location: entry.location || "",
+      linkedin: entry.linkedin || "",
+      instagram: entry.instagram || "",
+      bio: entry.bio || "",
+    });
+    setError("");
+  };
+
+  const cancelEdit = () => {
+    setEditEntryId("");
+    setEditForm({
+      name: "",
+      email: "",
+      iiit: "",
+      generation: "",
+      graduationYear: "",
+      branch: "",
+      networkPost: "",
+      currentRole: "",
+      currentCompany: "",
+      location: "",
+      linkedin: "",
+      instagram: "",
+      bio: "",
+    });
+    setError("");
+  };
+
+  const handleEditChange = (event) => {
+    setEditForm((prev) => ({
+      ...prev,
+      [event.target.name]: event.target.value,
+    }));
+  };
+
+  const handleSaveEdit = async (id) => {
+    setBusyId(id);
+    setError("");
+
+    try {
+      const response = await api.patch(`/alumni/admin/${id}`, {
+        ...editForm,
+        graduationYear: Number(editForm.graduationYear),
+      });
+
+      setEntries((prev) =>
+        prev.map((entry) =>
+          entry._id === id ? response.data.alumni || response.data : entry
+        )
+      );
+      cancelEdit();
+    } catch (err) {
+      setError(err.response?.data?.message || "Could not update profile.");
+    } finally {
+      setBusyId("");
+    }
+  };
+
   return (
     <div className="space-y-4 sm:space-y-6">
       <section className="rounded-[1.5rem] border border-slate-200 bg-white p-4 shadow-sm sm:rounded-[2rem] sm:p-6">
@@ -224,8 +311,8 @@ export default function LegacyAdminPage() {
                 onClick={() =>
                   navigate(
                     filter.value === "all"
-                      ? "/alumni/admin"
-                      : `/alumni/admin/${filter.value}`
+                      ? "/legacy/admin"
+                      : `/legacy/admin/${filter.value}`
                   )
                 }
                 className={`rounded-full px-4 py-2 text-sm font-medium transition ${
@@ -264,6 +351,7 @@ export default function LegacyAdminPage() {
         <div className="grid gap-4 xl:grid-cols-2">
           {entries.map((entry) => {
             const effectiveStatus = getEffectiveStatus(entry);
+            const isEditing = editEntryId === entry._id;
 
             return (
               <article
@@ -271,112 +359,192 @@ export default function LegacyAdminPage() {
                 className="rounded-[1.5rem] border border-slate-200 bg-white p-4 shadow-sm sm:rounded-[2rem] sm:p-6"
               >
                 <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                  <div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="text-xl font-semibold text-slate-900 sm:text-2xl">
-                        {entry.name}
-                      </h3>
-                      <span
-                        className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] ${
-                          effectiveStatus === "approved"
-                            ? "bg-emerald-50 text-emerald-700"
-                            : effectiveStatus === "rejected"
-                              ? "bg-rose-50 text-rose-700"
-                              : "bg-amber-50 text-amber-700"
-                        }`}
-                      >
-                        {effectiveStatus}
-                      </span>
-                    </div>
+                  <div className="flex-1">
+                    {isEditing ? (
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        {[
+                          ["name", "Name"],
+                          ["email", "Email"],
+                          ["iiit", "Institute"],
+                          ["generation", "Generation / term"],
+                          ["graduationYear", "Graduation year"],
+                          ["branch", "Branch / team"],
+                          ["networkPost", "Network post"],
+                          ["currentRole", "Current role"],
+                          ["currentCompany", "Current company"],
+                          ["location", "Location"],
+                          ["linkedin", "LinkedIn URL"],
+                          ["instagram", "Instagram URL"],
+                        ].map(([field, placeholder]) => (
+                          <input
+                            key={field}
+                            type="text"
+                            name={field}
+                            value={editForm[field]}
+                            onChange={handleEditChange}
+                            placeholder={placeholder}
+                            className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100"
+                          />
+                        ))}
+                        <textarea
+                          name="bio"
+                          value={editForm.bio}
+                          onChange={handleEditChange}
+                          placeholder="Bio"
+                          rows={4}
+                          className="sm:col-span-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100"
+                        />
+                      </div>
+                    ) : (
+                      <>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h3 className="text-xl font-semibold text-slate-900 sm:text-2xl">
+                            {entry.name}
+                          </h3>
+                          <span
+                            className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] ${
+                              effectiveStatus === "approved"
+                                ? "bg-emerald-50 text-emerald-700"
+                                : effectiveStatus === "rejected"
+                                  ? "bg-rose-50 text-rose-700"
+                                  : "bg-amber-50 text-amber-700"
+                            }`}
+                          >
+                            {effectiveStatus}
+                          </span>
+                        </div>
 
-                    <div className="mt-2 space-y-1 text-sm text-slate-600">
-                      {entry.networkPost && <p>Network post: {entry.networkPost}</p>}
-                      {(entry.currentRole || entry.currentCompany) && (
-                        <p>
-                          {[entry.currentRole, entry.currentCompany]
-                            .filter(Boolean)
-                            .join(" at ")}
-                        </p>
-                      )}
-                    </div>
+                        <div className="mt-2 space-y-1 text-sm text-slate-600">
+                          {entry.networkPost && <p>Network post: {entry.networkPost}</p>}
+                          {(entry.currentRole || entry.currentCompany) && (
+                            <p>
+                              {[entry.currentRole, entry.currentCompany]
+                                .filter(Boolean)
+                                .join(" at ")}
+                            </p>
+                          )}
+                        </div>
 
-                    <div className="mt-3 flex flex-wrap gap-2 text-sm text-slate-500">
-                      <span className="rounded-full bg-slate-100 px-3 py-1">
-                        {entry.iiit}
-                      </span>
-                      <span className="rounded-full bg-slate-100 px-3 py-1">
-                        {entry.branch}
-                      </span>
-                      <span className="rounded-full bg-slate-100 px-3 py-1">
-                        {entry.generation}
-                      </span>
-                      <span className="rounded-full bg-slate-100 px-3 py-1">
-                        {entry.legacyType === "team_member"
-                          ? `Team term ${entry.generation}`
-                          : `Class of ${entry.graduationYear}`}
-                      </span>
-                    </div>
+                        <div className="mt-3 flex flex-wrap gap-2 text-sm text-slate-500">
+                          <span className="rounded-full bg-slate-100 px-3 py-1">
+                            {entry.iiit}
+                          </span>
+                          <span className="rounded-full bg-slate-100 px-3 py-1">
+                            {entry.branch}
+                          </span>
+                          <span className="rounded-full bg-slate-100 px-3 py-1">
+                            {entry.generation}
+                          </span>
+                          <span className="rounded-full bg-slate-100 px-3 py-1">
+                            {entry.legacyType === "team_member"
+                              ? `Team term ${entry.generation}`
+                              : `Class of ${entry.graduationYear}`}
+                          </span>
+                        </div>
+                      </>
+                    )}
                   </div>
 
-                  <div className="rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-600">
-                    <div className="font-medium text-slate-900">{entry.email}</div>
-                    <div className="mt-1">{entry.location || "Location not shared"}</div>
-                    {entry.linkedin && <div className="mt-1">LinkedIn added</div>}
-                    {entry.instagram && <div className="mt-1">Instagram added</div>}
+                  <div className="rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-600 md:w-[220px]">
+                    <div className="font-medium text-slate-900">
+                      {isEditing ? editForm.email : entry.email}
+                    </div>
+                    <div className="mt-1">
+                      {isEditing
+                        ? editForm.location || "Location not shared"
+                        : entry.location || "Location not shared"}
+                    </div>
+                    {(!isEditing ? entry.linkedin : editForm.linkedin) && (
+                      <div className="mt-1">LinkedIn added</div>
+                    )}
+                    {(!isEditing ? entry.instagram : editForm.instagram) && (
+                      <div className="mt-1">Instagram added</div>
+                    )}
                     <div className="mt-1">
                       Submitted {new Date(entry.createdAt).toLocaleDateString()}
                     </div>
                   </div>
                 </div>
 
-                {entry.bio && (
+                {!isEditing && entry.bio && (
                   <p className="mt-4 text-sm leading-7 text-slate-600">
                     {entry.bio}
                   </p>
                 )}
 
                 <div className="mt-5 flex flex-wrap gap-3">
-                  <button
-                    type="button"
-                    disabled={busyId === entry._id}
-                    onClick={() => handleStatusChange(entry._id, "approved")}
-                    className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    <CheckCircle2 className="h-4 w-4" />
-                    Approve
-                  </button>
+                  {isEditing ? (
+                    <>
+                      <button
+                        type="button"
+                        disabled={busyId === entry._id}
+                        onClick={() => handleSaveEdit(entry._id)}
+                        className="inline-flex items-center gap-2 rounded-full bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        <Pencil className="h-4 w-4" />
+                        Save changes
+                      </button>
+                      <button
+                        type="button"
+                        onClick={cancelEdit}
+                        className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+                      >
+                        Cancel
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => startEdit(entry)}
+                        className="inline-flex items-center gap-2 rounded-full bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700"
+                      >
+                        <Pencil className="h-4 w-4" />
+                        Edit
+                      </button>
+                      <button
+                        type="button"
+                        disabled={busyId === entry._id}
+                        onClick={() => handleStatusChange(entry._id, "approved")}
+                        className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        <CheckCircle2 className="h-4 w-4" />
+                        Approve
+                      </button>
 
-                  <button
-                    type="button"
-                    disabled={busyId === entry._id}
-                    onClick={() => handleStatusChange(entry._id, "rejected")}
-                    className="inline-flex items-center gap-2 rounded-full bg-rose-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    <XCircle className="h-4 w-4" />
-                    Reject
-                  </button>
+                      <button
+                        type="button"
+                        disabled={busyId === entry._id}
+                        onClick={() => handleStatusChange(entry._id, "rejected")}
+                        className="inline-flex items-center gap-2 rounded-full bg-rose-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        <XCircle className="h-4 w-4" />
+                        Reject
+                      </button>
 
-                  {effectiveStatus !== "pending" && (
-                    <button
-                      type="button"
-                      disabled={busyId === entry._id}
-                      onClick={() => handleStatusChange(entry._id, "pending")}
-                      className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                      <Clock3 className="h-4 w-4" />
-                      Move to pending
-                    </button>
+                      {effectiveStatus !== "pending" && (
+                        <button
+                          type="button"
+                          disabled={busyId === entry._id}
+                          onClick={() => handleStatusChange(entry._id, "pending")}
+                          className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          <Clock3 className="h-4 w-4" />
+                          Move to pending
+                        </button>
+                      )}
+
+                      <button
+                        type="button"
+                        disabled={busyId === entry._id}
+                        onClick={() => handleDelete(entry._id)}
+                        className="inline-flex items-center gap-2 rounded-full border border-rose-200 bg-white px-4 py-2 text-sm font-medium text-rose-700 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        Delete
+                      </button>
+                    </>
                   )}
-
-                  <button
-                    type="button"
-                    disabled={busyId === entry._id}
-                    onClick={() => handleDelete(entry._id)}
-                    className="inline-flex items-center gap-2 rounded-full border border-rose-200 bg-white px-4 py-2 text-sm font-medium text-rose-700 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                    Delete
-                  </button>
                 </div>
               </article>
             );

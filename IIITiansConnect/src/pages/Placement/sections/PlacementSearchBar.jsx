@@ -4,6 +4,7 @@ import YearSelector from "../elements/YearSelector";
 
 export default function PlacementSearchBar({
   college,
+  suggestions,
   searched,
   loading,
   data,
@@ -28,6 +29,7 @@ export default function PlacementSearchBar({
         >
           <CollegeSearch
             value={college}
+            suggestions={suggestions}
             onChange={onCollegeChange}
             onSelect={onSearch}
             loading={loading}

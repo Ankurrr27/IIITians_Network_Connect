@@ -1,5 +1,8 @@
-import { useState } from "react";
-import { getPlacementByCollegeName } from "../../api/placementApi";
+import { useEffect, useMemo, useState } from "react";
+import {
+  getAllPlacements,
+  getPlacementByCollegeName,
+} from "../../api/placementApi";
 
 import PlacementSearchBar from "./sections/PlacementSearchBar";
 import PlacementPreview from "./sections/PlacementPreview";
@@ -12,6 +15,23 @@ export default function Placement() {
   const [year, setYear] = useState(null);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
+  const [collegeOptions, setCollegeOptions] = useState([]);
+
+  useEffect(() => {
+    getAllPlacements()
+      .then((response) => {
+        const names = (response.data || [])
+          .map((item) => item?.college?.name)
+          .filter(Boolean);
+
+        setCollegeOptions(
+          [...new Set(names)].sort((a, b) => a.localeCompare(b))
+        );
+      })
+      .catch(() => {
+        setCollegeOptions([]);
+      });
+  }, []);
 
   const searchCollege = async (name) => {
     if (!name?.trim()) return;
@@ -38,10 +58,19 @@ export default function Placement() {
     ? data?.yearlyPlacements.find(y => y.year === year)
     : null;
 
+  const selectedCollegeName = useMemo(() => {
+    if (data?.college?.name) {
+      return data.college.name;
+    }
+
+    return searched ? college : null;
+  }, [college, data, searched]);
+
   return (
     <div className="mx-auto max-w-7xl space-y-8 px-4 pb-10 pt-24 sm:space-y-12 sm:px-6 sm:pb-16 sm:pt-28">
       <PlacementSearchBar
         college={college}
+        suggestions={collegeOptions}
         searched={searched}
         loading={loading}
         data={data}
@@ -60,6 +89,7 @@ export default function Placement() {
           data={data}
           year={year}
           yearData={yearData}
+          selectedCollegeName={selectedCollegeName}
         />
       )}
 

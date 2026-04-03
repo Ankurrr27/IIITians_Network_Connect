@@ -1,6 +1,6 @@
 import CollegeCard from "./CollegeCard";
 
-export default function CollegesGrid({ colleges, onUpdated }) {
+export default function CollegesGrid({ colleges, teamMembers = [] }) {
   if (colleges.length === 0) {
     return (
       <p className="text-center text-gray-500">
@@ -15,7 +15,13 @@ export default function CollegesGrid({ colleges, onUpdated }) {
         <CollegeCard
           key={college._id}
           college={college}
-          onUpdated={onUpdated}
+          teamCount={
+            teamMembers.filter(
+              (member) =>
+                (member.iiit || "").trim().toLowerCase() ===
+                (college.name || "").trim().toLowerCase()
+            ).length
+          }
         />
       ))}
     </div>
