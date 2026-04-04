@@ -1,4 +1,5 @@
 import TeamMember from "../models/teamMember.model.js";
+import Alumni from "../models/alumni.model.js";
 import cloudinary from "../config/cloudinary.js";
 import { syncTeamMemberToLegacy } from "../services/legacySync.service.js";
 
@@ -19,6 +20,7 @@ export const createTeamMember = async (req, res) => {
       messageText,
       order,
       photoSourceMemberId,
+      photoSourceAlumniId,
     } = req.body;
 
     if (!roleType || !["EXEC", "LEAD", "MEMBER"].includes(roleType)) {
@@ -45,6 +47,18 @@ export const createTeamMember = async (req, res) => {
       photoPayload = {
         public_id: sourceMember.photo.public_id,
         url: sourceMember.photo.url,
+      };
+    } else if (photoSourceAlumniId) {
+      const sourceAlumni = await Alumni.findById(photoSourceAlumniId);
+      if (!sourceAlumni?.photo?.url) {
+        return res.status(400).json({
+          error: "Could not reuse the legacy profile photo",
+        });
+      }
+
+      photoPayload = {
+        public_id: sourceAlumni.photo.public_id,
+        url: sourceAlumni.photo.url,
       };
     }
 
