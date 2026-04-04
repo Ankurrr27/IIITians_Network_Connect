@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { Search, Users } from "lucide-react";
+import { ArrowRight, Search, Users, UserPlus } from "lucide-react";
+import { Link } from "react-router-dom";
 import api from "../../api/axios";
 
 import TeamGrid from "./Components/TeamGrid.jsx";
@@ -58,35 +59,52 @@ export default function TeamPage() {
   }, [members, search, year, role]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-indigo-50/40">
-      <section className="mx-auto max-w-7xl px-4 pb-8 pt-24 sm:px-6 sm:pb-10 sm:pt-28">
-        <div className="rounded-[2rem] border border-indigo-100 bg-white/90 px-6 py-10 shadow-[0_24px_80px_rgba(99,102,241,0.08)] backdrop-blur">
-          <div className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-indigo-700">
+    <div className="relative min-h-screen bg-[linear-gradient(180deg,_#eef7ff_0%,_#f7fbff_36%,_#f9fcff_100%)]">
+      <div className="pointer-events-none absolute inset-0 opacity-60 [background-image:radial-gradient(circle_at_20%_20%,rgba(59,130,246,0.16),transparent_0_22%),radial-gradient(circle_at_80%_18%,rgba(125,211,252,0.18),transparent_0_20%),radial-gradient(circle_at_72%_72%,rgba(96,165,250,0.12),transparent_0_24%)]" />
+      <section className="relative z-10 mx-auto max-w-7xl px-4 pb-0 pt-20 sm:px-6 sm:pb-0 sm:pt-24">
+        <div className="mb-8">
+          <div className="inline-flex items-center gap-2 rounded-full border border-indigo-100 bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.24em] text-indigo-700 shadow-sm">
             <Users className="h-4 w-4" />
             Team Directory
           </div>
-          <h1 className="mt-5 text-3xl font-bold tracking-tight text-slate-900 sm:text-5xl">
+          <h1 className="mt-4 text-3xl font-semibold tracking-tight text-slate-900 sm:text-5xl">
             Meet the Team
           </h1>
           <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600 sm:text-base">
             The people driving vision, execution, and impact across the IIITians
             Network.
           </p>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link
+              to="/team/join"
+              className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
+            >
+              <UserPlus className="h-4 w-4" />
+              Join the Team
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link
+              to="/guide"
+              className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+            >
+              Learn how we work
+            </Link>
+          </div>
 
           <div className="mt-8 grid gap-4 sm:grid-cols-3">
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+            <div className="rounded-2xl border border-slate-200 bg-white/70 backdrop-blur-md p-5 shadow-sm">
               <div className="text-3xl font-semibold text-slate-900">
                 {members.length}
               </div>
               <div className="mt-1 text-sm text-slate-600">Visible members</div>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+            <div className="rounded-2xl border border-slate-200 bg-white/70 backdrop-blur-md p-5 shadow-sm">
               <div className="text-3xl font-semibold text-slate-900">
                 {years.length > 1 ? years.length - 1 : 0}
               </div>
               <div className="mt-1 text-sm text-slate-600">Active batches</div>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+            <div className="rounded-2xl border border-slate-200 bg-white/70 backdrop-blur-md p-5 shadow-sm">
               <div className="text-3xl font-semibold text-slate-900">
                 {filteredMembers.length}
               </div>
@@ -99,7 +117,7 @@ export default function TeamPage() {
       </section>
 
       <section className="mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="rounded-[2rem] border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+        <div className="mb-4">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <label className="relative block flex-1">
               <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />

@@ -23,8 +23,8 @@ export default function PlacementSearchBar({
         }`}
       >
         <div
-          className={`w-full rounded-[1.25rem] border border-slate-200 bg-white shadow-sm ${
-            searched ? "p-3 sm:p-4" : "p-3 sm:p-5"
+          className={`w-full ${
+            searched ? "p-0" : "p-0"
           }`}
         >
           <CollegeSearch
@@ -48,7 +48,7 @@ export default function PlacementSearchBar({
         </div>
 
         {data && (
-          <div className="hidden rounded-[1.25rem] border border-slate-200 bg-white px-4 py-3 shadow-sm lg:flex lg:items-center">
+          <div className="hidden lg:flex lg:items-center">
             <YearSelector
               years={data.yearlyPlacements.map((item) => item.year)}
               value={year}

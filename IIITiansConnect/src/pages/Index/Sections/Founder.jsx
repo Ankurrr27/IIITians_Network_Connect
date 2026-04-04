@@ -13,7 +13,7 @@ const FounderSection = () => {
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-indigo-600">
             Team
           </p>
-          <h2 className="mt-2 text-2xl font-extrabold text-slate-900 sm:text-4xl">
+          <h2 className="mt-4 text-2xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
             IIITians Network Team
           </h2>
         </div>
@@ -25,10 +25,10 @@ const FounderSection = () => {
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-indigo-600">
               Leadership Story
             </p>
-            <h2 className="mt-2 text-2xl font-extrabold text-slate-900 sm:text-4xl">
+            <h2 className="mt-4 text-2xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
               Founding Team
             </h2>
-            <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600 sm:text-lg">
+            <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-600 sm:text-base">
               Meet the people who started IIITians Network and laid the
               foundation for a unified, transparent, and student-first platform
               across IIIT campuses.

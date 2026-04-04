@@ -21,13 +21,13 @@ const EventsPreview = () => {
 
   return (
     <section className="bg-white py-12 sm:py-24">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className="mb-8 flex items-end justify-between gap-4 sm:mb-10">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-indigo-600">
               Latest Highlights
             </p>
-            <h2 className="mt-2 text-2xl font-extrabold text-slate-900 sm:text-4xl">
+            <h2 className="mt-4 text-2xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
               Events
             </h2>
           </div>

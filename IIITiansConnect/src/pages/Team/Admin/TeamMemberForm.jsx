@@ -70,7 +70,7 @@ function getLatestTeamYear(members = []) {
   return years[0] || "2025-26";
 }
 
-export default function TeamMemberForm({ onSuccess, members = [] }) {
+export default function TeamMemberForm({ onSuccess, members = [], initialData = null }) {
   const latestTeamYear = useMemo(() => getLatestTeamYear(members), [members]);
   const [form, setForm] = useState(() => ({
     ...initialForm,
@@ -109,6 +109,23 @@ export default function TeamMemberForm({ onSuccess, members = [] }) {
     }));
   }, [latestTeamYear, transitionType, selectedMemberId]);
 
+  const [preFilledPhotoUrl, setPreFilledPhotoUrl] = useState("");
+
+  useEffect(() => {
+    if (initialData) {
+      setForm({
+        ...initialForm,
+        ...initialData,
+        year: initialData.year || latestTeamYear,
+        team: initialData.team || "Development",
+      });
+      setTransitionType("fresh");
+      if (initialData.photo?.url) {
+        setPreFilledPhotoUrl(initialData.photo.url);
+      }
+    }
+  }, [initialData, latestTeamYear]);
+
   const resetState = () => {
     setForm({
       ...initialForm,
@@ -119,6 +136,7 @@ export default function TeamMemberForm({ onSuccess, members = [] }) {
     setEndPreviousTenure(true);
     setPhoto(null);
     setRawPhoto(null);
+    setPreFilledPhotoUrl("");
   };
 
   const handleChange = (event) => {
@@ -170,6 +188,15 @@ export default function TeamMemberForm({ onSuccess, members = [] }) {
       await api.post("/team", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
+
+      // If we are approving a pending request, delete the request record
+      if (initialData?._id && transitionType === "fresh") {
+        try {
+          await api.delete(`/team-requests/${initialData._id}`);
+        } catch (delErr) {
+          console.error("Failed to delete approved request:", delErr);
+        }
+      }
 
       if (
         selectedMember &&
@@ -419,12 +446,33 @@ export default function TeamMemberForm({ onSuccess, members = [] }) {
                 required={transitionType === "fresh" && !photo}
               />
 
-              {photo && (
+              {(photo || preFilledPhotoUrl) && (
                 <>
+                  {preFilledPhotoUrl && !photo && (
+                    <div className="h-10 w-10 overflow-hidden rounded-lg bg-gray-100">
+                      <img
+                        src={preFilledPhotoUrl}
+                        alt="Preview"
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                  )}
+                  {photo && (
+                    <div className="h-10 w-10 overflow-hidden rounded-lg bg-gray-100">
+                      <img
+                        src={URL.createObjectURL(photo)}
+                        alt="Preview"
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                  )}
                   <button
                     type="button"
-                    onClick={() => setRawPhoto(photo)}
-                    className="rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-2 text-sm font-medium text-indigo-700 transition hover:bg-indigo-100"
+                    onClick={() => {
+                      if (photo) setRawPhoto(photo);
+                    }}
+                    className="rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-2 text-sm font-medium text-indigo-700 transition hover:bg-indigo-100 disabled:opacity-50"
+                    disabled={!photo}
                   >
                     Edit photo
                   </button>
@@ -433,6 +481,7 @@ export default function TeamMemberForm({ onSuccess, members = [] }) {
                     onClick={() => {
                       setPhoto(null);
                       setRawPhoto(null);
+                      setPreFilledPhotoUrl("");
                     }}
                     className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-medium text-rose-700 transition hover:bg-rose-100"
                   >
@@ -462,12 +511,11 @@ export default function TeamMemberForm({ onSuccess, members = [] }) {
               onChange={handleChange}
               className="w-full rounded-2xl border border-slate-200 px-3 py-3 text-sm outline-none transition focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100"
             >
-              <option>Core</option>
-              <option>Tech</option>
               <option>Development</option>
               <option>Design</option>
               <option>Content</option>
               <option>Social Media</option>
+              <option>Video & Post</option>
             </select>
 
             <input

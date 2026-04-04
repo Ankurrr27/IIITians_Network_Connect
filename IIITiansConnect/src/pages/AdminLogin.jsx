@@ -1,11 +1,22 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { LockKeyhole, Trash2, UserCog, UserPlus, Users } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  ArrowUpRight,
+  BadgeCheck,
+  BookOpenText,
+  Building2,
+  LockKeyhole,
+  ShieldCheck,
+  Trash2,
+  UserCog,
+  UserPlus,
+  Users,
+} from "lucide-react";
 import api from "../api/axios";
-import useThemeMode from "../hooks/useThemeMode.jsx";
 
 const initialCreateAdminForm = {
   email: "",
+  role: "admin",
   password: "",
 };
 
@@ -19,11 +30,39 @@ function StatusMessage({ tone = "neutral", children }) {
   const styles = {
     success: "border-emerald-200 bg-emerald-50 text-emerald-800",
     error: "border-rose-200 bg-rose-50 text-rose-700",
-    neutral: "border-stone-200 bg-stone-50 text-stone-700",
+    neutral: "border-slate-200 bg-slate-50 text-slate-700",
   };
 
   return (
-    <div className={`rounded-2xl border px-4 py-3 text-sm ${styles[tone]}`}>
+    <div className={`rounded-[1.1rem] border px-4 py-3 text-sm ${styles[tone]}`}>
+      {children}
+    </div>
+  );
+}
+
+function LightInput(props) {
+  return (
+    <input
+      {...props}
+      className="w-full rounded-[1.1rem] border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:bg-white focus:ring-4 focus:ring-indigo-100 sm:text-base"
+    />
+  );
+}
+
+function LightSelect(props) {
+  return (
+    <select
+      {...props}
+      className="w-full rounded-[1.1rem] border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-indigo-400 focus:bg-white focus:ring-4 focus:ring-indigo-100 sm:text-base"
+    />
+  );
+}
+
+function Surface({ children, className = "" }) {
+  return (
+    <div
+      className={`rounded-[1.9rem] border border-[#dde5f6] bg-white/95 p-5 shadow-[0_26px_70px_-46px_rgba(79,70,229,0.25)] sm:p-7 ${className}`}
+    >
       {children}
     </div>
   );
@@ -31,15 +70,11 @@ function StatusMessage({ tone = "neutral", children }) {
 
 export default function AdminLogin() {
   const navigate = useNavigate();
-  const { isDarkMode } = useThemeMode();
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(
     Boolean(localStorage.getItem("adminToken"))
   );
 
-  const [form, setForm] = useState({
-    email: "",
-    password: "",
-  });
+  const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -61,6 +96,7 @@ export default function AdminLogin() {
     error: "",
     success: "",
   });
+
   const loadAdminPanel = async () => {
     const token = localStorage.getItem("adminToken");
     if (!token) {
@@ -105,9 +141,7 @@ export default function AdminLogin() {
   };
 
   useEffect(() => {
-    if (isAdminLoggedIn) {
-      loadAdminPanel();
-    }
+    if (isAdminLoggedIn) loadAdminPanel();
   }, [isAdminLoggedIn]);
 
   const handleChange = (event) => {
@@ -146,23 +180,12 @@ export default function AdminLogin() {
     setAdmins([]);
     setAdminPanelError("");
     setAdminListNotice("");
-    setForm({
-      email: "",
-      password: "",
-    });
+    setForm({ email: "", password: "" });
     setCreateAdminForm(initialCreateAdminForm);
-    setCreateAdminState({
-      loading: false,
-      error: "",
-      success: "",
-    });
+    setCreateAdminState({ loading: false, error: "", success: "" });
     setEditAdminId("");
     setEditAdminForm(initialEditAdminForm);
-    setAdminActionState({
-      loading: false,
-      error: "",
-      success: "",
-    });
+    setAdminActionState({ loading: false, error: "", success: "" });
     navigate("/admin", { replace: true });
   };
 
@@ -177,11 +200,7 @@ export default function AdminLogin() {
     event.preventDefault();
     if (createAdminState.loading) return;
 
-    setCreateAdminState({
-      loading: true,
-      error: "",
-      success: "",
-    });
+    setCreateAdminState({ loading: true, error: "", success: "" });
 
     try {
       try {
@@ -218,21 +237,13 @@ export default function AdminLogin() {
       role: admin.role,
       password: "",
     });
-    setAdminActionState({
-      loading: false,
-      error: "",
-      success: "",
-    });
+    setAdminActionState({ loading: false, error: "", success: "" });
   };
 
   const cancelEditAdmin = () => {
     setEditAdminId("");
     setEditAdminForm(initialEditAdminForm);
-    setAdminActionState({
-      loading: false,
-      error: "",
-      success: "",
-    });
+    setAdminActionState({ loading: false, error: "", success: "" });
   };
 
   const handleEditAdminChange = (event) => {
@@ -245,11 +256,7 @@ export default function AdminLogin() {
   const handleUpdateAdmin = async (id) => {
     if (adminActionState.loading) return;
 
-    setAdminActionState({
-      loading: true,
-      error: "",
-      success: "",
-    });
+    setAdminActionState({ loading: true, error: "", success: "" });
 
     try {
       const payload = {
@@ -286,11 +293,7 @@ export default function AdminLogin() {
     const confirmed = window.confirm(`Remove ${admin.email} from admin access?`);
     if (!confirmed || adminActionState.loading) return;
 
-    setAdminActionState({
-      loading: true,
-      error: "",
-      success: "",
-    });
+    setAdminActionState({ loading: true, error: "", success: "" });
 
     try {
       await api.delete(`/admin/${admin.id}`);
@@ -314,219 +317,373 @@ export default function AdminLogin() {
 
   const isSuperAdmin = currentAdmin?.role === "super_admin";
 
-  const shellClass = isDarkMode
-    ? "border-slate-800/80 bg-slate-950/75 text-slate-100 shadow-[0_30px_100px_rgba(2,6,23,0.5)]"
-    : "border-[#eadfce] bg-[#fffdf8] text-slate-900 shadow-[0_24px_80px_rgba(120,113,108,0.10)]";
-
-  const inputClass = isDarkMode
-    ? "border-slate-700 bg-slate-950 text-slate-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20"
-    : "border-stone-200 bg-[#fffaf2] text-slate-900 focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100";
+  const quickPanels = useMemo(
+    () => [
+      {
+        title: "Network Legacy",
+        text: "Review pending legacy requests and move approved profiles live.",
+        to: "/legacy/admin",
+        icon: Users,
+        accent: "from-[#dbeafe] to-[#eef2ff]",
+      },
+      {
+        title: "Discuss & Events",
+        text: "Moderate club accounts, announcements, and pushed events.",
+        to: "/discuss/admin",
+        icon: BadgeCheck,
+        accent: "from-[#dcfce7] to-[#ecfeff]",
+      },
+      {
+        title: "Colleges & Placements",
+        text: "Keep college assets, links, and placement records updated.",
+        to: "/colleges/admin",
+        icon: Building2,
+        accent: "from-[#fef3c7] to-[#fff7ed]",
+      },
+    ],
+    []
+  );
 
   return (
-    <section
-      className={`min-h-screen px-3 py-12 sm:px-6 sm:py-20 ${
-        isDarkMode
-          ? "bg-[linear-gradient(180deg,#020617_0%,#0f172a_52%,#020617_100%)]"
-          : "bg-[linear-gradient(180deg,#f8f2e8_0%,#fbf7f0_46%,#fffdf8_100%)]"
-      }`}
-    >
-      <div className="mx-auto max-w-5xl space-y-6">
-        <div className={`rounded-[1.8rem] border p-5 sm:p-7 ${shellClass}`}>
-          <div className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white/70 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-stone-700">
-            <LockKeyhole className="h-4 w-4" />
-            Admin
-          </div>
+    <section className="relative min-h-screen bg-[linear-gradient(180deg,_#eef7ff_0%,_#f7fbff_36%,_#f9fcff_100%)] px-3 py-12 sm:px-6 sm:py-16">
+      <div className="pointer-events-none absolute inset-0 opacity-60 [background-image:radial-gradient(circle_at_20%_20%,rgba(59,130,246,0.16),transparent_0_22%),radial-gradient(circle_at_80%_18%,rgba(125,211,252,0.18),transparent_0_20%),radial-gradient(circle_at_72%_72%,rgba(96,165,250,0.12),transparent_0_24%)]" />
+      <div className="relative z-10 mx-auto max-w-6xl space-y-6">
+        <Surface className="overflow-hidden">
+          <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
+            <div className="relative">
+              <div className="absolute right-0 top-0 hidden h-40 w-40 rounded-full bg-[radial-gradient(circle,_rgba(129,140,248,0.24),_transparent_68%)] lg:block" />
+              <div className="inline-flex items-center gap-2 rounded-full bg-[#eef2ff] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-indigo-700">
+                <ShieldCheck className="h-4 w-4" />
+                Admin Workspace
+              </div>
+              <h1 className="mt-4 max-w-xl text-4xl font-semibold tracking-tight text-slate-900 sm:text-5xl">
+                Run the network from one calm control desk.
+              </h1>
+              <p className="mt-4 max-w-2xl text-sm leading-8 text-slate-600 sm:text-base">
+                Manage approvals, club activity, legacy, teams, colleges, and placements
+                with a cleaner admin workspace designed around the real site flow.
+              </p>
 
-          <h1 className="mt-4 text-3xl font-extrabold tracking-tight sm:text-4xl">
-            IIITians Network Admin
-          </h1>
-          <p className={`mt-3 text-sm leading-7 ${isDarkMode ? "text-slate-300" : "text-slate-600"}`}>
-            Simple access for admin operations.
-          </p>
-
-          {isAdminLoggedIn && (
-            <div className="mt-5 flex flex-col gap-3 rounded-[1.4rem] border border-emerald-200 bg-emerald-50/80 p-4 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <div className="text-sm font-semibold text-emerald-700">
-                  {adminPanelLoading ? "Checking session..." : currentAdmin?.email || "Admin"}
-                </div>
-                {!adminPanelLoading && currentAdmin?.role && (
-                  <div className="mt-1 text-sm text-emerald-800/80">
-                    {currentAdmin.role.replace("_", " ")}
-                  </div>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <Link
+                  to="/guide?flow=admin"
+                  className="inline-flex items-center gap-2 rounded-full bg-indigo-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-500"
+                >
+                  Open admin guide
+                  <ArrowUpRight className="h-4 w-4" />
+                </Link>
+                {isAdminLoggedIn && (
+                  <button
+                    type="button"
+                    onClick={() => navigate("/legacy/admin")}
+                    className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                  >
+                    Go to dashboard
+                  </button>
                 )}
               </div>
 
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => navigate("/legacy/admin")}
-                  className="rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700"
-                >
-                  Dashboard
-                </button>
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="rounded-full border border-stone-200 bg-white px-4 py-2 text-sm font-semibold text-stone-700 transition hover:bg-stone-50"
-                >
-                  Logout
-                </button>
+              <div className="mt-6 grid gap-3 sm:grid-cols-3">
+                <MetricCard
+                  label="Admins visible"
+                  value={isSuperAdmin ? String(admins.length || 1) : currentAdmin ? "1" : "--"}
+                />
+                <MetricCard
+                  label="Your role"
+                  value={
+                    currentAdmin?.role
+                      ? currentAdmin.role.replace("_", " ")
+                      : "Not signed in"
+                  }
+                />
+                <MetricCard
+                  label="Guide status"
+                  value="Ready"
+                />
               </div>
             </div>
-          )}
-        </div>
 
-        <div className={`rounded-[1.8rem] border p-5 sm:p-7 ${shellClass}`}>
-          <div className="mb-5 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 text-white">
-              <LockKeyhole className="h-5 w-5" />
+            <div className="grid gap-3">
+              {quickPanels.map((panel) => {
+                const Icon = panel.icon;
+                return (
+                  <Link
+                    key={panel.title}
+                    to={panel.to}
+                    className={`group rounded-[1.6rem] bg-gradient-to-br ${panel.accent} p-4 transition hover:translate-y-[-2px]`}
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-[1.2rem] bg-white text-slate-900 shadow-sm">
+                        <Icon className="h-5 w-5" />
+                      </div>
+                      <ArrowUpRight className="h-5 w-5 text-slate-500 transition group-hover:text-slate-900" />
+                    </div>
+                    <div className="mt-4 text-lg font-semibold text-slate-900">
+                      {panel.title}
+                    </div>
+                    <p className="mt-2 text-sm leading-6 text-slate-600">{panel.text}</p>
+                  </Link>
+                );
+              })}
             </div>
-            <h2 className="text-xl font-semibold">Sign in</h2>
           </div>
+        </Surface>
 
-          {adminPanelError && <StatusMessage tone="error">{adminPanelError}</StatusMessage>}
-          {adminListNotice && <StatusMessage>{adminListNotice}</StatusMessage>}
-          {error && <StatusMessage tone="error">{error}</StatusMessage>}
+        {adminPanelError && <StatusMessage tone="error">{adminPanelError}</StatusMessage>}
+        {adminListNotice && <StatusMessage>{adminListNotice}</StatusMessage>}
 
-          <form onSubmit={submit} className="mt-5 space-y-4">
-            <input
-              type="email"
-              name="email"
-              placeholder="admin@iiitians.in"
-              value={form.email}
-              onChange={handleChange}
-              disabled={loading}
-              required
-              className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition sm:text-base ${inputClass}`}
-            />
+        <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+          <Surface>
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <div className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-700">
+                  <LockKeyhole className="h-4 w-4" />
+                  Admin Access
+                </div>
+                <h2 className="mt-4 text-2xl font-semibold text-slate-900">Sign in</h2>
+                <p className="mt-2 text-sm leading-7 text-slate-600">
+                  Use your admin credentials to enter the workspace and manage live content.
+                </p>
+              </div>
+              <div className="hidden h-20 w-20 rounded-[1.4rem] bg-[linear-gradient(135deg,_#e0e7ff,_#dbeafe)] sm:block" />
+            </div>
 
-            <input
-              type="password"
-              name="password"
-              placeholder="Password"
-              value={form.password}
-              onChange={handleChange}
-              disabled={loading}
-              required
-              className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition sm:text-base ${inputClass}`}
-            />
+            {error && <div className="mt-5"><StatusMessage tone="error">{error}</StatusMessage></div>}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full rounded-2xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60 sm:text-base"
-            >
-              {loading ? "Signing in..." : "Continue"}
-            </button>
-          </form>
+            {isAdminLoggedIn ? (
+               <div className="mt-8 rounded-[1.2rem] bg-indigo-50/50 p-6 text-center border border-indigo-100">
+                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-indigo-100/50 text-indigo-600 mb-3">
+                    <ShieldCheck className="h-6 w-6" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-slate-900">You are securely signed in</h3>
+                  <p className="mt-2 text-sm text-slate-600">
+                    Use the quick jump panels on the left or the top navigation 
+                    to manage the network.
+                  </p>
+               </div>
+            ) : (
+            <>
+            <form onSubmit={submit} className="mt-6 space-y-4">
+              <LightInput
+                type="email"
+                name="email"
+                placeholder="admin@iiitians.in"
+                value={form.email}
+                onChange={handleChange}
+                disabled={loading}
+                required
+              />
+
+              <LightInput
+                type="password"
+                name="password"
+                placeholder="Password"
+                value={form.password}
+                onChange={handleChange}
+                disabled={loading}
+                required
+              />
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full rounded-[1.2rem] bg-indigo-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-60 sm:text-base"
+              >
+                {loading ? "Signing in..." : "Continue to admin"}
+              </button>
+            </form>
+            </>
+            )}
+          </Surface>
+
+          <Surface>
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-700">
+                  <BadgeCheck className="h-4 w-4" />
+                  Session
+                </div>
+                <h2 className="mt-4 text-2xl font-semibold text-slate-900">
+                  Current workspace state
+                </h2>
+                <p className="mt-2 text-sm leading-7 text-slate-600">
+                  See who is signed in and jump into the routes you need most.
+                </p>
+              </div>
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[linear-gradient(135deg,_#c7d2fe,_#bfdbfe)] text-lg font-semibold text-indigo-900">
+                {(currentAdmin?.email || "AD").slice(0, 2).toUpperCase()}
+              </div>
+            </div>
+
+            <div className="mt-6 rounded-[1.5rem] border border-emerald-100 bg-emerald-50/70 p-4">
+              <div className="text-sm font-semibold text-emerald-800">
+                {adminPanelLoading
+                  ? "Checking session..."
+                  : currentAdmin?.email || "No active admin session"}
+              </div>
+              <div className="mt-1 text-sm text-emerald-700/90">
+                {currentAdmin?.role
+                  ? currentAdmin.role.replace("_", " ")
+                  : "Sign in to unlock admin routes"}
+              </div>
+            </div>
+
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              <MiniJump title="Legacy admin" to="/legacy/admin" />
+              <MiniJump title="Discuss admin" to="/discuss/admin" />
+              <MiniJump title="Team admin" to="/team/admin" />
+              <MiniJump title="Placements" to="/placement/admin" />
+            </div>
+
+            {isAdminLoggedIn && (
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="mt-5 w-full rounded-[1.2rem] border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+              >
+                Logout
+              </button>
+            )}
+          </Surface>
         </div>
 
         {isAdminLoggedIn && isSuperAdmin && (
-          <div className="grid gap-5 xl:grid-cols-[0.95fr_1.05fr]">
-            <div className={`rounded-[1.8rem] border p-5 sm:p-7 ${shellClass}`}>
-              <div className="mb-5 flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 text-white">
-                  <UserPlus className="h-5 w-5" />
+          <div className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
+            <Surface>
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <div className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-indigo-700">
+                    <UserPlus className="h-4 w-4" />
+                    Super Admin
+                  </div>
+                  <h2 className="mt-4 text-2xl font-semibold text-slate-900">
+                    Add a new admin
+                  </h2>
+                  <p className="mt-2 text-sm leading-7 text-slate-600">
+                    Create access for a new admin account directly from here.
+                  </p>
                 </div>
-                <h2 className="text-xl font-semibold">Add admin</h2>
+                <div className="hidden h-20 w-20 rounded-[1.4rem] bg-[linear-gradient(135deg,_#ede9fe,_#dbeafe)] sm:block" />
               </div>
 
               {createAdminState.error && (
-                <StatusMessage tone="error">{createAdminState.error}</StatusMessage>
+                <div className="mt-5">
+                  <StatusMessage tone="error">{createAdminState.error}</StatusMessage>
+                </div>
               )}
               {createAdminState.success && (
-                <StatusMessage tone="success">{createAdminState.success}</StatusMessage>
+                <div className="mt-5">
+                  <StatusMessage tone="success">{createAdminState.success}</StatusMessage>
+                </div>
               )}
 
-              <form onSubmit={handleCreateAdmin} className="mt-5 space-y-4">
-                <input
+              <form onSubmit={handleCreateAdmin} className="mt-6 space-y-4">
+                <LightInput
                   type="email"
                   name="email"
                   placeholder="newadmin@iiitians.in"
                   value={createAdminForm.email}
                   onChange={handleCreateAdminChange}
                   required
-                  className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition sm:text-base ${inputClass}`}
                 />
 
-                <input
+                <LightSelect
+                  name="role"
+                  value={createAdminForm.role}
+                  onChange={handleCreateAdminChange}
+                  required
+                >
+                  <option value="admin">Admin</option>
+                  <option value="super_admin">Super admin</option>
+                </LightSelect>
+
+                <LightInput
                   type="password"
                   name="password"
                   placeholder="Password"
                   value={createAdminForm.password}
                   onChange={handleCreateAdminChange}
                   required
-                  className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition sm:text-base ${inputClass}`}
                 />
 
                 <button
                   type="submit"
                   disabled={createAdminState.loading}
-                  className="w-full rounded-2xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60 sm:text-base"
+                  className="w-full rounded-[1.2rem] bg-indigo-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-60 sm:text-base"
                 >
                   {createAdminState.loading ? "Adding..." : "Add admin"}
                 </button>
               </form>
-            </div>
+            </Surface>
 
-            <div className={`rounded-[1.8rem] border p-5 sm:p-7 ${shellClass}`}>
-              <div className="mb-5 flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900 text-white">
-                  <Users className="h-5 w-5" />
+            <Surface>
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <div className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-700">
+                    <Users className="h-4 w-4" />
+                    Access list
+                  </div>
+                  <h2 className="mt-4 text-2xl font-semibold text-slate-900">
+                    Admin accounts
+                  </h2>
+                  <p className="mt-2 text-sm leading-7 text-slate-600">
+                    Review all active admins, adjust roles, or remove access.
+                  </p>
                 </div>
-                <h2 className="text-xl font-semibold">Admins</h2>
+                <div className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-700">
+                  {admins.length || 1} total
+                </div>
               </div>
 
               {adminActionState.error && (
-                <StatusMessage tone="error">{adminActionState.error}</StatusMessage>
+                <div className="mt-5">
+                  <StatusMessage tone="error">{adminActionState.error}</StatusMessage>
+                </div>
               )}
               {adminActionState.success && (
-                <StatusMessage tone="success">{adminActionState.success}</StatusMessage>
+                <div className="mt-5">
+                  <StatusMessage tone="success">{adminActionState.success}</StatusMessage>
+                </div>
               )}
 
-              <div className="mt-5 space-y-3">
-                {admins.map((admin) => {
+              <div className="mt-6 space-y-3">
+                {admins.map((admin, index) => {
                   const isEditing = editAdminId === admin.id;
                   const isSelf = currentAdmin?.id === admin.id;
+                  const initials = (admin.email || "AD")
+                    .slice(0, 2)
+                    .toUpperCase();
 
                   return (
                     <div
                       key={admin.id}
-                      className={`rounded-2xl border px-4 py-4 ${
-                        isDarkMode
-                          ? "border-slate-800 bg-slate-950 text-slate-200"
-                          : "border-stone-200 bg-[#fffaf2] text-stone-700"
-                      }`}
+                      className="rounded-[1.4rem] border border-slate-200 bg-slate-50 p-4"
                     >
                       {isEditing ? (
                         <div className="space-y-3">
-                          <input
+                          <LightInput
                             type="email"
                             name="email"
                             value={editAdminForm.email}
                             onChange={handleEditAdminChange}
                             placeholder="Admin email"
-                            className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition sm:text-base ${inputClass}`}
                           />
 
-                          <select
+                          <LightSelect
                             name="role"
                             value={editAdminForm.role}
                             onChange={handleEditAdminChange}
-                            className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition sm:text-base ${inputClass}`}
                           >
                             <option value="admin">Admin</option>
                             <option value="super_admin">Super admin</option>
-                          </select>
+                          </LightSelect>
 
-                          <input
+                          <LightInput
                             type="password"
                             name="password"
                             value={editAdminForm.password}
                             onChange={handleEditAdminChange}
                             placeholder="New password (optional)"
-                            className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition sm:text-base ${inputClass}`}
                           />
 
                           <div className="flex flex-wrap gap-2">
@@ -534,7 +691,7 @@ export default function AdminLogin() {
                               type="button"
                               onClick={() => handleUpdateAdmin(admin.id)}
                               disabled={adminActionState.loading}
-                              className="inline-flex items-center gap-2 rounded-full bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+                              className="inline-flex items-center gap-2 rounded-full bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-60"
                             >
                               <UserCog className="h-4 w-4" />
                               Save
@@ -542,24 +699,35 @@ export default function AdminLogin() {
                             <button
                               type="button"
                               onClick={cancelEditAdmin}
-                              className="rounded-full border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition hover:bg-stone-50"
+                              className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
                             >
                               Cancel
                             </button>
                           </div>
                         </div>
                       ) : (
-                        <div className="space-y-3">
-                          <div className="flex items-start justify-between gap-3">
-                            <div>
-                              <div className="break-all font-semibold">{admin.email}</div>
-                              <div className="mt-1 text-sm capitalize text-indigo-600">
-                                {admin.role.replace("_", " ")}
-                                {isSelf ? " - You" : ""}
-                              </div>
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                          <div className="flex items-center gap-4">
+                            <div className="flex h-14 w-14 items-center justify-center rounded-[1.1rem] bg-[linear-gradient(135deg,_#dbeafe,_#e0e7ff)] text-sm font-semibold text-indigo-900">
+                              {initials}
                             </div>
-                            <div className="rounded-full bg-stone-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-stone-700">
-                              {admin.role === "super_admin" ? "Owner" : "Admin"}
+                            <div>
+                              <div className="font-semibold text-slate-900">
+                                {admin.email}
+                              </div>
+                              <div className="mt-1 flex flex-wrap gap-2 text-xs">
+                                <span className="rounded-full bg-white px-3 py-1.5 font-medium text-slate-700 shadow-sm">
+                                  {admin.role.replace("_", " ")}
+                                </span>
+                                <span className="rounded-full bg-white px-3 py-1.5 font-medium text-slate-500 shadow-sm">
+                                  Slot {index + 1}
+                                </span>
+                                {isSelf && (
+                                  <span className="rounded-full bg-emerald-50 px-3 py-1.5 font-medium text-emerald-700">
+                                    You
+                                  </span>
+                                )}
+                              </div>
                             </div>
                           </div>
 
@@ -567,7 +735,7 @@ export default function AdminLogin() {
                             <button
                               type="button"
                               onClick={() => startEditAdmin(admin)}
-                              className="inline-flex items-center gap-2 rounded-full bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700"
+                              className="inline-flex items-center gap-2 rounded-full bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-500"
                             >
                               <UserCog className="h-4 w-4" />
                               Edit
@@ -591,10 +759,34 @@ export default function AdminLogin() {
                   );
                 })}
               </div>
-            </div>
+            </Surface>
           </div>
         )}
       </div>
     </section>
+  );
+}
+
+function MetricCard({ label, value }) {
+  return (
+    <div className="rounded-[1.3rem] border border-slate-200 bg-slate-50 p-4">
+      <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+        {label}
+      </div>
+      <div className="mt-2 text-lg font-semibold capitalize text-slate-900">
+        {value}
+      </div>
+    </div>
+  );
+}
+
+function MiniJump({ title, to }) {
+  return (
+    <Link
+      to={to}
+      className="rounded-[1.25rem] border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-700 transition hover:border-indigo-200 hover:bg-white hover:text-indigo-700"
+    >
+      {title}
+    </Link>
   );
 }

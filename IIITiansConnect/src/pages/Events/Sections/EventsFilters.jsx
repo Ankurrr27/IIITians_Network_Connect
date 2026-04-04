@@ -1,67 +1,51 @@
+import { ArrowUpDown, Plus, Search } from "lucide-react";
+
 export default function EventsFilters({
   search,
   setSearch,
   sortBy,
   setSortBy,
   onCreate,
-  hideCreate = false, // 👈 NEW
+  hideCreate = false,
 }) {
   return (
-    <div
-      className="
-        flex flex-col gap-2 sm:gap-4 mb-10
-        md:flex-row md:items-center md:justify-between
-      "
-    >
-      {/* Filters */}
-      <div
-        className="
-          flex flex-col gap-3
-          sm:flex-row sm:flex-wrap
-        "
-      >
-        <input
-          type="text"
-          placeholder="Search events, college, club..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="
-            w-full sm:w-64
-            border rounded-lg px-4 py-2
-            focus:outline-none focus:ring-2 focus:ring-indigo-500
-          "
-        />
+    <div className="mb-8">
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_14rem_auto] lg:items-center">
+        <label className="flex items-center gap-3 rounded-[1.2rem] border border-slate-200 bg-slate-50 px-4 py-3 transition focus-within:border-indigo-400 focus-within:bg-white">
+          <Search className="h-4 w-4 text-slate-400" />
+          <input
+            type="text"
+            placeholder="Search events, colleges, clubs..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400"
+          />
+        </label>
 
-        <select
-          value={sortBy}
-          onChange={(e) => setSortBy(e.target.value)}
-          className="
-            w-full sm:w-auto
-            border rounded-lg px-3 py-2 bg-white
-            focus:outline-none focus:ring-2 focus:ring-indigo-500
-          "
-        >
-          <option value="newest">Newest First</option>
-          <option value="oldest">Oldest First</option>
-          <option value="az">Title A–Z</option>
-          <option value="za">Title Z–A</option>
-        </select>
+        <label className="flex items-center gap-3 rounded-[1.2rem] border border-slate-200 bg-slate-50 px-4 py-3 transition focus-within:border-indigo-400 focus-within:bg-white">
+          <ArrowUpDown className="h-4 w-4 text-slate-400" />
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="w-full bg-transparent text-sm text-slate-700 outline-none"
+          >
+            <option value="newest">Newest first</option>
+            <option value="oldest">Oldest first</option>
+            <option value="az">Title A-Z</option>
+            <option value="za">Title Z-A</option>
+          </select>
+        </label>
+
+        {!hideCreate && (
+          <button
+            onClick={onCreate}
+            className="inline-flex items-center justify-center gap-2 rounded-[1.2rem] bg-indigo-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-500"
+          >
+            <Plus className="h-4 w-4" />
+            Create event
+          </button>
+        )}
       </div>
-
-      {/* CTA (ADMIN ONLY) */}
-      {!hideCreate && (
-        <button
-          onClick={onCreate}
-          className="
-            w-full md:w-auto
-            bg-indigo-600 text-white
-            px-4 py-2 rounded-lg
-            hover:bg-indigo-700 transition
-          "
-        >
-          Create Event
-        </button>
-      )}
     </div>
   );
 }

@@ -69,7 +69,7 @@ export default function ExecCard({ member }) {
               </div>
 
               <div>
-                <h3 className="text-xl font-bold text-slate-900 sm:text-3xl">
+                <h3 className="text-xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
                   {member.name}
                 </h3>
                 <p className="mt-1 text-sm font-medium text-indigo-600 sm:text-base">
@@ -153,7 +153,7 @@ export default function ExecCard({ member }) {
           </div>
 
           <div className="mt-3">
-            <h3 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
+            <h3 className="text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl">
               {member.name}
             </h3>
             <p className="mt-1 text-sm font-semibold text-indigo-600 sm:text-base">

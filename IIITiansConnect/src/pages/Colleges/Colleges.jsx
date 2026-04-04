@@ -53,9 +53,10 @@ export default function CollegesPage() {
   if (error) return <CenterText text={error} error />;
 
   return (
-    <section className="py-20 bg-white">
-      <div className="max-w-7xl mx-auto px-6">
-        <CollegesHeader />
+    <section className="relative min-h-screen bg-[linear-gradient(180deg,_#eef7ff_0%,_#f7fbff_36%,_#f9fcff_100%)] pb-14 pt-20 sm:pb-16 sm:pt-24">
+      <div className="pointer-events-none absolute inset-0 opacity-60 [background-image:radial-gradient(circle_at_20%_20%,rgba(59,130,246,0.16),transparent_0_22%),radial-gradient(circle_at_80%_18%,rgba(125,211,252,0.18),transparent_0_20%),radial-gradient(circle_at_72%_72%,rgba(96,165,250,0.12),transparent_0_24%)]" />
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6">
+        <CollegesHeader colleges={colleges} />
 
         <CollegesSearch
           search={search}

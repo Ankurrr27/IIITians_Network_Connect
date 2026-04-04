@@ -82,23 +82,25 @@ export default function ContactPage() {
   ];
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-gradient-to-b from-indigo-50 via-white to-slate-50 pb-14 pt-24 text-slate-900 sm:pb-20 sm:pt-28">
+    <div className="relative min-h-screen bg-[linear-gradient(180deg,_#eff6ff_0%,_#f8faff_40%,_#ffffff_100%)] pb-14 pt-20 text-slate-900 sm:pb-20 sm:pt-24">
+      {/* Radial Gradient Overlay */}
+      <div className="pointer-events-none absolute inset-0 opacity-60 [background-image:radial-gradient(circle_at_20%_20%,rgba(59,130,246,0.16),transparent_0_22%),radial-gradient(circle_at_80%_18%,rgba(125,211,252,0.18),transparent_0_20%),radial-gradient(circle_at_72%_72%,rgba(96,165,250,0.12),transparent_0_24%)]" />
+
       <motion.section
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="mx-auto max-w-6xl px-4 sm:px-6"
+        className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6"
       >
-        <div className="rounded-[2rem] border border-indigo-100 bg-white/90 px-5 py-8 shadow-[0_24px_80px_rgba(99,102,241,0.08)] backdrop-blur sm:px-8 sm:py-12">
-          <div className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-indigo-700">
+        <div className="mb-8">
+          <div className="inline-flex items-center gap-2 rounded-full border border-indigo-100 bg-white/80 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-indigo-700 backdrop-blur-md">
             <span className="h-2 w-2 rounded-full bg-indigo-500" />
             Official Channels
           </div>
 
           <div className="mt-5 grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
             <div>
-              <h1 className="text-3xl font-black tracking-tight text-slate-900 sm:text-5xl">
-                Contact The
-                <span className="block text-indigo-600">IIITians Network</span>
+              <h1 className="mt-4 text-3xl font-semibold tracking-tight text-slate-900 sm:text-5xl">
+                Contact The <span className="text-indigo-600 font-semibold">IIITians Network</span>
               </h1>
               <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-600 sm:text-base">
                 Reach the network through verified public channels for updates,
@@ -107,20 +109,20 @@ export default function ContactPage() {
             </div>
 
             <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
-              <div className="rounded-[1.35rem] border border-slate-200 bg-slate-50 px-4 py-4">
+              <div className="rounded-[1.35rem] border border-slate-200 bg-white/70 backdrop-blur-md px-4 py-4 shadow-sm">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
                   Best For
                 </p>
                 <p className="mt-2 text-sm font-medium text-slate-800">
-                  official outreach, student queries, and community updates
+                  Official outreach, student queries, and updates
                 </p>
               </div>
-              <div className="rounded-[1.35rem] border border-slate-200 bg-slate-50 px-4 py-4">
+              <div className="rounded-[1.35rem] border border-slate-200 bg-white/70 backdrop-blur-md px-4 py-4 shadow-sm">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
                   Response Path
                 </p>
                 <p className="mt-2 text-sm font-medium text-slate-800">
-                  email first, social platforms for fast community visibility
+                  Email first, social platforms for visibility
                 </p>
               </div>
             </div>
@@ -132,7 +134,7 @@ export default function ContactPage() {
         variants={container}
         initial="hidden"
         animate="show"
-        className="mx-auto mt-8 max-w-6xl px-4 sm:px-6"
+        className="relative z-10 mx-auto mt-8 max-w-7xl px-4 sm:px-6"
       >
         <div className="grid gap-4 md:grid-cols-3">
           {contactCards.map((card) =>

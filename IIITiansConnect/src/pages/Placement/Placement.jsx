@@ -67,37 +67,42 @@ export default function Placement() {
   }, [college, data, searched]);
 
   return (
-    <div className="mx-auto max-w-7xl space-y-8 px-4 pb-10 pt-24 sm:space-y-12 sm:px-6 sm:pb-16 sm:pt-28">
-      <PlacementSearchBar
-        college={college}
-        suggestions={collegeOptions}
-        searched={searched}
-        loading={loading}
-        data={data}
-        onSearch={searchCollege}
-        onCollegeChange={setCollege}
-        year={year}
-        onYearChange={setYear}
-      />
+    <div className="relative min-h-screen bg-[linear-gradient(180deg,_#eff6ff_0%,_#f8faff_40%,_#ffffff_100%)] pb-14 pt-20 text-slate-900 sm:pb-20 sm:pt-24">
+      {/* Radial Gradient Overlay */}
+      <div className="pointer-events-none absolute inset-0 opacity-60 [background-image:radial-gradient(circle_at_20%_20%,rgba(59,130,246,0.16),transparent_0_22%),radial-gradient(circle_at_80%_18%,rgba(125,211,252,0.18),transparent_0_20%),radial-gradient(circle_at_72%_72%,rgba(96,165,250,0.12),transparent_0_24%)]" />
 
-      {!searched && <PlacementPreview />}
-
-      {data && <PlacementSnapshot data={data} />}
-
-      {data && !loading && (
-        <PlacementResults
+      <div className="relative z-10 mx-auto max-w-7xl space-y-7 px-4 sm:space-y-10 sm:px-6">
+        <PlacementSearchBar
+          college={college}
+          suggestions={collegeOptions}
+          searched={searched}
+          loading={loading}
           data={data}
+          onSearch={searchCollege}
+          onCollegeChange={setCollege}
           year={year}
-          yearData={yearData}
-          selectedCollegeName={selectedCollegeName}
+          onYearChange={setYear}
         />
-      )}
 
-      {searched && !loading && !data && (
-        <p className="rounded-[1.5rem] border border-dashed border-slate-300 bg-white px-5 py-10 text-center text-sm text-slate-500 sm:px-6 sm:py-12">
-          No placement data found.
-        </p>
-      )}
+        {!searched && <PlacementPreview />}
+
+        {data && <PlacementSnapshot data={data} />}
+
+        {data && !loading && (
+          <PlacementResults
+            data={data}
+            year={year}
+            yearData={yearData}
+            selectedCollegeName={selectedCollegeName}
+          />
+        )}
+
+        {searched && !loading && !data && (
+          <p className="rounded-[1.5rem] border border-dashed border-slate-300 bg-white px-5 py-10 text-center text-sm text-slate-500 sm:px-6 sm:py-12">
+            No placement data found.
+          </p>
+        )}
+      </div>
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import {
   Trash2,
   ImagePlus,
@@ -9,6 +10,13 @@ import {
   Send,
   ShieldCheck,
   UserPlus,
+  Building2,
+  MapPin,
+  User,
+  Phone,
+  Mail,
+  BadgeCheck,
+  Clock,
 } from "lucide-react";
 import api from "../../api/axios";
 import ImageCropModal from "../../components/ImageCropModal";
@@ -283,16 +291,16 @@ export default function DiscussPage() {
   };
 
   return (
-    <section className="relative min-h-screen overflow-hidden bg-[linear-gradient(180deg,_#eef7ff_0%,_#f7fbff_36%,_#f9fcff_100%)] py-10 sm:py-14">
+    <section className="relative min-h-screen overflow-hidden bg-[linear-gradient(180deg,_#eef7ff_0%,_#f7fbff_36%,_#f9fcff_100%)] pb-10 pt-20 sm:pb-14 sm:pt-24">
       <div className="pointer-events-none absolute inset-0 opacity-60 [background-image:radial-gradient(circle_at_20%_20%,rgba(59,130,246,0.16),transparent_0_22%),radial-gradient(circle_at_80%_18%,rgba(125,211,252,0.18),transparent_0_20%),radial-gradient(circle_at_72%_72%,rgba(96,165,250,0.12),transparent_0_24%)]" />
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="rounded-[2.2rem] border border-sky-100/80 bg-[linear-gradient(135deg,rgba(255,255,255,0.94),rgba(236,246,255,0.9))] p-5 shadow-[0_24px_80px_-40px_rgba(37,99,235,0.38)] sm:p-8">
+      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6">
+        <div className="mb-10">
           <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
             <div className="max-w-3xl">
-              <div className="inline-flex items-center gap-2 rounded-full bg-sky-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-sky-700">
-                <Megaphone className="h-4 w-4" />
-                Discuss Board
-              </div>
+                <div className="inline-flex items-center gap-2 rounded-full border border-sky-100 bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.24em] text-sky-700 shadow-sm">
+                  <Megaphone className="h-4 w-4" />
+                  Discuss Board
+                </div>
               <h1 className="mt-4 text-3xl font-semibold tracking-tight text-slate-900 sm:text-5xl">
                 Network-wide updates from clubs, communities, and campus teams.
               </h1>
@@ -339,6 +347,12 @@ export default function DiscussPage() {
                   <p className="text-sm leading-6 text-slate-600">
                     Create a club account once, then post and manage everything from here.
                   </p>
+                  <Link
+                    to="/guide"
+                    className="inline-flex items-center gap-2 rounded-full border border-sky-100 bg-sky-50 px-4 py-2 text-sm font-semibold text-sky-700 transition hover:bg-sky-100"
+                  >
+                    Need help? Open Guide
+                  </Link>
                   <div className="flex flex-col gap-2 sm:flex-row">
                     <button
                       type="button"
@@ -466,43 +480,106 @@ export default function DiscussPage() {
             {authState.error && <Message tone="error">{authState.error}</Message>}
             {authState.success && <Message tone="success">{authState.success}</Message>}
             {account ? (
-              <div className="space-y-4 rounded-[1.6rem] bg-slate-50 p-5 ring-1 ring-slate-200/80">
-                <div className="space-y-1 text-sm text-slate-600">
-                  <p>{account.clubName}</p>
-                  <p>{account.collegeName}</p>
-                  <p>{account.contactName}</p>
-                  {account.contactPhone && <p>{account.contactPhone}</p>}
-                  <p>{account.email}</p>
+              <div className="space-y-6">
+                
+                {/* Profile Header Card */}
+                <div className="relative overflow-hidden rounded-[2rem] bg-white p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-slate-100">
+                  <div className="absolute right-0 top-0 h-32 w-32 -translate-y-8 translate-x-8 rounded-full bg-[radial-gradient(circle,_rgba(99,102,241,0.08),_transparent_70%)]" />
+                  
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-[1.2rem] bg-[linear-gradient(135deg,_#eff6ff,_#e0e7ff)] text-2xl font-bold text-indigo-600 shadow-inner">
+                      {account.clubName.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-xl font-bold text-slate-900">{account.clubName}</h3>
+                        {account.isAuthorized && <BadgeCheck className="h-5 w-5 text-emerald-500" />}
+                      </div>
+                      <div className="mt-1 flex items-center gap-1.5 text-sm font-medium text-slate-500">
+                        <MapPin className="h-3.5 w-3.5 text-slate-400" />
+                        {account.collegeName}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 grid gap-3 border-t border-slate-100 pt-5 sm:grid-cols-2">
+                    <div className="flex items-center gap-3 rounded-[1.2rem] bg-slate-50 p-3">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-50 text-indigo-600">
+                        <User className="h-4 w-4" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Point of Contact</div>
+                        <div className="truncate text-sm font-medium text-slate-800">{account.contactName}</div>
+                      </div>
+                    </div>
+
+                    {account.contactPhone && (
+                      <div className="flex items-center gap-3 rounded-[1.2rem] bg-slate-50 p-3">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
+                          <Phone className="h-4 w-4" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Phone</div>
+                          <div className="truncate text-sm font-medium text-slate-800">{account.contactPhone}</div>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="col-span-full flex items-center gap-3 rounded-[1.2rem] bg-slate-50 p-3">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-sky-50 text-sky-600">
+                        <Mail className="h-4 w-4" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Email Address</div>
+                        <div className="truncate text-sm font-medium text-slate-800">{account.email}</div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
+
+                {/* Posts Section */}
                 {myPosts.length > 0 && (
-                  <div className="rounded-[1.4rem] bg-white p-3 ring-1 ring-slate-200">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-700">
-                      Past posts
-                    </p>
-                    <div className="mt-3 space-y-2">
+                  <div className="rounded-[2rem] bg-white p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-slate-100">
+                    <div className="mb-4 flex items-center justify-between">
+                      <h4 className="flex items-center gap-2 text-sm font-semibold text-slate-800">
+                        <Megaphone className="h-4 w-4 text-indigo-500" />
+                        History ({myPosts.length})
+                      </h4>
+                    </div>
+                    <div className="max-h-[300px] space-y-3 overflow-y-auto pr-2 custom-scrollbar">
                       {myPosts.map((post) => (
                         <div
                           key={post._id}
-                          className="rounded-xl bg-slate-50 px-3 py-3 ring-1 ring-slate-200"
+                          className="group relative overflow-hidden rounded-[1.2rem] bg-slate-50 p-4 transition-all hover:bg-indigo-50/50 hover:shadow-md hover:ring-1 hover:ring-indigo-100"
                         >
                           <div className="flex items-start justify-between gap-3">
                             <button
                               type="button"
                               onClick={() => openEditPost(post)}
-                              className="min-w-0 flex-1 text-left transition hover:text-sky-700"
+                              className="min-w-0 flex-1 text-left"
                             >
-                              <p className="truncate text-sm font-semibold text-slate-900">
+                              <p className="truncate text-sm font-semibold tracking-tight text-slate-800 transition-colors group-hover:text-indigo-700">
                                 {post.title}
                               </p>
-                              <p className="mt-1 text-xs capitalize text-slate-500">
-                                {post.status}
-                              </p>
+                              <div className="mt-1 flex items-center gap-2">
+                                <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
+                                  post.status === 'approved' ? 'bg-emerald-100 text-emerald-700' :
+                                  post.status === 'rejected' ? 'bg-rose-100 text-rose-700' :
+                                  'bg-amber-100 text-amber-700'
+                                }`}>
+                                  {post.status}
+                                </span>
+                                <span className="flex items-center gap-1 text-[11px] font-medium text-slate-400">
+                                  <Clock className="h-3 w-3" />
+                                  {new Date(post.createdAt || Date.now()).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                                </span>
+                              </div>
                             </button>
-                            <div className="flex items-center gap-2">
+                            <div className="flex shrink-0 items-center gap-1 xl:opacity-0 transition-opacity xl:group-hover:opacity-100 focus-within:opacity-100">
                               <button
                                 type="button"
                                 onClick={() => openEditPost(post)}
-                                className="rounded-full bg-white px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-600 ring-1 ring-slate-200"
+                                className="flex h-8 items-center justify-center rounded-full bg-white px-3 text-xs font-bold text-slate-600 shadow-sm ring-1 ring-slate-200 transition-colors hover:text-indigo-600"
                               >
                                 Edit
                               </button>
@@ -510,7 +587,7 @@ export default function DiscussPage() {
                                 type="button"
                                 onClick={() => handleDeletePost(post._id)}
                                 aria-label={`Delete ${post.title}`}
-                                className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white text-rose-600 ring-1 ring-rose-200 transition hover:bg-rose-50"
+                                className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-rose-500 shadow-sm ring-1 ring-slate-200 transition-colors hover:bg-rose-50 hover:text-rose-600"
                               >
                                 <Trash2 className="h-4 w-4" />
                               </button>
@@ -521,13 +598,15 @@ export default function DiscussPage() {
                     </div>
                   </div>
                 )}
+                
+                {/* Logout Button */}
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
+                  className="group flex w-full items-center justify-center gap-2 rounded-2xl bg-rose-50 px-4 py-3.5 text-sm font-bold text-rose-600 transition-all hover:bg-rose-500 hover:text-white"
                 >
-                  <LogOut className="h-4 w-4" />
-                  Logout
+                  <LogOut className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+                  Logout of Club
                 </button>
               </div>
             ) : (

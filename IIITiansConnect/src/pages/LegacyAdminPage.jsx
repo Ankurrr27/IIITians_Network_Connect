@@ -3,6 +3,7 @@ import {
   CheckCircle2,
   Clock3,
   Pencil,
+  PlusCircle,
   Search,
   Trash2,
   XCircle,
@@ -54,6 +55,7 @@ export default function LegacyAdminPage() {
   const [error, setError] = useState("");
   const [busyId, setBusyId] = useState("");
   const [editEntryId, setEditEntryId] = useState("");
+  const [teamEntryId, setTeamEntryId] = useState("");
   const [editForm, setEditForm] = useState({
     name: "",
     email: "",
@@ -68,6 +70,21 @@ export default function LegacyAdminPage() {
     linkedin: "",
     instagram: "",
     bio: "",
+  });
+  const [teamForm, setTeamForm] = useState({
+    name: "",
+    role: "",
+    roleType: "MEMBER",
+    iiit: "",
+    email: "",
+    linkedin: "",
+    instagram: "",
+    twitter: "",
+    aboutText: "",
+    messageText: "",
+    team: "Core",
+    year: "",
+    order: 0,
   });
   const status = filters.some((filter) => filter.value === routeStatus)
     ? routeStatus
@@ -243,6 +260,82 @@ export default function LegacyAdminPage() {
     }));
   };
 
+  const startAddToTeam = (entry) => {
+    setTeamEntryId(entry._id);
+    setTeamForm({
+      name: entry.name || "",
+      role: entry.networkPost || entry.currentRole || "",
+      roleType: "MEMBER",
+      iiit: entry.iiit || "",
+      email: entry.email || "",
+      linkedin: entry.linkedin || "",
+      instagram: entry.instagram || "",
+      twitter: entry.twitter || "",
+      aboutText: entry.bio || "",
+      messageText: "",
+      team: "Core",
+      year: entry.generation || "",
+      order: 0,
+    });
+    setError("");
+  };
+
+  const cancelAddToTeam = () => {
+    setTeamEntryId("");
+    setTeamForm({
+      name: "",
+      role: "",
+      roleType: "MEMBER",
+      iiit: "",
+      email: "",
+      linkedin: "",
+      instagram: "",
+      twitter: "",
+      aboutText: "",
+      messageText: "",
+      team: "Core",
+      year: "",
+      order: 0,
+    });
+  };
+
+  const handleTeamFormChange = (event) => {
+    setTeamForm((prev) => ({
+      ...prev,
+      [event.target.name]: event.target.value,
+    }));
+  };
+
+  const handleAddToTeam = async (entry) => {
+    setBusyId(entry._id);
+    setError("");
+
+    try {
+      const formData = new FormData();
+      Object.entries(teamForm).forEach(([key, value]) =>
+        formData.append(key, value)
+      );
+
+      if (entry.photo?.url) {
+        formData.append("photoSourceAlumniId", entry._id);
+      }
+
+      await api.post("/team", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      cancelAddToTeam();
+    } catch (err) {
+      setError(
+        err.response?.data?.error ||
+          err.response?.data?.message ||
+          "Could not add this legacy profile into team history."
+      );
+    } finally {
+      setBusyId("");
+    }
+  };
+
   const handleSaveEdit = async (id) => {
     setBusyId(id);
     setError("");
@@ -303,7 +396,7 @@ export default function LegacyAdminPage() {
             />
           </label>
 
-          <div className="flex flex-wrap gap-2">
+          <div className="flex overflow-x-auto gap-2 pb-2 -mb-2 custom-scrollbar sm:flex-wrap sm:pb-0 sm:mb-0">
             {filters.map((filter) => (
               <button
                 key={filter.value}
@@ -352,6 +445,7 @@ export default function LegacyAdminPage() {
           {entries.map((entry) => {
             const effectiveStatus = getEffectiveStatus(entry);
             const isEditing = editEntryId === entry._id;
+            const isAddingToTeam = teamEntryId === entry._id;
 
             return (
               <article
@@ -472,6 +566,99 @@ export default function LegacyAdminPage() {
                   </p>
                 )}
 
+                {isAddingToTeam && (
+                  <div className="mt-5 rounded-[1.5rem] border border-indigo-100 bg-indigo-50/60 p-4">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                      <div>
+                        <p className="text-sm font-semibold text-slate-900">
+                          Add this profile into team history
+                        </p>
+                        <p className="mt-1 text-sm text-slate-600">
+                          Prefilled from legacy. Update role, team, and year
+                          before saving.
+                          {!entry.photo?.url
+                            ? " This entry has no legacy photo, so add the same member later from Team Admin with a photo if needed."
+                            : ""}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                      <input
+                        name="name"
+                        value={teamForm.name}
+                        onChange={handleTeamFormChange}
+                        placeholder="Name"
+                        className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100"
+                      />
+                      <input
+                        name="role"
+                        value={teamForm.role}
+                        onChange={handleTeamFormChange}
+                        placeholder="Role"
+                        className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100"
+                      />
+                      <select
+                        name="roleType"
+                        value={teamForm.roleType}
+                        onChange={handleTeamFormChange}
+                        className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100"
+                      >
+                        <option value="EXEC">Executive</option>
+                        <option value="LEAD">Lead</option>
+                        <option value="MEMBER">Member</option>
+                      </select>
+                      <select
+                        name="team"
+                        value={teamForm.team}
+                        onChange={handleTeamFormChange}
+                        className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100"
+                      >
+                        <option value="Core">Core</option>
+                        <option value="Tech">Tech</option>
+                        <option value="Development">Development</option>
+                        <option value="Design">Design</option>
+                        <option value="Content">Content</option>
+                        <option value="Social Media">Social Media</option>
+                      </select>
+                      <input
+                        name="year"
+                        value={teamForm.year}
+                        onChange={handleTeamFormChange}
+                        placeholder="Team term"
+                        className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100"
+                      />
+                      <input
+                        type="number"
+                        name="order"
+                        value={teamForm.order}
+                        onChange={handleTeamFormChange}
+                        placeholder="Display order"
+                        className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100"
+                      />
+                    </div>
+
+                    <div className="mt-4 flex flex-wrap gap-3">
+                      <button
+                        type="button"
+                        disabled={busyId === entry._id || !entry.photo?.url}
+                        onClick={() => handleAddToTeam(entry)}
+                        className="inline-flex items-center gap-2 rounded-full bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        <PlusCircle className="h-4 w-4" />
+                        Add to team
+                      </button>
+                      <button
+                        type="button"
+                        onClick={cancelAddToTeam}
+                        className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 <div className="mt-5 flex flex-wrap gap-3">
                   {isEditing ? (
                     <>
@@ -501,6 +688,14 @@ export default function LegacyAdminPage() {
                       >
                         <Pencil className="h-4 w-4" />
                         Edit
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => startAddToTeam(entry)}
+                        className="inline-flex items-center gap-2 rounded-full border border-indigo-200 bg-white px-4 py-2 text-sm font-medium text-indigo-700 transition hover:bg-indigo-50"
+                      >
+                        <PlusCircle className="h-4 w-4" />
+                        Add to team
                       </button>
                       <button
                         type="button"

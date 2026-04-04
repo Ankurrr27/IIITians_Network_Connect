@@ -12,7 +12,7 @@ export default function Index2() {
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-indigo-600">
             About The Network
           </p>
-          <h2 className="mt-2 text-2xl font-extrabold text-slate-900 sm:text-4xl">
+          <h2 className="mt-4 text-2xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
             Built by students, shaped for the IIIT community
           </h2>
 

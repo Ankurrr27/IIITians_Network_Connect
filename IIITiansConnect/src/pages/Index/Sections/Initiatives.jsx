@@ -35,7 +35,7 @@ const projects = [
 export default function Initiatives() {
   return (
     <div>
-      <h2 className="text-2xl sm:text-4xl font-extrabold text-gray-900 mb-4 sm:mb-12 text-left">
+      <h2 className="text-2xl sm:text-4xl font-semibold tracking-tight text-gray-900 mb-4 sm:mb-12 text-left">
         <br />
       Our Initiatives
       </h2>
@@ -76,7 +76,7 @@ export default function Initiatives() {
 
             {/* TEXT */}
             <div>
-              <h3 className="text-sm sm:text-xl font-bold text-gray-900 mb-1 sm:mb-3">
+              <h3 className="text-sm sm:text-xl font-semibold tracking-tight text-gray-900 mb-1 sm:mb-3">
                 {project.title}
               </h3>
 

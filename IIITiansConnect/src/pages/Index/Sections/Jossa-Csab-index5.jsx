@@ -24,16 +24,16 @@ const Index4 = () => {
 
   return (
     <section className="bg-white py-16 sm:py-24">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className="mb-10 sm:mb-16">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-indigo-600">
             Counselling Support
           </p>
-          <h2 className="mt-2 text-2xl font-extrabold text-slate-900 sm:text-4xl">
+          <h2 className="mt-4 text-2xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
             JEE Counselling Guidance
           </h2>
 
-          <p className="mt-3 max-w-2xl text-sm text-slate-600 sm:text-lg">
+          <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-600 sm:text-base">
             Practical, experience-backed support for JoSAA and CSAB counselling,
             designed to help aspirants make confident and informed choices.
           </p>
@@ -112,7 +112,7 @@ const Index4 = () => {
                     onClick={() => setActive(active === index ? null : index)}
                     className="flex w-full items-center justify-between p-3 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 sm:p-4"
                   >
-                    <span className="text-sm font-medium text-slate-900 sm:text-base">
+                    <span className="text-sm font-semibold tracking-tight text-slate-900 sm:text-base">
                       {item.title}
                     </span>
                     <span className="text-lg text-indigo-600">

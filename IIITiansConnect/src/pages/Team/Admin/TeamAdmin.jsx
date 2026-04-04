@@ -5,6 +5,7 @@ import api from "../../../api/axios";
 import TeamMemberForm from "./TeamMemberForm";
 import TeamMemberList from "./TeamMemberList";
 import EditMemberModal from "./EditMemberModal";
+import TeamRequestList from "./TeamRequestList";
 
 export default function TeamAdmin() {
   const [members, setMembers] = useState([]);
@@ -15,6 +16,9 @@ export default function TeamAdmin() {
   const [yearFilter, setYearFilter] = useState("all");
   const [teamFilter, setTeamFilter] = useState("all");
   const [roleFilter, setRoleFilter] = useState("all");
+  const [activeTab, setActiveTab] = useState("active"); // "active" or "pending"
+  const [reloadRequests, setReloadRequests] = useState(0);
+  const [pendingApprovalReq, setPendingApprovalReq] = useState(null);
 
   const load = async () => {
     try {
@@ -164,11 +168,60 @@ export default function TeamAdmin() {
         </div>
       </header>
 
-      <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
-        <TeamMemberForm members={members} onSuccess={load} />
-      </section>
+      <div className="flex gap-2 rounded-[2rem] border border-slate-200 bg-white/50 p-2 shadow-sm backdrop-blur-sm lg:w-fit">
+        <button
+          onClick={() => setActiveTab("active")}
+          className={`flex items-center gap-2 rounded-[1.4rem] px-6 py-3 text-sm font-semibold transition ${
+            activeTab === "active"
+              ? "bg-slate-900 text-white shadow-lg"
+              : "text-slate-600 hover:bg-white"
+          }`}
+        >
+          Active Roster
+        </button>
+        <button
+          onClick={() => setActiveTab("pending")}
+          className={`flex items-center gap-2 rounded-[1.4rem] px-6 py-3 text-sm font-semibold transition ${
+            activeTab === "pending"
+              ? "bg-slate-900 text-white shadow-lg"
+              : "text-slate-600 hover:bg-white"
+          }`}
+        >
+          Pending Review
+          {/* Badge could be added here if we had a count */}
+        </button>
+      </div>
 
-      <section className="space-y-4 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
+      {activeTab === "pending" ? (
+        <section className="space-y-6">
+          <div className="rounded-[2.5rem] border border-indigo-100 bg-indigo-50/50 p-6">
+            <h2 className="text-xl font-bold text-slate-900">Application Review Queue</h2>
+            <p className="mt-1 text-sm text-slate-600">These profiles were submitted via the public /team/join form.</p>
+          </div>
+          <TeamRequestList 
+            reloadTrigger={reloadRequests}
+            onApprove={(req) => {
+              setPendingApprovalReq(req);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+              setActiveTab("active");
+            }} 
+          />
+        </section>
+      ) : (
+        <>
+          <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
+            <TeamMemberForm 
+              members={members} 
+              onSuccess={() => {
+                setPendingApprovalReq(null);
+                load();
+                setReloadRequests(prev => prev + 1);
+              }} 
+              initialData={pendingApprovalReq}
+            />
+          </section>
+
+          <section className="space-y-4 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div className="grid flex-1 gap-3 lg:max-w-5xl lg:grid-cols-[minmax(0,1.2fr)_220px_180px_180px_180px]">
             <div className="relative">
@@ -250,8 +303,8 @@ export default function TeamAdmin() {
               </p>
               <p className="mt-1 text-sm text-slate-600">
                 Move cards in the admin list to decide the public display order.
-                {query.trim() || sortBy !== "order" || yearFilter !== "all" || teamFilter !== "all" || roleFilter !== "all"
-                  ? " Use manual order and clear search to enable drag and drop."
+                {query.trim() || yearFilter !== "all" || teamFilter !== "all" || roleFilter !== "all"
+                  ? " Clear search and filters to enable drag and drop."
                   : savingOrder
                     ? " Saving the new order..."
                     : ""}
@@ -273,7 +326,6 @@ export default function TeamAdmin() {
             disableReorder={
               Boolean(query.trim()) ||
               savingOrder ||
-              sortBy !== "order" ||
               yearFilter !== "all" ||
               teamFilter !== "all" ||
               roleFilter !== "all"
@@ -281,6 +333,8 @@ export default function TeamAdmin() {
           />
         )}
       </section>
+    </>
+  )}
 
       {editingMember && (
         <EditMemberModal

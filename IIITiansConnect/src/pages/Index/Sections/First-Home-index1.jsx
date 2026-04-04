@@ -10,10 +10,13 @@ const Index1 = () => {
     <section
       className="
         relative flex min-h-screen items-center justify-center overflow-hidden
-        bg-gradient-to-b from-indigo-100 via-indigo-50 to-white
+        bg-[linear-gradient(180deg,_#eff6ff_0%,_#f8faff_40%,_#ffffff_100%)]
         pt-24 sm:pt-36
       "
     >
+      {/* Radial Gradient Overlay */}
+      <div className="pointer-events-none absolute inset-0 opacity-60 [background-image:radial-gradient(circle_at_20%_20%,rgba(59,130,246,0.16),transparent_0_22%),radial-gradient(circle_at_80%_18%,rgba(125,211,252,0.18),transparent_0_20%),radial-gradient(circle_at_72%_72%,rgba(96,165,250,0.12),transparent_0_24%)]" />
+
       <div className="block md:hidden">
         <TopWavesMobile />
       </div>
@@ -24,7 +27,7 @@ const Index1 = () => {
 
       <div
         className="
-          relative z-10 grid w-full max-w-6xl grid-cols-1 items-center gap-8
+          relative z-10 grid w-full max-w-7xl grid-cols-1 items-center gap-8
           px-4 sm:px-6 md:grid-cols-2 md:gap-20
         "
       >
@@ -35,10 +38,10 @@ const Index1 = () => {
         </div>
 
         <div className="text-left">
-          <h2
+          <h1
             className="
-              text-3xl font-extrabold leading-tight tracking-tight text-slate-900
-              sm:text-4xl md:text-5xl
+              mt-4 text-4xl font-semibold leading-tight tracking-tight text-slate-900
+              sm:text-5xl md:text-6xl
             "
           >
             Empowering{" "}
@@ -47,12 +50,11 @@ const Index1 = () => {
             </span>
             <br />
             <span className="block text-indigo-600">Across IIITs</span>
-          </h2>
+          </h1>
 
           <p
             className="
-              mt-3 max-w-lg text-sm leading-relaxed text-slate-600
-              sm:mt-6 sm:text-lg md:text-xl
+              mt-4 max-w-2xl text-sm leading-7 text-slate-600 sm:text-base
             "
           >
             IIITians Network is an autonomous student-led community connecting

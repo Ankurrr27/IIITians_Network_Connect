@@ -22,6 +22,7 @@ const Navigation = () => {
     { name: "Discuss", href: "/discuss" },
     { name: "Team", href: "/team" },
     { name: "Contact", href: "/contact" },
+    { name: "Guide", href: "/guide", highlight: true },
   ];
 
   useEffect(() => {
@@ -110,23 +111,62 @@ const Navigation = () => {
           </a>
 
           <div className="hidden items-center gap-4 md:flex">
-            {navItems.map((item) => (
-              <a
-                key={item.name}
-                href={item.href}
-                onClick={(event) => handleNavClick(event, item.href)}
-                className={`relative text-sm font-medium transition-colors after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:w-full after:origin-center after:scale-x-0 after:transition-transform after:duration-300 hover:after:scale-x-100 ${
-                  isDarkMode
-                    ? "text-slate-200 after:bg-indigo-400 hover:text-white"
-                    : isSolidNav
-                      ? "text-slate-700 after:bg-indigo-600 hover:text-indigo-600"
-                      : "text-slate-100 after:bg-white hover:text-white"
-                }`}
-              >
-                {item.name}
-              </a>
-            ))}
+            {navItems.map((item) => {
+              const isActive =
+                (item.href === "#home" && location.pathname === "/") ||
+                (item.href.startsWith("/") &&
+                  location.pathname.startsWith(item.href));
 
+              return item.highlight ? (
+                <div key={item.name} className="group relative">
+                  <a
+                    href={item.href}
+                    onClick={(event) => handleNavClick(event, item.href)}
+                    className={`relative inline-flex rounded-full px-4 py-2 text-sm font-semibold transition ${
+                      isDarkMode
+                        ? "bg-indigo-500/20 text-indigo-100 ring-1 ring-indigo-400/30 hover:bg-indigo-500/30"
+                        : isSolidNav
+                          ? "bg-indigo-50 text-indigo-700 ring-1 ring-indigo-100 hover:bg-indigo-100"
+                          : "bg-white/12 text-white ring-1 ring-white/20 hover:bg-white/18"
+                    } ${isActive ? "ring-2 ring-indigo-400" : ""}`}
+                  >
+                    {item.name}
+                  </a>
+                  <span
+                    className={`pointer-events-none absolute left-1/2 top-full z-10 mt-2 -translate-x-1/2 whitespace-nowrap rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] opacity-0 shadow-sm transition duration-200 group-hover:opacity-100 ${
+                      isDarkMode
+                        ? "bg-slate-900 text-indigo-200 ring-1 ring-slate-700"
+                        : "bg-white text-indigo-700 ring-1 ring-indigo-100 shadow-sm"
+                    }`}
+                  >
+                    Learn how to use the site
+                  </span>
+                </div>
+              ) : (
+                <a
+                  key={item.name}
+                  href={item.href}
+                  onClick={(event) => handleNavClick(event, item.href)}
+                  className={`relative text-sm font-medium transition-colors after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:w-full after:origin-center after:transition-transform after:duration-300 hover:after:scale-x-100 ${
+                    isActive ? "after:scale-x-100" : "after:scale-x-0"
+                  } ${
+                    isDarkMode
+                      ? `after:bg-indigo-400 hover:text-white ${
+                          isActive ? "text-white" : "text-slate-200"
+                        }`
+                      : isSolidNav
+                        ? `after:bg-indigo-600 hover:text-indigo-600 ${
+                            isActive ? "text-indigo-600" : "text-slate-700"
+                          }`
+                        : `after:bg-white hover:text-white ${
+                            isActive ? "text-white" : "text-slate-100"
+                          }`
+                  }`}
+                >
+                  {item.name}
+                </a>
+              );
+            })}
           </div>
 
           <button onClick={() => setIsOpen(true)} className="md:hidden">
@@ -173,20 +213,44 @@ const Navigation = () => {
         </div>
 
         <div className="flex flex-col gap-2 p-4">
-          {navItems.map((item) => (
-            <a
-              key={item.name}
-              href={item.href}
-              onClick={(event) => handleNavClick(event, item.href)}
-              className={`rounded-xl px-4 py-3 font-medium transition ${
-                isDarkMode
-                  ? "text-slate-100 hover:bg-slate-900"
-                  : "text-indigo-600 hover:bg-indigo-50"
-              }`}
-            >
-              {item.name}
-            </a>
-          ))}
+          {navItems.map((item) => {
+            const isActive =
+              (item.href === "#home" && location.pathname === "/") ||
+              (item.href.startsWith("/") &&
+                location.pathname.startsWith(item.href));
+
+            return (
+              <a
+                key={item.name}
+                href={item.href}
+                onClick={(event) => handleNavClick(event, item.href)}
+                className={`flex flex-col rounded-xl px-4 py-3 font-medium transition ${
+                  item.highlight
+                    ? isActive
+                      ? isDarkMode
+                        ? "bg-indigo-500/25 text-indigo-100 ring-2 ring-indigo-400"
+                        : "bg-indigo-100 text-indigo-700 ring-2 ring-indigo-400"
+                      : isDarkMode
+                        ? "bg-indigo-500/15 text-indigo-100 ring-1 ring-indigo-400/30 hover:bg-indigo-500/25"
+                        : "bg-indigo-50 text-indigo-700 ring-1 ring-indigo-100 hover:bg-indigo-100"
+                    : isActive
+                      ? isDarkMode
+                        ? "bg-slate-900 text-white"
+                        : "bg-indigo-50 text-indigo-700"
+                      : isDarkMode
+                        ? "text-slate-100 hover:bg-slate-900"
+                        : "text-indigo-600 hover:bg-indigo-50"
+                }`}
+              >
+                <span>{item.name}</span>
+                {item.highlight && (
+                  <span className="mt-1 text-[10px] font-semibold uppercase tracking-[0.16em] opacity-80">
+                    Learn how to use
+                  </span>
+                )}
+              </a>
+            );
+          })}
         </div>
       </aside>
     </>

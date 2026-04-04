@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import api from "../api/axios";
 import useThemeMode from "../hooks/useThemeMode.jsx";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import ImageCropModal from "../components/ImageCropModal";
 
 const initialForm = {
@@ -257,29 +257,24 @@ export default function LegacyPage() {
 
   return (
     <div
-      className={`min-h-screen ${
+      className={`relative min-h-screen ${
         isDarkMode
-          ? "bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950"
-          : "bg-gradient-to-b from-indigo-50 via-white to-white"
-      }`}
+          ? "bg-slate-950"
+          : "bg-[linear-gradient(180deg,_#eff6ff_0%,_#f8faff_40%,_#ffffff_100%)]"
+      } pb-14 pt-20 text-slate-900 sm:pb-20 sm:pt-24`}
     >
-      <section className="relative overflow-hidden px-4 pb-8 pt-24 sm:px-6 sm:pb-12 sm:pt-28">
-        <div
-          className={`absolute inset-x-0 top-0 h-64 ${
-            isDarkMode
-              ? "bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.14),_transparent_52%)]"
-              : "bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.16),_transparent_52%)]"
-          }`}
-        />
+      {/* Radial Gradient Overlay */}
+      <div className="pointer-events-none absolute inset-0 opacity-60 [background-image:radial-gradient(circle_at_20%_20%,rgba(59,130,246,0.16),transparent_0_22%),radial-gradient(circle_at_80%_18%,rgba(125,211,252,0.18),transparent_0_20%),radial-gradient(circle_at_72%_72%,rgba(96,165,250,0.12),transparent_0_24%)]" />
 
+      <section className="relative z-10 px-4 pb-6 pt-0 sm:px-6 sm:pb-10">
         <div className="mx-auto max-w-7xl">
-          <div className="inline-flex items-center gap-2 rounded-full border border-indigo-100 bg-white/80 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-indigo-600 sm:px-4 sm:py-2 sm:text-xs">
+          <div className={`inline-flex items-center gap-2 rounded-full border ${isDarkMode ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' : 'bg-white text-indigo-700 border-indigo-100 shadow-sm'} px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.24em]`}>
             <Sparkles className="h-4 w-4" />
             Network Legacy
           </div>
 
           <h1
-            className={`mt-4 max-w-4xl text-3xl font-extrabold leading-tight sm:mt-5 sm:text-5xl ${
+            className={`mt-4 text-3xl font-semibold tracking-tight sm:text-5xl ${
               isDarkMode ? "text-slate-100" : "text-slate-900"
             }`}
           >
@@ -287,7 +282,7 @@ export default function LegacyPage() {
           </h1>
 
           <p
-            className={`mt-4 max-w-3xl text-sm leading-7 sm:text-lg sm:leading-8 ${
+            className={`mt-4 max-w-3xl text-sm leading-7 sm:text-base ${
               isDarkMode ? "text-slate-300" : "text-slate-600"
             }`}
           >
@@ -376,6 +371,12 @@ export default function LegacyPage() {
                   Send your profile for review. Only approved entries are shown
                   in the public legacy page.
                 </p>
+                <Link
+                  to="/guide"
+                  className="mt-3 inline-flex items-center gap-2 rounded-full border border-indigo-100 bg-indigo-50 px-4 py-2 text-sm font-semibold text-indigo-700 transition hover:bg-indigo-100"
+                >
+                  Need help? Open Guide
+                </Link>
               </div>
 
               <button
@@ -531,11 +532,7 @@ export default function LegacyPage() {
             )}
           </div>
 
-          <div
-            className={`rounded-[1.5rem] border p-4 sm:rounded-[2rem] sm:p-6 ${
-              isDarkMode ? cardShell.dark : cardShell.light
-            }`}
-          >
+          <div className="mt-12">
             <div>
               <h2
                 className={`text-xl font-semibold sm:text-2xl ${
