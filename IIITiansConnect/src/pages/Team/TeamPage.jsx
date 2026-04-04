@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { ArrowRight, Search, Users, UserPlus } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import api from "../../api/axios";
 
 import TeamGrid from "./Components/TeamGrid.jsx";
-import TeamCTA from "./TeamCTA.jsx";
 
 const roleFilters = [
   { label: "All", value: "ALL" },
@@ -13,10 +12,24 @@ const roleFilters = [
   { label: "Team", value: "MEMBER" },
 ];
 
+const normalizeCollegeName = (name) => {
+  let n = (name || "").trim().toLowerCase();
+  if (
+    n.includes("sricity") ||
+    n.includes("sri city") ||
+    n === "chittoor" ||
+    (n.includes("iiit") && n.includes("chittoor"))
+  ) {
+    return "iiit sricity_chittoor_canonical";
+  }
+  return n;
+};
+
 export default function TeamPage() {
+  const [searchParams] = useSearchParams();
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(searchParams.get("search") || "");
   const [year, setYear] = useState("ALL");
   const [role, setRole] = useState("ALL");
 
@@ -27,6 +40,13 @@ export default function TeamPage() {
       .catch((err) => console.error(err))
       .finally(() => setLoading(false));
   }, []);
+
+  const uniqueVisibleCount = useMemo(() => {
+    const emails = new Set(
+      members.map((m) => (m.email || "").trim().toLowerCase()).filter(Boolean)
+    );
+    return emails.size;
+  }, [members]);
 
   const years = useMemo(() => {
     const values = new Set(members.map((member) => member.year).filter(Boolean));
@@ -44,8 +64,12 @@ export default function TeamPage() {
 
   const filteredMembers = useMemo(() => {
     const normalizedSearch = search.toLowerCase();
+    const iiitQuery = searchParams.get("iiit");
+    const normalizedIiitQuery = iiitQuery ? normalizeCollegeName(iiitQuery) : null;
 
     return members.filter((member) => {
+      const memberCollege = normalizeCollegeName(member.iiit);
+
       const matchesSearch =
         member.name?.toLowerCase().includes(normalizedSearch) ||
         member.role?.toLowerCase().includes(normalizedSearch) ||
@@ -53,10 +77,11 @@ export default function TeamPage() {
 
       const matchesYear = year === "ALL" || member.year === year;
       const matchesRole = role === "ALL" || member.roleType === role;
+      const matchesIiitQuery = !normalizedIiitQuery || memberCollege === normalizedIiitQuery;
 
-      return matchesSearch && matchesYear && matchesRole;
+      return matchesSearch && matchesYear && matchesRole && matchesIiitQuery;
     });
-  }, [members, search, year, role]);
+  }, [members, search, year, role, searchParams]);
 
   return (
     <div className="relative min-h-screen bg-[linear-gradient(180deg,_#eef7ff_0%,_#f7fbff_36%,_#f9fcff_100%)]">
@@ -94,7 +119,7 @@ export default function TeamPage() {
           <div className="mt-8 grid gap-4 sm:grid-cols-3">
             <div className="rounded-2xl border border-slate-200 bg-white/70 backdrop-blur-md p-5 shadow-sm">
               <div className="text-3xl font-semibold text-slate-900">
-                {members.length}
+                {uniqueVisibleCount}
               </div>
               <div className="mt-1 text-sm text-slate-600">Visible members</div>
             </div>
@@ -172,10 +197,7 @@ export default function TeamPage() {
             No matching team members found.
           </div>
         ) : (
-          <>
-            <TeamGrid members={filteredMembers} />
-            <TeamCTA />
-          </>
+          <TeamGrid members={filteredMembers} />
         )}
       </section>
     </div>

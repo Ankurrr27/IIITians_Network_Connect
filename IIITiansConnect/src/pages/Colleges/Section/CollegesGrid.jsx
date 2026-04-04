@@ -1,26 +1,31 @@
 import CollegeCard from "./CollegeCard";
 
-export default function CollegesGrid({ colleges, teamMembers = [], discussClubs = [] }) {
-  const getUniqueCollegeTeamCount = (collegeName) => {
+export default function CollegesGrid({ colleges, teamMembers = [], legacyMembers = [], discussClubs = [] }) {
+  const getUniqueCollegeMemberCount = (collegeName) => {
     const uniqueMembers = new Set();
 
-    teamMembers.forEach((member) => {
-      const sameCollege =
-        (member.iiit || "").trim().toLowerCase() ===
-        (collegeName || "").trim().toLowerCase();
-
-      if (!sameCollege) return;
-
-      const uniqueKey =
-        (member.email || "").trim().toLowerCase() ||
-        `${(member.name || "").trim().toLowerCase()}::${(member.iiit || "")
-          .trim()
-          .toLowerCase()}`;
-
-      if (uniqueKey) {
-        uniqueMembers.add(uniqueKey);
+    const normalize = (name) => {
+      let n = (name || "").trim().toLowerCase();
+      // Group synonyms for Sri City / Chittoor
+      if (n.includes("sricity") || n.includes("sri city") || n === "chittoor" || (n.includes("iiit") && n.includes("chittoor"))) {
+        return "iiit sricity_chittoor_canonical";
       }
-    });
+      return n;
+    };
+
+    const targetCollege = normalize(collegeName);
+
+    const addMemberToSet = (member) => {
+      const memberCollege = normalize(member.iiit);
+      if (memberCollege !== targetCollege) return;
+
+      const uniqueKey = (member.email || "").trim().toLowerCase() ||
+                        `${(member.name || "").trim().toLowerCase()}::${memberCollege}`;
+      if (uniqueKey) uniqueMembers.add(uniqueKey);
+    };
+
+    teamMembers.forEach(addMemberToSet);
+    legacyMembers.forEach(addMemberToSet);
 
     return uniqueMembers.size;
   };
@@ -39,7 +44,7 @@ export default function CollegesGrid({ colleges, teamMembers = [], discussClubs 
         <CollegeCard
           key={college._id}
           college={college}
-          teamCount={getUniqueCollegeTeamCount(college.name)}
+          teamCount={getUniqueCollegeMemberCount(college.name)}
           discussClubs={discussClubs.filter(
             (club) =>
               (club.collegeName || "").trim().toLowerCase() ===

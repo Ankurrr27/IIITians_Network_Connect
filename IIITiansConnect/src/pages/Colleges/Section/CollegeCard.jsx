@@ -150,24 +150,36 @@ const CollegeCard = ({ college, teamCount = 0, discussClubs = [] }) => {
           </div>
         )}
 
-        <div className="mt-auto flex flex-wrap gap-2">
-          {website && (
-            <a
-              href={website}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1 rounded-full bg-indigo-50 px-3 py-1.5 text-sm text-indigo-700 transition hover:bg-indigo-100"
-            >
-              Visit Website <ExternalLink size={14} />
-            </a>
-          )}
+        <div className="mt-auto pt-4 border-t border-slate-100">
+          <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.15em] text-slate-500 mb-3">
+             <Users size={14} className="text-indigo-500" />
+             {teamCount} Network Members
+          </div>
 
-          <Link
-            to={`/legacy?iiit=${encodeURIComponent(name)}`}
-            className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1.5 text-sm text-emerald-700 transition hover:bg-emerald-100"
-          >
-            {teamCount} network members <Users size={14} />
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              to={`/team?iiit=${encodeURIComponent(name)}`}
+              className="inline-flex items-center gap-1 leading-none rounded-full bg-indigo-600 px-3.5 py-2 text-[11px] font-bold uppercase tracking-wider text-white transition hover:bg-indigo-700 hover:shadow-md"
+            >
+              View Team
+            </Link>
+            <Link
+              to={`/legacy?iiit=${encodeURIComponent(name)}`}
+              className="inline-flex items-center gap-1 leading-none rounded-full bg-emerald-600 px-3.5 py-2 text-[11px] font-bold uppercase tracking-wider text-white transition hover:bg-emerald-700 hover:shadow-md"
+            >
+              View Legacy
+            </Link>
+            {website && (
+              <a
+                href={website}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 leading-none rounded-full border border-slate-200 bg-white px-3.5 py-2 text-[11px] font-bold uppercase tracking-wider text-slate-700 transition hover:bg-slate-50 hover:border-slate-300"
+              >
+                Website <ExternalLink size={12} />
+              </a>
+            )}
+          </div>
         </div>
       </div>
     </div>

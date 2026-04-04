@@ -46,6 +46,19 @@ const cardShell = {
 
 const normalizeText = (value = "") => value.trim().toLowerCase();
 
+const normalizeCollegeName = (name) => {
+  let n = (name || "").trim().toLowerCase();
+  if (
+    n.includes("sricity") ||
+    n.includes("sri city") ||
+    n === "chittoor" ||
+    (n.includes("iiit") && n.includes("chittoor"))
+  ) {
+    return "iiit sricity_chittoor_canonical";
+  }
+  return n;
+};
+
 export default function LegacyPage() {
   const { isDarkMode } = useThemeMode();
   const [searchParams] = useSearchParams();
@@ -66,6 +79,18 @@ export default function LegacyPage() {
   const [networkPostFilter, setNetworkPostFilter] = useState(
     searchParams.get("networkPost") || ""
   );
+
+  const filteredEntries = useMemo(() => {
+    const queryIiit = searchParams.get("iiit");
+    const normalizedQuery = queryIiit ? normalizeCollegeName(queryIiit) : null;
+
+    if (!normalizedQuery) return entries;
+
+    return entries.filter((entry) => {
+      const memberCollege = normalizeCollegeName(entry.iiit);
+      return memberCollege === normalizedQuery;
+    });
+  }, [entries, searchParams]);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [submitState, setSubmitState] = useState({
     loading: false,
@@ -706,7 +731,7 @@ export default function LegacyPage() {
                 </p>
               </div>
             ) : (
-              entries.map((entry) => {
+              filteredEntries.map((entry) => {
                 const normalizedNetworkPost = normalizeText(entry.networkPost);
                 const normalizedCurrentRole = normalizeText(entry.currentRole);
                 const normalizedCurrentCompany = normalizeText(

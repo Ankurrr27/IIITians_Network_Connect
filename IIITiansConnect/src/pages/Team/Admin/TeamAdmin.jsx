@@ -1,13 +1,20 @@
 import { useEffect, useMemo, useState } from "react";
-import { ArrowUpDown, GripVertical, Search } from "lucide-react";
+import { 
+  ArrowUpDown, 
+  GripVertical, 
+  Search, 
+  Users, 
+  ShieldCheck 
+} from "lucide-react";
 import api from "../../../api/axios";
 
 import TeamMemberForm from "./TeamMemberForm";
 import TeamMemberList from "./TeamMemberList";
 import EditMemberModal from "./EditMemberModal";
-import TeamRequestList from "./TeamRequestList";
+import MockRequestList from "./MockRequestList";
 
 export default function TeamAdmin() {
+  console.log("Icon Status:", { ShieldCheck, Users });
   const [members, setMembers] = useState([]);
   const [editingMember, setEditingMember] = useState(null);
   const [query, setQuery] = useState("");
@@ -193,19 +200,41 @@ export default function TeamAdmin() {
       </div>
 
       {activeTab === "pending" ? (
-        <section className="space-y-6">
-          <div className="rounded-[2.5rem] border border-indigo-100 bg-indigo-50/50 p-6">
-            <h2 className="text-xl font-bold text-slate-900">Application Review Queue</h2>
-            <p className="mt-1 text-sm text-slate-600">These profiles were submitted via the public /team/join form.</p>
+        <section className="space-y-8">
+          <div className="rounded-[2.5rem] border border-indigo-100 bg-indigo-50/50 p-8 shadow-sm">
+            <div className="flex flex-col items-center justify-center space-y-4 text-center py-6">
+              <div className="flex h-16 w-16 animate-pulse items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-indigo-100">
+                <ShieldCheck size={32} className="text-indigo-400" />
+              </div>
+              <div className="max-w-md space-y-2">
+                <h2 className="text-xl font-bold text-slate-900">
+                  Waiting for backend API /team-requests to be live...
+                </h2>
+                <p className="text-sm leading-relaxed text-slate-600">
+                  Applications submitted via the public form will appear here once the API is connected. 
+                  Currently, we are using <strong>LocalStorage Mocking</strong> to allow you to test.
+                </p>
+              </div>
+              <div className="flex items-center gap-2 rounded-full border border-indigo-100 bg-white px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-indigo-600">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-indigo-400 opacity-75"></span>
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-indigo-500"></span>
+                </span>
+                LocalStorage Mock Active
+              </div>
+            </div>
           </div>
-          <TeamRequestList 
-            reloadTrigger={reloadRequests}
-            onApprove={(req) => {
-              setPendingApprovalReq(req);
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-              setActiveTab("active");
-            }} 
-          />
+
+          <div className="space-y-4">
+             <h3 className="text-sm font-bold uppercase tracking-widest text-slate-400 text-center lg:text-left">Applications Queue (Offline Data)</h3>
+             <MockRequestList 
+               onApprove={(req) => {
+                 setPendingApprovalReq(req);
+                 setActiveTab("active");
+                 window.scrollTo({ top: 300, behavior: 'smooth' });
+               }} 
+             />
+          </div>
         </section>
       ) : (
         <>

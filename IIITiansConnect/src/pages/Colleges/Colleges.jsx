@@ -8,6 +8,7 @@ import CollegesGrid from "./Section/CollegesGrid";
 export default function CollegesPage() {
   const [colleges, setColleges] = useState([]);
   const [teamMembers, setTeamMembers] = useState([]);
+  const [legacyMembers, setLegacyMembers] = useState([]);
   const [discussClubs, setDiscussClubs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -19,9 +20,10 @@ export default function CollegesPage() {
     Promise.allSettled([
       api.get("/colleges"),
       api.get("/team"),
+      api.get("/alumni"),
       api.get("/discuss-accounts/public"),
     ])
-      .then(([collegesResult, teamResult, discussAccountsResult]) => {
+      .then(([collegesResult, teamResult, legacyResult, discussAccountsResult]) => {
         if (collegesResult.status !== "fulfilled") {
           throw new Error("Failed to load colleges");
         }
@@ -29,6 +31,9 @@ export default function CollegesPage() {
         setColleges(collegesResult.value.data || []);
         setTeamMembers(
           teamResult.status === "fulfilled" ? teamResult.value.data || [] : []
+        );
+        setLegacyMembers(
+          legacyResult.status === "fulfilled" ? legacyResult.value.data || [] : []
         );
         setDiscussClubs(
           discussAccountsResult.status === "fulfilled"
@@ -67,6 +72,7 @@ export default function CollegesPage() {
         <CollegesGrid
           colleges={filtered}
           teamMembers={teamMembers}
+          legacyMembers={legacyMembers}
           discussClubs={discussClubs}
         />
       </div>

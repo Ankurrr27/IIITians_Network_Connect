@@ -15,9 +15,8 @@ import {
 } from "lucide-react";
 import api from "../api/axios";
 
-const BASE_VIEW_COUNT = 24800;
+const BASE_VIEW_COUNT = 24810;
 const VIEW_STORAGE_KEY = "iiitians-network-total-views";
-const VIEW_SESSION_KEY = "iiitians-network-view-recorded";
 
 const Footer = () => {
   const [stats, setStats] = useState({
@@ -27,7 +26,7 @@ const Footer = () => {
     clubs: 0,
   });
 
-  const loadStats = async (currentViews) => {
+  const loadStats = async () => {
     try {
       const [teamRes, collegesRes, clubsRes] = await Promise.allSettled([
         api.get("/team"),
@@ -35,12 +34,12 @@ const Footer = () => {
         api.get("/discuss-accounts/public"),
       ]);
 
-      setStats({
-        views: currentViews,
+      setStats((prev) => ({
+        ...prev,
         members: teamRes.status === "fulfilled" ? teamRes.value.data?.length || 0 : 0,
         colleges: collegesRes.status === "fulfilled" ? collegesRes.value.data?.length || 0 : 0,
         clubs: clubsRes.status === "fulfilled" ? clubsRes.value.data?.length || 0 : 0,
-      });
+      }));
     } catch (err) {
       console.error("FOOTER STATS ERROR:", err);
     }
@@ -49,20 +48,20 @@ const Footer = () => {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
+    // Increment on every mount (visit)
     const storedCount = Number(localStorage.getItem(VIEW_STORAGE_KEY));
-    const hasRecordedThisSession = sessionStorage.getItem(VIEW_SESSION_KEY);
     let nextCount =
       Number.isFinite(storedCount) && storedCount >= BASE_VIEW_COUNT
-        ? storedCount
-        : BASE_VIEW_COUNT;
+        ? storedCount + 1
+        : BASE_VIEW_COUNT + 1;
 
-    if (!hasRecordedThisSession) {
-      nextCount += 1;
-      localStorage.setItem(VIEW_STORAGE_KEY, String(nextCount));
-      sessionStorage.setItem(VIEW_SESSION_KEY, "true");
-    }
+    localStorage.setItem(VIEW_STORAGE_KEY, String(nextCount));
+    
+    // Immediate UI update for the view count
+    setStats(prev => ({ ...prev, views: nextCount }));
 
-    loadStats(nextCount);
+    // Async fetch for other stats
+    loadStats();
   }, []);
 
   return (

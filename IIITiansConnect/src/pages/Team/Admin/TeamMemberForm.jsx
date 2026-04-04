@@ -111,15 +111,51 @@ export default function TeamMemberForm({ onSuccess, members = [], initialData = 
 
   const [preFilledPhotoUrl, setPreFilledPhotoUrl] = useState("");
 
+  const base64ToFile = (base64String, filename) => {
+    try {
+      const arr = base64String.split(",");
+      const mime = arr[0].match(/:(.*?);/)[1];
+      const bstr = atob(arr[1]);
+      let n = bstr.length;
+      const u8arr = new Uint8Array(n);
+      while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+      }
+      return new File([u8arr], filename, { type: mime });
+    } catch (e) {
+      console.error("Failed to convert base64 to file:", e);
+      return null;
+    }
+  };
+
   useEffect(() => {
     if (initialData) {
       setForm({
         ...initialForm,
-        ...initialData,
-        year: initialData.year || latestTeamYear,
+        name: initialData.name || "",
+        role: initialData.role || "",
+        email: initialData.email || "",
+        iiit: initialData.iiit || "",
         team: initialData.team || "Development",
+        year: initialData.year || latestTeamYear,
+        linkedin: initialData.linkedin || "",
+        instagram: initialData.instagram || "",
+        aboutText: initialData.aboutText || "",
+        messageText: initialData.messageText || "",
+        roleType: "MEMBER", // Default for new applicants
       });
+
       setTransitionType("fresh");
+
+      // Handle Mock Photo Carry-over
+      if (initialData.photoBase64) {
+        const restoredFile = base64ToFile(
+          initialData.photoBase64,
+          `applicant_${Date.now()}.png`
+        );
+        if (restoredFile) setPhoto(restoredFile);
+      }
+
       if (initialData.photo?.url) {
         setPreFilledPhotoUrl(initialData.photo.url);
       }
@@ -222,6 +258,7 @@ export default function TeamMemberForm({ onSuccess, members = [], initialData = 
   return (
     <form
       onSubmit={submit}
+      noValidate
       className="mx-auto space-y-5 rounded-[1.75rem] border border-slate-200 bg-white p-4 sm:p-6"
     >
       <div className="flex flex-col gap-2">
@@ -490,6 +527,11 @@ export default function TeamMemberForm({ onSuccess, members = [], initialData = 
                 </>
               )}
             </div>
+            {initialData?.hasPhoto && !photo && (
+              <p className="text-xs font-medium text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-100 w-fit">
+                ✓ Applicant uploaded a photo. Please re-upload or ask for the file for final publishing.
+              </p>
+            )}
 
             {selectedMember && !photo && transitionType !== "fresh" && (
               <p className="text-sm text-slate-500">
@@ -515,7 +557,6 @@ export default function TeamMemberForm({ onSuccess, members = [], initialData = 
               <option>Design</option>
               <option>Content</option>
               <option>Social Media</option>
-              <option>Video & Post</option>
             </select>
 
             <input
