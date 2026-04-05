@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import {
   Trash2,
   ImagePlus,
@@ -30,7 +30,9 @@ import {
 } from "./discuss.constants";
 
 export default function DiscussPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [posts, setPosts] = useState([]);
+  const [collegeOptions, setCollegeOptions] = useState([]);
   const [myPosts, setMyPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [panelMode, setPanelMode] = useState("");
@@ -68,6 +70,17 @@ export default function DiscussPage() {
     }
   };
 
+  const loadColleges = async () => {
+    try {
+      const response = await api.get("/colleges");
+      setCollegeOptions(
+        (response.data || []).map((college) => college?.name).filter(Boolean)
+      );
+    } catch {
+      setCollegeOptions([]);
+    }
+  };
+
   const loadAccount = async () => {
     const token = localStorage.getItem("discussToken");
     if (!token) {
@@ -101,7 +114,25 @@ export default function DiscussPage() {
   useEffect(() => {
     loadPosts();
     loadAccount();
+    loadColleges();
   }, []);
+
+  useEffect(() => {
+    const mode = searchParams.get("mode");
+    const college = searchParams.get("college");
+
+    if (college) {
+      setRegisterForm((prev) => ({
+        ...prev,
+        collegeName: prev.collegeName || college,
+      }));
+    }
+
+    if (mode === "register") {
+      setAuthMode("register");
+      setPanelMode("auth");
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (!postImages.length) {
@@ -159,6 +190,9 @@ export default function DiscussPage() {
     setAuthState((prev) => ({ ...prev, error: "" }));
     setPostState((prev) => ({ ...prev, error: "" }));
     resetComposer();
+    if (searchParams.get("mode") || searchParams.get("college")) {
+      setSearchParams({}, { replace: true });
+    }
   };
 
   const handleBannerChange = (event) => {
@@ -179,7 +213,7 @@ export default function DiscussPage() {
       setAuthState({
         loading: false,
         error: "",
-        success: "Club account created. Log in now and wait for verification.",
+        success: "Club request created. An admin must approve it before login and posting are enabled.",
       });
     } catch (error) {
       setAuthState({
@@ -385,7 +419,7 @@ export default function DiscussPage() {
 
         <div className="mt-6 space-y-4">
           {loading ? (
-            <EmptyBlock message="Loading discuss updates..." />
+            <DiscussFeedSkeletonList />
           ) : posts.length === 0 ? (
             <EmptyBlock message="No live updates yet. The first approved club announcement will appear here." />
           ) : (
@@ -415,7 +449,7 @@ export default function DiscussPage() {
             {postState.success && <Message tone="success">{postState.success}</Message>}
             <form onSubmit={handleSubmitPost} className="space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
-                <TextInput name="title" value={postForm.title} onChange={(e) => setPostForm((p) => ({ ...p, title: e.target.value }))} placeholder="Post title" required />
+                <TextInput name="title" value={postForm.title} onChange={(e) => setPostForm((p) => ({ ...p, title: e.target.value }))} placeholder="e.g. Abhivyakti registrations are now live" required />
                 <select
                   name="type"
                   value={postForm.type}
@@ -427,7 +461,7 @@ export default function DiscussPage() {
                   ))}
                 </select>
               </div>
-              <TextInput name="actionLink" value={postForm.actionLink} onChange={(e) => setPostForm((p) => ({ ...p, actionLink: e.target.value }))} placeholder="Registration or event link" />
+              <TextInput name="actionLink" value={postForm.actionLink} onChange={(e) => setPostForm((p) => ({ ...p, actionLink: e.target.value }))} placeholder="e.g. https://forms.gle/your-event-link" />
               {postForm.type === "event" && (
                 <TextInput
                   name="eventDate"
@@ -460,7 +494,7 @@ export default function DiscussPage() {
                 name="description"
                 value={postForm.description}
                 onChange={(e) => setPostForm((p) => ({ ...p, description: e.target.value }))}
-                placeholder="Write the update..."
+                placeholder="e.g. Happy to share that our flagship hackathon is opening registrations tonight. Use the link above to join, and share this with your campus community."
                 rows={7}
                 required
                 className={`${inputClassName} min-h-[180px] resize-none py-4`}
@@ -617,8 +651,12 @@ export default function DiscussPage() {
                 </div>
                 {authMode === "login" ? (
                   <form onSubmit={handleLogin} className="mt-5 space-y-4">
-                    <HandleInput value={loginForm.handle} onChange={(e) => setLoginForm((p) => ({ ...p, handle: e.target.value }))} />
-                    <TextInput name="password" type="password" value={loginForm.password} onChange={(e) => setLoginForm((p) => ({ ...p, password: e.target.value }))} placeholder="Password" required />
+                    <LabeledField label="Club handle">
+                      <HandleInput value={loginForm.handle} onChange={(e) => setLoginForm((p) => ({ ...p, handle: e.target.value }))} />
+                    </LabeledField>
+                    <LabeledField label="Password">
+                      <TextInput name="password" type="password" value={loginForm.password} onChange={(e) => setLoginForm((p) => ({ ...p, password: e.target.value }))} placeholder="Enter your club password" required />
+                    </LabeledField>
                     <button type="submit" disabled={authState.loading} className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:opacity-60">
                       <LogIn className="h-4 w-4" />
                       {authState.loading ? "Logging in..." : "Login"}
@@ -627,13 +665,33 @@ export default function DiscussPage() {
                 ) : (
                   <form onSubmit={handleRegister} className="mt-5 space-y-4">
                     <div className="grid gap-4 sm:grid-cols-2">
-                      <TextInput name="collegeName" value={registerForm.collegeName} onChange={(e) => setRegisterForm((p) => ({ ...p, collegeName: e.target.value }))} placeholder="College name" required />
-                      <TextInput name="clubName" value={registerForm.clubName} onChange={(e) => setRegisterForm((p) => ({ ...p, clubName: e.target.value }))} placeholder="Club name" required />
-                      <TextInput name="contactName" value={registerForm.contactName} onChange={(e) => setRegisterForm((p) => ({ ...p, contactName: e.target.value }))} placeholder="PoC name" required />
-                      <TextInput name="contactPhone" value={registerForm.contactPhone} onChange={(e) => setRegisterForm((p) => ({ ...p, contactPhone: e.target.value }))} placeholder="PoC phone" />
+                      <LabeledField label="College / institute" className="sm:col-span-2">
+                        <TextInput name="collegeName" list="discuss-college-options" value={registerForm.collegeName} onChange={(e) => setRegisterForm((p) => ({ ...p, collegeName: e.target.value }))} placeholder="Choose or type your IIIT, e.g. IIIT Kota" required />
+                        <datalist id="discuss-college-options">
+                          {collegeOptions.map((option) => (
+                            <option key={option} value={option} />
+                          ))}
+                        </datalist>
+                      </LabeledField>
+                      <LabeledField label="Club / society name">
+                        <TextInput name="clubName" value={registerForm.clubName} onChange={(e) => setRegisterForm((p) => ({ ...p, clubName: e.target.value }))} placeholder="e.g. E-Cell" required />
+                      </LabeledField>
+                      <LabeledField label="Point of contact name">
+                        <TextInput name="contactName" value={registerForm.contactName} onChange={(e) => setRegisterForm((p) => ({ ...p, contactName: e.target.value }))} placeholder="e.g. Priyanshu Sharma" required />
+                      </LabeledField>
+                      <LabeledField label="Point of contact phone">
+                        <TextInput name="contactPhone" value={registerForm.contactPhone} onChange={(e) => setRegisterForm((p) => ({ ...p, contactPhone: e.target.value }))} placeholder="e.g. 9876543210" />
+                      </LabeledField>
                     </div>
-                    <HandleInput value={registerForm.handle} onChange={(e) => setRegisterForm((p) => ({ ...p, handle: e.target.value }))} />
-                    <TextInput name="password" type="password" value={registerForm.password} onChange={(e) => setRegisterForm((p) => ({ ...p, password: e.target.value }))} placeholder="Create password" required />
+                    <LabeledField label="Club website / Linktree">
+                      <TextInput name="website" value={registerForm.website} onChange={(e) => setRegisterForm((p) => ({ ...p, website: e.target.value }))} placeholder="e.g. https://linktr.ee/ecelliiitkota" />
+                    </LabeledField>
+                    <LabeledField label="Club handle">
+                      <HandleInput value={registerForm.handle} onChange={(e) => setRegisterForm((p) => ({ ...p, handle: e.target.value }))} />
+                    </LabeledField>
+                    <LabeledField label="Create password">
+                      <TextInput name="password" type="password" value={registerForm.password} onChange={(e) => setRegisterForm((p) => ({ ...p, password: e.target.value }))} placeholder="Create a password for your club account" required />
+                    </LabeledField>
                     <button type="submit" disabled={authState.loading} className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-60">
                       <UserPlus className="h-4 w-4" />
                       {authState.loading ? "Creating..." : "Create club account"}
@@ -665,6 +723,40 @@ function EmptyBlock({ message }) {
   return <div className="rounded-[1.8rem] border border-sky-100 bg-white/90 px-5 py-6 text-sm text-slate-600 shadow-sm">{message}</div>;
 }
 
+function DiscussFeedSkeletonList() {
+  return (
+    <div className="space-y-4">
+      {Array.from({ length: 4 }).map((_, index) => (
+        <div
+          key={index}
+          className="animate-pulse overflow-hidden rounded-[1.8rem] border border-sky-100 bg-white/90 shadow-sm"
+        >
+          <div className="flex flex-col gap-0 md:grid md:grid-cols-[12rem_minmax(0,1fr)]">
+            <div className="aspect-square bg-slate-200 md:h-full md:min-h-[12rem]" />
+            <div className="space-y-4 p-5">
+              <div className="flex flex-wrap gap-2">
+                <div className="h-7 w-24 rounded-full bg-slate-200" />
+                <div className="h-7 w-20 rounded-full bg-slate-100" />
+                <div className="h-7 w-28 rounded-full bg-slate-100" />
+              </div>
+              <div className="h-7 w-2/3 rounded-xl bg-slate-200" />
+              <div className="space-y-2">
+                <div className="h-4 w-full rounded bg-slate-100" />
+                <div className="h-4 w-5/6 rounded bg-slate-100" />
+                <div className="h-4 w-3/4 rounded bg-slate-100" />
+              </div>
+              <div className="flex gap-2">
+                <div className="h-8 w-24 rounded-full bg-slate-100" />
+                <div className="h-8 w-20 rounded-full bg-slate-100" />
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function Message({ tone = "success", children }) {
   const styles = tone === "error" ? "border-rose-200 bg-rose-50 text-rose-700" : "border-emerald-200 bg-emerald-50 text-emerald-700";
   return <p className={`mt-4 rounded-2xl border px-4 py-3 text-sm ${styles}`}>{children}</p>;
@@ -679,15 +771,26 @@ function StatCard({ label, value }) {
   );
 }
 
-function TextInput({ name, type = "text", value, onChange, placeholder, required = false }) {
-  return <input name={name} type={type} value={value} onChange={onChange} placeholder={placeholder} required={required} className={inputClassName} />;
+function TextInput({ name, type = "text", value, onChange, placeholder, required = false, list }) {
+  return <input name={name} type={type} value={value} onChange={onChange} placeholder={placeholder} required={required} list={list} className={inputClassName} />;
 }
 
 function HandleInput({ value, onChange }) {
   return (
     <div className="flex overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 focus-within:border-emerald-600 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-100">
-      <input name="handle" value={value} onChange={onChange} placeholder="neon" required className="w-full bg-transparent px-4 py-3 text-sm outline-none" />
+      <input name="handle" value={value} onChange={onChange} placeholder="e.g. ecellkota" required className="w-full bg-transparent px-4 py-3 text-sm outline-none" />
       <span className="flex items-center border-l border-slate-200 px-4 text-sm text-slate-500">@iiitiansnetwork</span>
+    </div>
+  );
+}
+
+function LabeledField({ label, children, className = "" }) {
+  return (
+    <div className={`space-y-2 ${className}`}>
+      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+        {label}
+      </p>
+      {children}
     </div>
   );
 }

@@ -3,6 +3,7 @@ import {
   Building2,
   CheckCircle2,
   Clock3,
+  ExternalLink,
   Mail,
   Newspaper,
   Phone,
@@ -145,7 +146,33 @@ export default function DiscussAdminPage() {
         </div>
 
         {loading ? (
-          <p className="text-sm text-slate-600">Loading discuss accounts...</p>
+          <div className="grid gap-4 xl:grid-cols-2">
+            {Array.from({ length: 4 }).map((_, index) => (
+              <div
+                key={index}
+                className="animate-pulse rounded-[1.6rem] border border-slate-200 bg-[linear-gradient(180deg,_#ffffff_0%,_#f8fafc_100%)] p-5 shadow-sm"
+              >
+                <div className="flex gap-2">
+                  <div className="h-7 w-28 rounded-full bg-slate-200" />
+                  <div className="h-7 w-24 rounded-full bg-slate-100" />
+                </div>
+                <div className="mt-4 h-6 w-1/2 rounded bg-slate-200" />
+                <div className="mt-3 flex gap-2">
+                  <div className="h-7 w-28 rounded-full bg-slate-100" />
+                  <div className="h-7 w-20 rounded-full bg-slate-100" />
+                </div>
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  <div className="h-28 rounded-2xl bg-slate-100" />
+                  <div className="h-28 rounded-2xl bg-slate-100" />
+                </div>
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  <div className="h-12 rounded-2xl bg-slate-100" />
+                  <div className="h-12 rounded-2xl bg-slate-100" />
+                  <div className="h-12 rounded-2xl bg-slate-100 sm:col-span-2" />
+                </div>
+              </div>
+            ))}
+          </div>
         ) : accounts.length === 0 ? (
           <p className="text-sm text-slate-600">No discuss accounts created yet.</p>
         ) : (
@@ -193,6 +220,17 @@ export default function DiscussAdminPage() {
                         {account.email}
                       </p>
                     )}
+                    {account.website && (
+                      <a
+                        href={account.website}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="mt-2 inline-flex items-center gap-2 break-all text-sm text-indigo-600 hover:text-indigo-500"
+                      >
+                        <ExternalLink className="h-4 w-4" />
+                        {account.website}
+                      </a>
+                    )}
                   </div>
 
                   <div className="rounded-2xl bg-slate-50 p-3 ring-1 ring-slate-200/80">
@@ -207,6 +245,12 @@ export default function DiscussAdminPage() {
                 </div>
 
                 <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  <input
+                    defaultValue={account.website || ""}
+                    onBlur={(event) => updateAccount(account.id, { website: event.target.value })}
+                    placeholder="Club website / Linktree"
+                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100"
+                  />
                   <select
                     value={account.role}
                     onChange={(event) => updateAccount(account.id, { role: event.target.value })}
@@ -271,7 +315,27 @@ export default function DiscussAdminPage() {
         </div>
 
         {loading ? (
-          <p className="text-sm text-slate-600">Loading discuss posts...</p>
+          <div className="space-y-4">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <div
+                key={index}
+                className="animate-pulse rounded-[1.6rem] border border-slate-200 bg-slate-50 p-5"
+              >
+                <div className="flex flex-wrap gap-2">
+                  <div className="h-7 w-24 rounded-full bg-slate-200" />
+                  <div className="h-7 w-20 rounded-full bg-slate-100" />
+                  <div className="h-7 w-28 rounded-full bg-slate-100" />
+                </div>
+                <div className="mt-4 h-6 w-2/3 rounded bg-slate-200" />
+                <div className="mt-3 space-y-2">
+                  <div className="h-4 w-full rounded bg-slate-100" />
+                  <div className="h-4 w-5/6 rounded bg-slate-100" />
+                  <div className="h-4 w-2/3 rounded bg-slate-100" />
+                </div>
+                <div className="mt-4 h-40 rounded-2xl bg-slate-200" />
+              </div>
+            ))}
+          </div>
         ) : posts.length === 0 ? (
           <p className="text-sm text-slate-600">No discuss posts submitted yet.</p>
         ) : (

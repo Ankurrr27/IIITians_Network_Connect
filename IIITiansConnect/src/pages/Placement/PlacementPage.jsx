@@ -331,7 +331,7 @@ export default function PlacementPage() {
 
                   <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
                     <input
-                      placeholder="Branch"
+                      placeholder="e.g. CSE"
                       value={row.branch}
                       onChange={(event) =>
                         updateField(index, "branch", event.target.value)
@@ -340,7 +340,7 @@ export default function PlacementPage() {
                     />
                     <input
                       type="number"
-                      placeholder="Highest Package"
+                      placeholder="e.g. 44"
                       value={row.highestPackage}
                       onChange={(event) =>
                         updateField(index, "highestPackage", event.target.value)
@@ -349,7 +349,7 @@ export default function PlacementPage() {
                     />
                     <input
                       type="number"
-                      placeholder="Average Package"
+                      placeholder="e.g. 19.5"
                       value={row.averagePackage}
                       onChange={(event) =>
                         updateField(index, "averagePackage", event.target.value)
@@ -358,7 +358,7 @@ export default function PlacementPage() {
                     />
                     <input
                       type="number"
-                      placeholder="Lowest Package"
+                      placeholder="e.g. 6"
                       value={row.lowestPackage}
                       onChange={(event) =>
                         updateField(index, "lowestPackage", event.target.value)
@@ -367,7 +367,7 @@ export default function PlacementPage() {
                     />
                     <input
                       type="number"
-                      placeholder="Placement %"
+                      placeholder="e.g. 87"
                       value={row.placementPercentage}
                       onChange={(event) =>
                         updateField(
@@ -380,7 +380,7 @@ export default function PlacementPage() {
                     />
                     <input
                       type="number"
-                      placeholder="Students Placed"
+                      placeholder="e.g. 52"
                       value={row.studentsPlaced}
                       onChange={(event) =>
                         updateField(index, "studentsPlaced", event.target.value)
@@ -389,7 +389,7 @@ export default function PlacementPage() {
                     />
                     <input
                       type="number"
-                      placeholder="Total Students"
+                      placeholder="e.g. 60"
                       value={row.totalStudents}
                       onChange={(event) =>
                         updateField(index, "totalStudents", event.target.value)

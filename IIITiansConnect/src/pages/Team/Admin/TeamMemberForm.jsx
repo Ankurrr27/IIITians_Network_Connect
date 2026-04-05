@@ -72,6 +72,7 @@ function getLatestTeamYear(members = []) {
 
 export default function TeamMemberForm({ onSuccess, members = [], initialData = null }) {
   const latestTeamYear = useMemo(() => getLatestTeamYear(members), [members]);
+  const [collegeOptions, setCollegeOptions] = useState([]);
   const [form, setForm] = useState(() => ({
     ...initialForm,
     year: getLatestTeamYear(members),
@@ -99,6 +100,21 @@ export default function TeamMemberForm({ onSuccess, members = [], initialData = 
     setPhoto(null);
     setRawPhoto(null);
   }, [selectedMemberId, transitionType]);
+
+  useEffect(() => {
+    const loadColleges = async () => {
+      try {
+        const response = await api.get("/colleges");
+        setCollegeOptions(
+          (response.data || []).map((college) => college?.name).filter(Boolean)
+        );
+      } catch {
+        setCollegeOptions([]);
+      }
+    };
+
+    loadColleges();
+  }, []);
 
   useEffect(() => {
     if (transitionType !== "fresh" || selectedMemberId) return;
@@ -425,19 +441,41 @@ export default function TeamMemberForm({ onSuccess, members = [], initialData = 
           </select>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {["name", "role", "iiit", "email", "linkedin", "instagram", "twitter"].map(
-              (key) => (
-                <input
-                  key={key}
-                  name={key}
-                  value={form[key]}
-                  onChange={handleChange}
-                  placeholder={key === "iiit" ? "IIIT" : key.toUpperCase()}
-                  className="w-full rounded-2xl border border-slate-200 px-3 py-3 text-sm outline-none transition focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100"
-                  required={!["linkedin", "instagram", "twitter"].includes(key)}
-                />
-              )
-            )}
+            {[
+              ["name", "e.g. Ankur Singh"],
+              ["role", "e.g. Vice President"],
+              ["email", "e.g. ankur@iiitkota.ac.in"],
+              ["linkedin", "e.g. https://linkedin.com/in/ankur-singh"],
+              ["instagram", "e.g. https://instagram.com/ankurwrites"],
+              ["twitter", "e.g. https://x.com/ankursingh"],
+            ].map(([key, placeholder]) => (
+              <input
+                key={key}
+                name={key}
+                value={form[key]}
+                onChange={handleChange}
+                placeholder={placeholder}
+                className="w-full rounded-2xl border border-slate-200 px-3 py-3 text-sm outline-none transition focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100"
+                required={!["linkedin", "instagram", "twitter"].includes(key)}
+              />
+            ))}
+
+            <div className="sm:col-span-2">
+              <input
+                name="iiit"
+                list="team-admin-colleges"
+                value={form.iiit}
+                onChange={handleChange}
+                placeholder="Choose or type an IIIT, e.g. IIIT Kota"
+                className="w-full rounded-2xl border border-slate-200 px-3 py-3 text-sm outline-none transition focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100"
+                required
+              />
+              <datalist id="team-admin-colleges">
+                {collegeOptions.map((option) => (
+                  <option key={option} value={option} />
+                ))}
+              </datalist>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -445,7 +483,7 @@ export default function TeamMemberForm({ onSuccess, members = [], initialData = 
               name="aboutText"
               value={form.aboutText}
               onChange={handleChange}
-              placeholder="Leadership about text"
+              placeholder="e.g. Leading design systems, product thinking, and execution across the network."
               rows={4}
               className="w-full rounded-2xl border border-slate-200 px-3 py-3 text-sm outline-none transition focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100"
             />
@@ -453,7 +491,7 @@ export default function TeamMemberForm({ onSuccess, members = [], initialData = 
               name="messageText"
               value={form.messageText}
               onChange={handleChange}
-              placeholder="Leadership message text"
+              placeholder="e.g. Focused on building a more useful, visible, and collaborative network for every campus."
               rows={4}
               className="w-full rounded-2xl border border-slate-200 px-3 py-3 text-sm outline-none transition focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100"
             />
@@ -564,7 +602,7 @@ export default function TeamMemberForm({ onSuccess, members = [], initialData = 
               value={form.year}
               onChange={handleChange}
               className="w-full rounded-2xl border border-slate-200 px-3 py-3 text-sm outline-none transition focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100"
-              placeholder="Team term (2025-26)"
+              placeholder="e.g. 2025-26"
             />
 
             <input
@@ -573,7 +611,7 @@ export default function TeamMemberForm({ onSuccess, members = [], initialData = 
               value={form.order}
               onChange={handleChange}
               className="w-full rounded-2xl border border-slate-200 px-3 py-3 text-sm outline-none transition focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100"
-              placeholder="Display order"
+              placeholder="e.g. 1"
             />
           </div>
         </>

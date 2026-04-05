@@ -63,6 +63,7 @@ export default function LegacyPage() {
   const { isDarkMode } = useThemeMode();
   const [searchParams] = useSearchParams();
   const [entries, setEntries] = useState([]);
+  const [collegeOptions, setCollegeOptions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [apiUnavailable, setApiUnavailable] = useState(false);
   const [search, setSearch] = useState(searchParams.get("search") || "");
@@ -139,8 +140,21 @@ export default function LegacyPage() {
     }
   };
 
+  const fetchColleges = async () => {
+    try {
+      const response = await api.get("/colleges");
+      const names = (response.data || [])
+        .map((college) => college?.name)
+        .filter(Boolean);
+      setCollegeOptions(names);
+    } catch {
+      setCollegeOptions([]);
+    }
+  };
+
   useEffect(() => {
     fetchTeamMembers();
+    fetchColleges();
   }, []);
 
   useEffect(() => {
@@ -185,9 +199,9 @@ export default function LegacyPage() {
   }, [form.email, teamMembers]);
 
   const iiitOptions = useMemo(() => {
-    const values = entries.map((entry) => entry.iiit).filter(Boolean);
+    const values = [...entries.map((entry) => entry.iiit).filter(Boolean), ...collegeOptions];
     return [...new Set(values)].sort((a, b) => a.localeCompare(b));
-  }, [entries]);
+  }, [entries, collegeOptions]);
 
   const networkPostOptions = useMemo(() => {
     const values = entries.map((entry) => entry.networkPost).filter(Boolean);
@@ -422,47 +436,96 @@ export default function LegacyPage() {
               <form onSubmit={handleSubmit} className="mt-5 space-y-4">
                 <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
                   {[
-                    ["name", "Full name", "text", true, ""],
-                    ["email", "Email address", "email", true, ""],
-                    ["iiit", "IIIT name", "text", true, ""],
-                    ["generation", "Generation (e.g. 2020-24)", "text", true, ""],
-                    ["graduationYear", "Graduation year", "number", true, ""],
-                    ["branch", "Branch", "text", true, ""],
-                    ["networkPost", "Network post", "text", false, ""],
-                    ["currentRole", "Current role / designation", "text", false, ""],
-                    ["currentCompany", "Current company / organization", "text", false, ""],
-                    ["location", "Location", "text", false, ""],
-                    ["linkedin", "LinkedIn profile URL", "text", false, "sm:col-span-2"],
-                    ["instagram", "Instagram profile URL", "text", false, "sm:col-span-2"],
-                  ].map(([name, placeholder, type, required, span]) => (
+                    ["name", "Full name", "e.g. Ankur Singh", "text", true, ""],
+                    ["email", "Email address", "e.g. ankur@email.com", "email", true, ""],
+                    ["generation", "Team term or batch", "e.g. 2024-28 or 2021-25", "text", true, ""],
+                    ["graduationYear", "Graduation year", "e.g. 2028", "number", true, ""],
+                    ["branch", "Branch", "e.g. CSE", "text", true, ""],
+                    ["networkPost", "Latest network post", "e.g. Vice President", "text", false, ""],
+                    ["currentRole", "Current role / designation", "e.g. Product Designer Intern", "text", false, ""],
+                    ["currentCompany", "Current company / organization", "e.g. Adobe / Freelance", "text", false, ""],
+                    ["location", "Current location", "e.g. Bengaluru, India", "text", false, ""],
+                    ["linkedin", "LinkedIn profile URL", "e.g. https://linkedin.com/in/ankur-singh", "text", false, "sm:col-span-2"],
+                    ["instagram", "Instagram profile URL", "e.g. https://instagram.com/ankurwrites", "text", false, "sm:col-span-2"],
+                  ].map(([name, label, placeholder, type, required, span]) => (
+                    <label key={name} className={`flex flex-col gap-2 ${span}`}>
+                      <span
+                        className={`text-[11px] font-semibold uppercase tracking-[0.18em] ${
+                          isDarkMode ? "text-slate-400" : "text-slate-500"
+                        }`}
+                      >
+                        {label}
+                        {required ? " *" : ""}
+                      </span>
+                      <input
+                        name={name}
+                        type={type}
+                        value={form[name]}
+                        onChange={handleChange}
+                        placeholder={placeholder}
+                        required={required}
+                        className={`rounded-2xl border px-4 py-3 text-sm outline-none transition sm:text-base ${
+                          isDarkMode
+                            ? "border-slate-700 bg-slate-950 text-slate-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20"
+                            : "border-slate-200 bg-slate-50 text-slate-900 focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100"
+                        }`}
+                      />
+                    </label>
+                  ))}
+
+                  <label className="flex flex-col gap-2 sm:col-span-2">
+                    <span
+                      className={`text-[11px] font-semibold uppercase tracking-[0.18em] ${
+                        isDarkMode ? "text-slate-400" : "text-slate-500"
+                      }`}
+                    >
+                      Institute *
+                    </span>
                     <input
-                      key={name}
-                      name={name}
-                      type={type}
-                      value={form[name]}
+                      name="iiit"
+                      list="legacy-iiit-options"
+                      type="text"
+                      value={form.iiit}
                       onChange={handleChange}
-                      placeholder={placeholder}
-                      required={required}
-                      className={`rounded-2xl border px-4 py-3 text-sm outline-none transition ${span} sm:text-base ${
+                      placeholder="Choose or type an IIIT, e.g. IIIT Kota"
+                      required
+                      className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition sm:text-base ${
                         isDarkMode
                           ? "border-slate-700 bg-slate-950 text-slate-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20"
                           : "border-slate-200 bg-slate-50 text-slate-900 focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100"
                       }`}
                     />
-                  ))}
+                    <datalist id="legacy-iiit-options">
+                      {iiitOptions.map((option) => (
+                        <option key={option} value={option} />
+                      ))}
+                    </datalist>
+                    <p className={`mt-2 text-xs ${isDarkMode ? "text-slate-500" : "text-slate-500"}`}>
+                      Pick from the existing IIIT list if available so your profile is easier to group correctly.
+                    </p>
+                  </label>
 
-                  <textarea
-                    name="bio"
-                    value={form.bio}
-                    onChange={handleChange}
-                    placeholder="Short bio, interests, achievements, or what you're building now"
-                    rows={4}
-                    className={`rounded-2xl border px-4 py-3 text-sm outline-none transition sm:col-span-2 sm:text-base ${
-                      isDarkMode
-                        ? "border-slate-700 bg-slate-950 text-slate-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20"
-                        : "border-slate-200 bg-slate-50 text-slate-900 focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100"
-                    }`}
-                  />
+                  <label className="flex flex-col gap-2 sm:col-span-2">
+                    <span
+                      className={`text-[11px] font-semibold uppercase tracking-[0.18em] ${
+                        isDarkMode ? "text-slate-400" : "text-slate-500"
+                      }`}
+                    >
+                      Legacy message / bio
+                    </span>
+                    <textarea
+                      name="bio"
+                      value={form.bio}
+                      onChange={handleChange}
+                      placeholder="e.g. I worked across social media and leadership in IIITians Network, and now I am focused on building stronger student communities."
+                      rows={4}
+                      className={`rounded-2xl border px-4 py-3 text-sm outline-none transition sm:text-base ${
+                        isDarkMode
+                          ? "border-slate-700 bg-slate-950 text-slate-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20"
+                          : "border-slate-200 bg-slate-50 text-slate-900 focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100"
+                      }`}
+                    />
+                  </label>
                 </div>
 
                 <div
@@ -583,7 +646,7 @@ export default function LegacyPage() {
                   type="text"
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
-                  placeholder="Search name, post, role, company, branch, or IIIT"
+                  placeholder="Try: Ankur, Vice President, Adobe, CSE, or IIIT Surat"
                   className={`w-full rounded-2xl border px-11 py-3 text-sm outline-none transition sm:text-base ${
                     isDarkMode
                       ? "border-slate-700 bg-slate-950 text-slate-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20"
@@ -698,13 +761,49 @@ export default function LegacyPage() {
 
           <div className="grid gap-3 sm:gap-4">
             {loading ? (
-              <div
-                className={`flex min-h-[220px] items-center justify-center rounded-[1.5rem] border text-sm sm:rounded-[2rem] ${
-                  isDarkMode ? cardShell.dark : cardShell.light
-                } ${isDarkMode ? "text-slate-400" : "text-slate-500"}`}
-              >
-                <LoaderCircle className="mr-3 h-5 w-5 animate-spin" />
-                Loading Network Legacy...
+              <div className="grid gap-4 sm:gap-5">
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <div
+                    key={index}
+                    className={`animate-pulse overflow-hidden rounded-[1.5rem] border sm:rounded-[2rem] ${
+                      isDarkMode ? cardShell.dark : cardShell.light
+                    }`}
+                  >
+                    <div className="flex flex-col lg:grid lg:grid-cols-[16rem_minmax(0,1fr)]">
+                      <div className="h-64 bg-slate-200 sm:h-72 lg:h-[22rem]" />
+                      <div className="space-y-5 p-4 sm:p-6 lg:p-7">
+                        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                          <div className="min-w-0 flex-1 space-y-3">
+                            <div className="h-10 w-2/3 rounded-2xl bg-slate-200" />
+                            <div className="flex flex-wrap gap-2">
+                              <div className="h-9 w-28 rounded-full bg-slate-100" />
+                              <div className="h-9 w-24 rounded-full bg-slate-100" />
+                              <div className="h-9 w-32 rounded-full bg-slate-100" />
+                            </div>
+                          </div>
+                          <div className="h-24 w-full rounded-[1.4rem] bg-slate-100 md:w-52" />
+                        </div>
+                        <div className="space-y-2">
+                          <div className="h-4 w-full rounded bg-slate-100" />
+                          <div className="h-4 w-5/6 rounded bg-slate-100" />
+                          <div className="h-4 w-3/4 rounded bg-slate-100" />
+                        </div>
+                        <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-4">
+                          <div className="h-4 w-32 rounded bg-slate-200" />
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            <div className="h-8 w-40 rounded-full bg-white" />
+                            <div className="h-8 w-36 rounded-full bg-white" />
+                          </div>
+                        </div>
+                        <div className="flex gap-4">
+                          <div className="h-5 w-16 rounded bg-slate-100" />
+                          <div className="h-5 w-20 rounded bg-slate-100" />
+                          <div className="h-5 w-20 rounded bg-slate-100" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             ) : entries.length === 0 ? (
               <div

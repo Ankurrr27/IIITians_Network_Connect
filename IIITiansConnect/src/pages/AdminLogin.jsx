@@ -467,7 +467,7 @@ export default function AdminLogin() {
               <LightInput
                 type="email"
                 name="email"
-                placeholder="admin@iiitians.in"
+                placeholder="e.g. admin@iiitians.in"
                 value={form.email}
                 onChange={handleChange}
                 disabled={loading}
@@ -477,7 +477,7 @@ export default function AdminLogin() {
               <LightInput
                 type="password"
                 name="password"
-                placeholder="Password"
+                placeholder="Enter your admin password"
                 value={form.password}
                 onChange={handleChange}
                 disabled={loading}
@@ -581,7 +581,7 @@ export default function AdminLogin() {
                 <LightInput
                   type="email"
                   name="email"
-                  placeholder="newadmin@iiitians.in"
+                  placeholder="e.g. newadmin@iiitians.in"
                   value={createAdminForm.email}
                   onChange={handleCreateAdminChange}
                   required
@@ -600,7 +600,7 @@ export default function AdminLogin() {
                 <LightInput
                   type="password"
                   name="password"
-                  placeholder="Password"
+                  placeholder="Create a password for the new admin"
                   value={createAdminForm.password}
                   onChange={handleCreateAdminChange}
                   required
@@ -666,7 +666,7 @@ export default function AdminLogin() {
                             name="email"
                             value={editAdminForm.email}
                             onChange={handleEditAdminChange}
-                            placeholder="Admin email"
+                            placeholder="e.g. admin@iiitians.in"
                           />
 
                           <LightSelect
@@ -683,7 +683,7 @@ export default function AdminLogin() {
                             name="password"
                             value={editAdminForm.password}
                             onChange={handleEditAdminChange}
-                            placeholder="New password (optional)"
+                            placeholder="Set a new password if needed"
                           />
 
                           <div className="flex flex-wrap gap-2">

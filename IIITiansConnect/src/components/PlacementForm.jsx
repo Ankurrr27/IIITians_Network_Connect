@@ -48,49 +48,49 @@ export default function PlacementForm({ collegeId }) {
       </button>
 
       <div style={{ marginTop: 20 }}>
-        <input
-          type="number"
-          value={year}
-          onChange={(e) => setYear(+e.target.value)}
-          placeholder="Year"
-        />
+          <input
+            type="number"
+            value={year}
+            onChange={(e) => setYear(+e.target.value)}
+            placeholder="e.g. 2026"
+          />
 
         {placements.map((p, i) => (
           <div key={i} style={{ marginTop: 10 }}>
-            <input
-              placeholder="Branch"
-              value={p.branch}
+              <input
+                placeholder="e.g. CSE"
+                value={p.branch}
               onChange={(e) =>
                 updateField(i, "branch", e.target.value)
               }
             />
-            <input
-              placeholder="Highest"
-              type="number"
+              <input
+                placeholder="e.g. 44"
+                type="number"
               value={p.highestPackage}
               onChange={(e) =>
                 updateField(i, "highestPackage", +e.target.value)
               }
             />
-            <input
-              placeholder="Average"
-              type="number"
+              <input
+                placeholder="e.g. 19.5"
+                type="number"
               value={p.averagePackage}
               onChange={(e) =>
                 updateField(i, "averagePackage", +e.target.value)
               }
             />
-            <input
-              placeholder="Lowest"
-              type="number"
+              <input
+                placeholder="e.g. 6"
+                type="number"
               value={p.lowestPackage}
               onChange={(e) =>
                 updateField(i, "lowestPackage", +e.target.value)
               }
             />
-            <input
-              placeholder="%"
-              type="number"
+              <input
+                placeholder="e.g. 87"
+                type="number"
               value={p.placementPercentage}
               onChange={(e) =>
                 updateField(i, "placementPercentage", +e.target.value)

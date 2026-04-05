@@ -19,6 +19,7 @@ export const initialRegisterForm = {
   clubName: "",
   contactName: "",
   contactPhone: "",
+  website: "",
   handle: "",
   password: "",
 };

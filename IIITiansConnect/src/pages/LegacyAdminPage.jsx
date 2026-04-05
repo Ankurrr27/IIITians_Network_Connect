@@ -480,11 +480,18 @@ export default function LegacyAdminPage() {
                             className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100"
                           />
                         ))}
+                        <div className="sm:col-span-2 rounded-2xl border border-indigo-100 bg-indigo-50 px-4 py-3 text-sm text-indigo-900">
+                          Legacy message:
+                          <span className="ml-1 font-medium">
+                            this is the public text shown on the Network Legacy card.
+                            It stays part of legacy and should not be replaced when the person is later added to the team.
+                          </span>
+                        </div>
                         <textarea
                           name="bio"
                           value={editForm.bio}
                           onChange={handleEditChange}
-                          placeholder="Bio"
+                          placeholder="Legacy message shown on the public legacy card"
                           rows={4}
                           className="sm:col-span-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100"
                         />

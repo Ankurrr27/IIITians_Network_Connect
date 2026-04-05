@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { 
   Users, 
   Send, 
@@ -36,6 +36,7 @@ const teamOptions = ["Development", "Design", "Content", "Social Media"];
 
 export default function TeamJoinPage() {
   const { isDarkMode } = useThemeMode();
+  const [collegeOptions, setCollegeOptions] = useState([]);
   const [step, setStep] = useState(0); // 0: Selection, 1: Form
   const [applicantType, setApplicantType] = useState("NEW"); // "NEW" or "EXISTING"
   const [form, setForm] = useState(initialForm);
@@ -61,6 +62,21 @@ export default function TeamJoinPage() {
     setStep(1);
     window.scrollTo(0, 0);
   };
+
+  useEffect(() => {
+    const loadColleges = async () => {
+      try {
+        const response = await api.get("/colleges");
+        setCollegeOptions(
+          (response.data || []).map((college) => college?.name).filter(Boolean)
+        );
+      } catch {
+        setCollegeOptions([]);
+      }
+    };
+
+    loadColleges();
+  }, []);
 
   const fileToBase64 = (file) => {
     return new Promise((resolve, reject) => {
@@ -247,16 +263,30 @@ export default function TeamJoinPage() {
                 />
 
                 {applicantType === 'NEW' && (
-                  <InputGroup
-                    label="IIIT Institute"
-                    icon={Building2}
-                    id="iiit"
-                    name="iiit"
-                    value={form.iiit}
-                    onChange={handleChange}
-                    placeholder="e.g. IIIT Kota"
-                    required
-                  />
+                  <div className="flex flex-col gap-2">
+                    <label htmlFor="iiit" className="text-[11px] font-bold uppercase tracking-widest text-slate-400">
+                      IIIT Institute
+                      <span className="ml-[2px] text-indigo-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <Building2 className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                      <input
+                        id="iiit"
+                        name="iiit"
+                        list="team-join-colleges"
+                        value={form.iiit}
+                        onChange={handleChange}
+                        placeholder="Choose or type your IIIT, e.g. IIIT Kota"
+                        required
+                        className="w-full rounded-2xl border border-slate-200 bg-white/50 py-3.5 pl-11 pr-4 text-sm outline-none transition focus:ring-4 focus:ring-indigo-100 sm:text-base placeholder:text-slate-300"
+                      />
+                      <datalist id="team-join-colleges">
+                        {collegeOptions.map((option) => (
+                          <option key={option} value={option} />
+                        ))}
+                      </datalist>
+                    </div>
+                  </div>
                 )}
 
                 <InputGroup

@@ -12,6 +12,8 @@ import {
 import api from "../../api/axios";
 import ImageCropModal from "../../components/ImageCropModal";
 
+const COLLEGE_PLACEHOLDER = "/placeholder.svg";
+
 const initialCollegeForm = {
   name: "",
   website: "",
@@ -374,7 +376,7 @@ export default function CollegesAdmin() {
           <input
             type="text"
             name="name"
-            placeholder="College name"
+            placeholder="e.g. IIIT Kota"
             value={createCollegeForm.name}
             onChange={handleCreateCollegeChange}
             required
@@ -383,7 +385,7 @@ export default function CollegesAdmin() {
           <input
             type="text"
             name="website"
-            placeholder="Official website"
+            placeholder="e.g. https://iiitkota.ac.in"
             value={createCollegeForm.website}
             onChange={handleCreateCollegeChange}
             className="w-full rounded-2xl border border-stone-200 bg-[#fffaf2] px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100"
@@ -391,7 +393,7 @@ export default function CollegesAdmin() {
           <input
             type="text"
             name="clubLink"
-            placeholder="Club link"
+            placeholder="e.g. https://students.iiitkota.ac.in"
             value={createCollegeForm.clubLink}
             onChange={handleCreateCollegeChange}
             className="w-full rounded-2xl border border-stone-200 bg-[#fffaf2] px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100"
@@ -425,7 +427,7 @@ export default function CollegesAdmin() {
         <textarea
           name="description"
           rows={4}
-          placeholder="Short college description"
+          placeholder="e.g. A fast-growing IIIT known for strong coding culture, active communities, and national-level student events."
           value={createCollegeForm.description}
           onChange={handleCreateCollegeChange}
           className="mt-3 w-full rounded-2xl border border-stone-200 bg-[#fffaf2] px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100"
@@ -451,7 +453,7 @@ export default function CollegesAdmin() {
               <div key={`create-club-link-${index}`} className="grid gap-3 md:grid-cols-[0.8fr_1.2fr_auto]">
                 <input
                   type="text"
-                  placeholder="Club / society name"
+                  placeholder="e.g. GDSC IIIT Kota"
                   value={item.name}
                   onChange={(event) =>
                     handleCreateClubLinkChange(index, "name", event.target.value)
@@ -460,7 +462,7 @@ export default function CollegesAdmin() {
                 />
                 <input
                   type="text"
-                  placeholder="Club / society link"
+                  placeholder="e.g. https://instagram.com/gdsciiitkota"
                   value={item.url}
                   onChange={(event) =>
                     handleCreateClubLinkChange(index, "url", event.target.value)
@@ -504,14 +506,14 @@ export default function CollegesAdmin() {
                 const coverImage =
                   college.photo?.url ||
                   existingGallery[0]?.url ||
-                  "/placeholder-logo.png";
+                  COLLEGE_PLACEHOLDER;
                 const mainPhotoUrl =
                   (editPhotoFile && isEditing
                     ? URL.createObjectURL(editPhotoFile)
-                    : college.photo?.url) || "/placeholder-logo.png";
+                    : college.photo?.url) || COLLEGE_PLACEHOLDER;
                 const logoUrl = editLogoFile && isEditing
                   ? URL.createObjectURL(editLogoFile)
-                  : college.logo?.url || "/placeholder-logo.png";
+                  : college.logo?.url || COLLEGE_PLACEHOLDER;
 
                 return (
                   <div
@@ -585,7 +587,7 @@ export default function CollegesAdmin() {
                               helper="This is the large public cover image. It stays separate from the logo."
                               file={editPhotoFile}
                               existingUrl={mainPhotoUrl}
-                              fallback="/placeholder-logo.png"
+                              fallback={COLLEGE_PLACEHOLDER}
                               onPick={(file) => openCropper(file, "edit-photo")}
                             />
                             <AssetPicker
@@ -593,7 +595,7 @@ export default function CollegesAdmin() {
                               helper="Smaller identity mark used near the college name only."
                               file={editLogoFile}
                               existingUrl={logoUrl}
-                              fallback="/placeholder-logo.png"
+                              fallback={COLLEGE_PLACEHOLDER}
                               onPick={(file) => openCropper(file, "edit-logo")}
                             />
                           </div>
@@ -612,7 +614,7 @@ export default function CollegesAdmin() {
                             name="name"
                             value={editCollegeForm.name}
                             onChange={handleEditCollegeChange}
-                            placeholder="College name"
+                            placeholder="e.g. IIIT Kota"
                             className="w-full rounded-2xl border border-stone-200 bg-[#fffaf2] px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100 sm:text-base"
                           />
                           <input
@@ -620,7 +622,7 @@ export default function CollegesAdmin() {
                             name="website"
                             value={editCollegeForm.website}
                             onChange={handleEditCollegeChange}
-                            placeholder="Official website"
+                            placeholder="e.g. https://iiitkota.ac.in"
                             className="w-full rounded-2xl border border-stone-200 bg-[#fffaf2] px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100 sm:text-base"
                           />
                           <input
@@ -628,7 +630,7 @@ export default function CollegesAdmin() {
                             name="clubLink"
                             value={editCollegeForm.clubLink}
                             onChange={handleEditCollegeChange}
-                            placeholder="College club / community link"
+                            placeholder="e.g. https://students.iiitkota.ac.in"
                             className="w-full rounded-2xl border border-stone-200 bg-[#fffaf2] px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100 sm:text-base"
                           />
                           <div className="rounded-[1.4rem] bg-slate-50/90 p-4 ring-1 ring-slate-200/80">
@@ -651,7 +653,7 @@ export default function CollegesAdmin() {
                                 <div key={`edit-club-link-${index}`} className="grid gap-3 md:grid-cols-[0.8fr_1.2fr_auto]">
                                   <input
                                     type="text"
-                                    placeholder="Club / society name"
+                                    placeholder="e.g. E-Cell IIIT Kota"
                                     value={item.name}
                                     onChange={(event) =>
                                       handleEditClubLinkChange(index, "name", event.target.value)
@@ -660,7 +662,7 @@ export default function CollegesAdmin() {
                                   />
                                   <input
                                     type="text"
-                                    placeholder="Club / society link"
+                                    placeholder="e.g. https://linktr.ee/ecelliiitkota"
                                     value={item.url}
                                     onChange={(event) =>
                                       handleEditClubLinkChange(index, "url", event.target.value)
@@ -683,7 +685,7 @@ export default function CollegesAdmin() {
                             rows={4}
                             value={editCollegeForm.description}
                             onChange={handleEditCollegeChange}
-                            placeholder="Description"
+                            placeholder="e.g. IIIT Kota has active tech, cultural, and entrepreneurial communities with strong placement and event participation."
                             className="w-full rounded-2xl border border-stone-200 bg-[#fffaf2] px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100 sm:text-base"
                           />
                           <div className="flex justify-end">
@@ -872,7 +874,7 @@ function MultiAssetPicker({ title, helper, files = [], existingUrls = [], onPick
         </div>
 
         <div className="grid grid-cols-3 gap-2">
-          {(previewUrls.length ? previewUrls : ["/placeholder-logo.png"]).slice(0, 6).map((url, index) => (
+          {(previewUrls.length ? previewUrls : [COLLEGE_PLACEHOLDER]).slice(0, 6).map((url, index) => (
             <div
               key={`${url}-${index}`}
               className="flex aspect-square items-center justify-center overflow-hidden rounded-2xl bg-white ring-1 ring-slate-200/80"

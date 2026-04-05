@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import api from "../../../api/axios";
 
 const AddEventForm = ({ onSuccess, editingEvent, onCancel, onDelete }) => {
+  const [collegeOptions, setCollegeOptions] = useState([]);
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -29,6 +30,21 @@ const AddEventForm = ({ onSuccess, editingEvent, onCancel, onDelete }) => {
       setPreview(editingEvent.banner?.url || "");
     }
   }, [editingEvent]);
+
+  useEffect(() => {
+    const loadColleges = async () => {
+      try {
+        const response = await api.get("/colleges");
+        setCollegeOptions(
+          (response.data || []).map((college) => college?.name).filter(Boolean)
+        );
+      } catch {
+        setCollegeOptions([]);
+      }
+    };
+
+    loadColleges();
+  }, []);
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -94,59 +110,90 @@ const AddEventForm = ({ onSuccess, editingEvent, onCancel, onDelete }) => {
 
       {/* BASIC INFO */}
       <div className="grid md:grid-cols-2 gap-4">
-        <input
-          name="title"
-          placeholder="Event Title"
-          value={form.title}
-          onChange={handleChange}
-          className="border rounded px-3 py-2"
-          required
-        />
+        <label className="space-y-2">
+          <span className="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+            Event title
+          </span>
+          <input
+            name="title"
+            placeholder="e.g. E-Summit 2026"
+            value={form.title}
+            onChange={handleChange}
+            className="border rounded px-3 py-2"
+            required
+          />
+        </label>
 
-        <input
-          type="date"
-          name="date"
-          value={form.date}
-          onChange={handleChange}
-          className="border rounded px-3 py-2"
-          required
-        />
+        <label className="space-y-2">
+          <span className="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+            Event date
+          </span>
+          <input
+            type="date"
+            name="date"
+            value={form.date}
+            onChange={handleChange}
+            className="border rounded px-3 py-2"
+            required
+          />
+        </label>
       </div>
 
-      <textarea
-        name="description"
-        placeholder="Event Description"
-        value={form.description}
-        onChange={handleChange}
-        className="border rounded px-3 py-2 w-full"
-        rows={3}
-      />
+      <label className="block space-y-2">
+        <span className="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+          Short description
+        </span>
+        <textarea
+          name="description"
+          placeholder="e.g. Flagship entrepreneurship event with speaker sessions, startup showcase, and competitions."
+          value={form.description}
+          onChange={handleChange}
+          className="border rounded px-3 py-2 w-full"
+          rows={3}
+        />
+      </label>
 
       {/* META INFO */}
       <div className="grid md:grid-cols-2 gap-4">
-        <input
-          name="collegeName"
-          placeholder="College Name (e.g. IIIT Kota)"
-          value={form.collegeName}
-          onChange={handleChange}
-          className="border rounded px-3 py-2"
-          required
-        />
+        <label className="space-y-2">
+          <span className="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+            College / institute
+          </span>
+          <input
+            name="collegeName"
+            list="event-college-options"
+            placeholder="Choose or type an IIIT, e.g. IIIT Kota"
+            value={form.collegeName}
+            onChange={handleChange}
+            className="border rounded px-3 py-2"
+            required
+          />
+        </label>
+        <datalist id="event-college-options">
+          {collegeOptions.map((option) => (
+            <option key={option} value={option} />
+          ))}
+        </datalist>
 
-        <input
-          name="clubName"
-          placeholder="Club / Society Name (optional)"
-          value={form.clubName}
-          onChange={handleChange}
-          className="border rounded px-3 py-2"
-        />
+        <label className="space-y-2">
+          <span className="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+            Club / society
+          </span>
+          <input
+            name="clubName"
+            placeholder="e.g. E-Cell IIIT Nagpur"
+            value={form.clubName}
+            onChange={handleChange}
+            className="border rounded px-3 py-2"
+          />
+        </label>
       </div>
 
       {/* LINK */}
       <div>
         <input
           name="link"
-          placeholder="Event Link (registration / website)"
+          placeholder="e.g. https://forms.gle/esummit-registration"
           value={form.link}
           onChange={handleChange}
           className="border rounded px-3 py-2 w-full"

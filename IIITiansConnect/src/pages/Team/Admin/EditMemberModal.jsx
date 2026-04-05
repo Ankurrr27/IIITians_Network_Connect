@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import api from "../../../api/axios";
 import { Camera, Mail, PencilLine, ShieldCheck, X } from "lucide-react";
 import ImageCropModal from "../../../components/ImageCropModal";
 
 export default function EditMemberModal({ member, onClose, onUpdated }) {
+  const [collegeOptions, setCollegeOptions] = useState([]);
   const [form, setForm] = useState({
     name: member.name || "",
     role: member.role || "",
@@ -24,6 +25,21 @@ export default function EditMemberModal({ member, onClose, onUpdated }) {
   const [photo, setPhoto] = useState(null);
   const [loading, setLoading] = useState(false);
   const [rawPhoto, setRawPhoto] = useState(null);
+
+  useEffect(() => {
+    const loadColleges = async () => {
+      try {
+        const response = await api.get("/colleges");
+        setCollegeOptions(
+          (response.data || []).map((college) => college?.name).filter(Boolean)
+        );
+      } catch {
+        setCollegeOptions([]);
+      }
+    };
+
+    loadColleges();
+  }, []);
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -142,7 +158,7 @@ export default function EditMemberModal({ member, onClose, onUpdated }) {
                     name="name"
                     value={form.name}
                     onChange={handleChange}
-                    placeholder="Full Name"
+                    placeholder="e.g. Ankur Singh"
                     className="input"
                     required
                   />
@@ -150,7 +166,7 @@ export default function EditMemberModal({ member, onClose, onUpdated }) {
                     name="role"
                     value={form.role}
                     onChange={handleChange}
-                    placeholder="Role (President, Tech Lead)"
+                    placeholder="e.g. Vice President"
                     className="input"
                     required
                   />
@@ -168,18 +184,24 @@ export default function EditMemberModal({ member, onClose, onUpdated }) {
 
                   <input
                     name="iiit"
+                    list="edit-team-colleges"
                     value={form.iiit}
                     onChange={handleChange}
-                    placeholder="IIIT (e.g. IIIT Kota)"
+                    placeholder="Choose or type an IIIT, e.g. IIIT Kota"
                     className="input"
                     required
                   />
+                  <datalist id="edit-team-colleges">
+                    {collegeOptions.map((option) => (
+                      <option key={option} value={option} />
+                    ))}
+                  </datalist>
                   <input
                     type="email"
                     name="email"
                     value={form.email}
                     onChange={handleChange}
-                    placeholder="Official Email"
+                    placeholder="e.g. ankur@iiitkota.ac.in"
                     className="input sm:col-span-2"
                     required
                   />
@@ -210,7 +232,7 @@ export default function EditMemberModal({ member, onClose, onUpdated }) {
                     name="year"
                     value={form.year}
                     onChange={handleChange}
-                    placeholder="Year (2025-26)"
+                    placeholder="e.g. 2025-26"
                     className="input"
                     required
                   />
@@ -220,7 +242,7 @@ export default function EditMemberModal({ member, onClose, onUpdated }) {
                     name="order"
                     value={form.order}
                     onChange={handleChange}
-                    placeholder="Order"
+                    placeholder="e.g. 1"
                     className="input"
                   />
 
@@ -245,21 +267,21 @@ export default function EditMemberModal({ member, onClose, onUpdated }) {
                     name="linkedin"
                     value={form.linkedin}
                     onChange={handleChange}
-                    placeholder="LinkedIn URL"
+                    placeholder="e.g. https://linkedin.com/in/ankur-singh"
                     className="input"
                   />
                   <input
                     name="instagram"
                     value={form.instagram}
                     onChange={handleChange}
-                    placeholder="Instagram URL"
+                    placeholder="e.g. https://instagram.com/ankurwrites"
                     className="input"
                   />
                   <input
                     name="twitter"
                     value={form.twitter}
                     onChange={handleChange}
-                    placeholder="Twitter URL"
+                    placeholder="e.g. https://x.com/ankursingh"
                     className="input"
                   />
                 </div>
@@ -274,14 +296,14 @@ export default function EditMemberModal({ member, onClose, onUpdated }) {
                     name="aboutText"
                     value={form.aboutText}
                     onChange={handleChange}
-                    placeholder="Leadership about text"
+                    placeholder="e.g. Leads execution, continuity, and coordination across the network."
                     className="input min-h-[140px]"
                   />
                   <textarea
                     name="messageText"
                     value={form.messageText}
                     onChange={handleChange}
-                    placeholder="Leadership message text"
+                    placeholder="e.g. Building a stronger and more collaborative student network across campuses."
                     className="input min-h-[140px]"
                   />
                 </div>

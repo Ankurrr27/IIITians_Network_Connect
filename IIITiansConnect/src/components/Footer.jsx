@@ -28,9 +28,10 @@ const Footer = () => {
 
   const loadStats = async () => {
     try {
-      const [teamRes, collegesRes, clubsRes] = await Promise.allSettled([
+      const [teamRes, collegesRes, clubsStatsRes, clubsRes] = await Promise.allSettled([
         api.get("/team"),
         api.get("/colleges"),
+        api.get("/discuss-accounts/public/stats"),
         api.get("/discuss-accounts/public"),
       ]);
 
@@ -38,7 +39,12 @@ const Footer = () => {
         ...prev,
         members: teamRes.status === "fulfilled" ? teamRes.value.data?.length || 0 : 0,
         colleges: collegesRes.status === "fulfilled" ? collegesRes.value.data?.length || 0 : 0,
-        clubs: clubsRes.status === "fulfilled" ? clubsRes.value.data?.length || 0 : 0,
+        clubs:
+          clubsStatsRes.status === "fulfilled"
+            ? clubsStatsRes.value.data?.registeredClubs || 0
+            : clubsRes.status === "fulfilled"
+              ? clubsRes.value.data?.length || 0
+              : 0,
       }));
     } catch (err) {
       console.error("FOOTER STATS ERROR:", err);

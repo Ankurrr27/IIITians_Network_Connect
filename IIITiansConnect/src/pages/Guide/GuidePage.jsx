@@ -25,18 +25,22 @@ const flowTabs = [
     steps: [
       {
         title: "Open Discuss",
-        text: "Go to the Discuss page from the navbar and open the club account panel.",
+        text: "Go to the Discuss page from the navbar, or use the three-dot menu on any college card to start club registration with that college already filled in.",
       },
       {
         title: "Register the club",
-        text: "Enter college name, club name, point-of-contact details, a handle, and a password.",
+        text: "Use the labeled fields to enter college name, club name, point-of-contact details, club website or primary page, a handle, and a password. College selection now supports suggestion dropdowns too.",
+      },
+      {
+        title: "Wait for admin approval",
+        text: "Registration creates a pending club request first. An admin reviews and verifies the request before the account can log in and post.",
       },
       {
         title: "Log in later with the same handle",
-        text: "Use the handle with the fixed @iiitiansnetwork identity and your password to restore the same account.",
+        text: "After approval, use the handle with the fixed @iiitiansnetwork identity and your password to restore the same account.",
       },
     ],
-    note: "Once the club account is verified, its updates can carry the verified network badge.",
+    note: "Every new club signup from Discuss or a college card is first raised as an admin review request.",
   },
   {
     id: "event",
@@ -81,7 +85,7 @@ const flowTabs = [
       },
       {
         title: "Fill role and profile details",
-        text: "Add batch or team term, network post, current role, company, location, and your profile links.",
+        text: "Use the labeled fields to add batch or team term, network post, current role, company, location, and profile links. Most fields now include example data so the format is easier to follow.",
       },
       {
         title: "Reuse team photo if available",
@@ -105,7 +109,7 @@ const flowTabs = [
     steps: [
       {
         title: "Start with the right entry point",
-        text: "If you are active in a club, begin through Discuss. If you served in the network, use Legacy. If you join the team officially, admins add you in Team.",
+        text: "If you are active in a club, begin through Discuss. If you served in the network, use Legacy. If you join the team officially, admins add you in Team. College fields now prefer dropdown-style matching to keep records consistent.",
       },
       {
         title: "Keep your public profile complete",
@@ -125,7 +129,7 @@ const flowTabs = [
     eyebrow: "Guide",
     title: "How to collaborate with another club, campus, or network initiative",
     description:
-      "Use Discuss when you want to raise a campaign, ask for collaboration, promote a shared event, or invite another IIIT community into something bigger.",
+      "Use Discuss when you want to raise a campaign, ask for collaboration, promote a shared event, or invite another IIIT community into something bigger. The form now uses clearer labels and example values so clubs know exactly what each field means.",
     steps: [
       {
         title: "Create the right post",
@@ -142,6 +146,15 @@ const flowTabs = [
     ],
     note: "Collaboration posts work best when they are short, visual, and clear about the expected outcome.",
   },
+];
+
+const guideActivityFeed = [
+  "Club request created",
+  "Legacy profile approved",
+  "Event push reviewed",
+  "Team member added",
+  "College links updated",
+  "Announcement published",
 ];
 
 export default function GuidePage() {
@@ -236,6 +249,24 @@ export default function GuidePage() {
             })}
           </div>
 
+          <div className="mt-4 overflow-hidden rounded-[1.4rem] border border-indigo-100 bg-white/90 px-4 py-3 shadow-[0_18px_50px_-36px_rgba(79,70,229,0.18)]">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+              <div className="shrink-0 text-[11px] font-semibold uppercase tracking-[0.22em] text-indigo-700">
+                Activity preview
+              </div>
+              <div className="flex flex-1 flex-wrap gap-2">
+                {guideActivityFeed.map((item) => (
+                  <span
+                    key={item}
+                    className="inline-flex items-center rounded-full bg-indigo-50 px-3 py-1.5 text-xs font-medium text-indigo-700 ring-1 ring-indigo-100"
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+
           <div className="mt-6">
             <GuideFlowSection
               eyebrow={currentFlow.eyebrow}
@@ -276,6 +307,16 @@ export default function GuidePage() {
                 step="05"
                 title="Need a collaboration push?"
                 text="Use the collaboration guide to post a cleaner ask with context, links, and value."
+              />
+              <MiniPath
+                step="06"
+                title="Need to register a club from a college?"
+                text="Use the three-dot menu on the college card and jump into prefilled club registration."
+              />
+              <MiniPath
+                step="07"
+                title="Confused about a field?"
+                text="Most forms now show a clear field label plus an example value, and many college fields suggest the right IIIT from the saved college list."
               />
             </div>
           </div>

@@ -1,36 +1,34 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { Routes, Route, useLocation, Navigate, useParams } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
-import TeamPage from "./pages/Team/TeamPage";
-import TeamJoinPage from "./pages/Team/TeamJoinPage";
 
 import AdminLayout from "./components/AdminLayout";
 import Navigation from "./components/Navigation";
 import Footer from "./components/Footer";
 import Loader from "./components/Loader";
+import InAppNotifications from "./components/InAppNotifications";
 
-import Index from "./pages/Index/index.jsx";
-import Colleges from "./pages/Colleges/Colleges.jsx";
-import CollegesAdmin from "./pages/Colleges/CollegesAdmin.jsx";
-
-import Events from "./pages/Events/EventsAdmin.jsx";
-
-import Placement from "./pages/Placement/Placement.jsx";
-import NotFound from "./pages/NotFound.jsx";
-import TeamAdmin from "./pages/Team/Admin/TeamAdmin.jsx";
-import PlacementPage from "./pages/Placement/PlacementPage.jsx";
-import ContactPage from "./pages/Contact.jsx";
-import AdminLogin from "./pages/AdminLogin.jsx";
 import RequireAdmin from "./components/RequireAdmin";
-import PublicEvents from "./pages/Events/Events.jsx";
 import ScrollToTop from "./components/ScrollToTop.jsx";
-import LegacyAdminPage from "./pages/LegacyAdminPage.jsx";
-import LegacyPage from "./pages/LegacyPage.jsx";
-import DiscussPage from "./pages/Discuss/DiscussPage.jsx";
-import DiscussAdminPage from "./pages/Discuss/DiscussAdminPage.jsx";
-import GuidePage from "./pages/Guide/GuidePage.jsx";
-
-import AdminGuide from "./pages/Guide/AdminGuide.jsx";
+const TeamPage = lazy(() => import("./pages/Team/TeamPage"));
+const TeamJoinPage = lazy(() => import("./pages/Team/TeamJoinPage"));
+const Index = lazy(() => import("./pages/Index/index.jsx"));
+const Colleges = lazy(() => import("./pages/Colleges/Colleges.jsx"));
+const CollegesAdmin = lazy(() => import("./pages/Colleges/CollegesAdmin.jsx"));
+const Events = lazy(() => import("./pages/Events/EventsAdmin.jsx"));
+const Placement = lazy(() => import("./pages/Placement/Placement.jsx"));
+const NotFound = lazy(() => import("./pages/NotFound.jsx"));
+const TeamAdmin = lazy(() => import("./pages/Team/Admin/TeamAdmin.jsx"));
+const PlacementPage = lazy(() => import("./pages/Placement/PlacementPage.jsx"));
+const ContactPage = lazy(() => import("./pages/Contact.jsx"));
+const AdminLogin = lazy(() => import("./pages/AdminLogin.jsx"));
+const PublicEvents = lazy(() => import("./pages/Events/Events.jsx"));
+const LegacyAdminPage = lazy(() => import("./pages/LegacyAdminPage.jsx"));
+const LegacyPage = lazy(() => import("./pages/LegacyPage.jsx"));
+const DiscussPage = lazy(() => import("./pages/Discuss/DiscussPage.jsx"));
+const DiscussAdminPage = lazy(() => import("./pages/Discuss/DiscussAdminPage.jsx"));
+const GuidePage = lazy(() => import("./pages/Guide/GuidePage.jsx"));
+const AdminGuide = lazy(() => import("./pages/Guide/AdminGuide.jsx"));
 
 function LegacyAdminRedirect() {
   const { status } = useParams();
@@ -79,10 +77,12 @@ function App() {
   return (
     <>
       {!isAdminPage && <Navigation />}
+      {!isAdminPage && <InAppNotifications />}
       <ScrollToTop />
 
-      <AnimatePresence mode="wait">
-        <Routes location={location} key={isAdminPage ? "admin-routes" : location.pathname}>
+      <Suspense fallback={<Loader />}>
+        <AnimatePresence mode="wait">
+          <Routes location={location} key={isAdminPage ? "admin-routes" : location.pathname}>
           {/* PUBLIC ROUTES */}
           <Route path="/" element={<Index />} />
           <Route path="/colleges" element={<Colleges />} />
@@ -116,9 +116,10 @@ function App() {
           </Route>
           
 
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </AnimatePresence>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AnimatePresence>
+      </Suspense>
 
       {!isAdminPage && <Footer />}
     </>
