@@ -23,6 +23,32 @@ const normalizePayload = (body = {}) => ({
   graduationYear: Number(body.graduationYear),
 });
 
+const mergeSocialHandles = (primary = {}, fallback = {}) => ({
+  linkedin: primary.linkedin?.trim() || fallback.linkedin?.trim() || "",
+  instagram: primary.instagram?.trim() || fallback.instagram?.trim() || "",
+  twitter: primary.twitter?.trim() || fallback.twitter?.trim() || "",
+});
+
+const resolveExistingSocialHandles = async (email = "", currentId = null) => {
+  const normalizedEmail = email?.trim().toLowerCase();
+  if (!normalizedEmail) return { linkedin: "", instagram: "", twitter: "" };
+
+  const [existingAlumni, existingTeamMember] = await Promise.all([
+    Alumni.findOne({
+      email: normalizedEmail,
+      ...(currentId ? { _id: { $ne: currentId } } : {}),
+    }).sort({ updatedAt: -1, createdAt: -1 }),
+    TeamMember.findOne({ email: normalizedEmail }).sort({
+      year: -1,
+      order: 1,
+      updatedAt: -1,
+      createdAt: -1,
+    }),
+  ]);
+
+  return mergeSocialHandles(existingAlumni || {}, existingTeamMember || {});
+};
+
 const resolveLegacyPhoto = async (req, body = {}, existingPhoto = null) => {
   if (req.file) {
     if (
@@ -65,8 +91,12 @@ const resolveLegacyPhoto = async (req, body = {}, existingPhoto = null) => {
 export const createAlumni = async (req, res) => {
   try {
     const normalizedPayload = normalizePayload(req.body);
+    const inferredHandles = await resolveExistingSocialHandles(
+      normalizedPayload.email
+    );
     const payload = {
       ...normalizedPayload,
+      ...mergeSocialHandles(normalizedPayload, inferredHandles),
       photo: await resolveLegacyPhoto(req, normalizedPayload),
       status: "pending",
       reviewedAt: null,
@@ -140,11 +170,16 @@ export const updateLegacyProfile = async (req, res) => {
       alumni.legacyType === "team_member"
         ? "approved"
         : alumni.status || "approved";
+    const inferredHandles = await resolveExistingSocialHandles(
+      payload.email,
+      alumni._id
+    );
 
     const updated = await Alumni.findByIdAndUpdate(
       req.params.id,
       {
         ...payload,
+        ...mergeSocialHandles(payload, inferredHandles),
         photo: await resolveLegacyPhoto(req, payload, alumni.photo),
         status: nextStatus,
         reviewedAt:
@@ -187,11 +222,16 @@ export const updateLegacyProfileByAdmin = async (req, res) => {
     if (!alumni) {
       return res.status(404).json({ message: "Legacy profile not found" });
     }
+    const inferredHandles = await resolveExistingSocialHandles(
+      payload.email,
+      alumni._id
+    );
 
     const updated = await Alumni.findByIdAndUpdate(
       req.params.id,
       {
         ...payload,
+        ...mergeSocialHandles(payload, inferredHandles),
         photo: await resolveLegacyPhoto(req, payload, alumni.photo),
         status: alumni.status || "approved",
         reviewedAt: alumni.reviewedAt,

@@ -5,6 +5,7 @@ import {
   deleteDiscussAccountByAdmin,
   getDiscussAccountMe,
   getDiscussAccounts,
+  getPublicDiscussAccountStats,
   getPublicDiscussAccounts,
   loginDiscussAccount,
   registerDiscussAccount,
@@ -17,6 +18,7 @@ router.post("/register", registerDiscussAccount);
 router.post("/login", loginDiscussAccount);
 router.get("/me", discussAuth, getDiscussAccountMe);
 router.get("/public", getPublicDiscussAccounts);
+router.get("/public/stats", getPublicDiscussAccountStats);
 
 router.get("/admin/all", adminAuth, getDiscussAccounts);
 router.patch("/admin/:id", adminAuth, updateDiscussAccountByAdmin);

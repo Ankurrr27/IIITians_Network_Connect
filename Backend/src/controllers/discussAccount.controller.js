@@ -19,6 +19,7 @@ const sanitizeDiscussAccount = (account) => ({
   clubName: account.clubName,
   contactName: account.contactName,
   contactPhone: account.contactPhone,
+  website: account.website,
   email: account.email,
   role: account.role,
   isAuthorized: account.isAuthorized,
@@ -34,6 +35,7 @@ export const registerDiscussAccount = async (req, res) => {
       clubName,
       contactName,
       contactPhone,
+      website,
       email,
       handle,
       password,
@@ -57,6 +59,7 @@ export const registerDiscussAccount = async (req, res) => {
       clubName,
       contactName,
       contactPhone,
+      website,
       email: normalizedEmail,
       password: hashedPassword,
     });
@@ -87,6 +90,13 @@ export const loginDiscussAccount = async (req, res) => {
     const match = await bcrypt.compare(password, account.password);
     if (!match) {
       return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    if (!account.isAuthorized) {
+      return res.status(403).json({
+        message:
+          "Your club request is still pending admin approval. Wait for verification first.",
+      });
     }
 
     if (!process.env.JWT_SECRET) {
@@ -148,6 +158,38 @@ export const getPublicDiscussAccounts = async (req, res) => {
   }
 };
 
+export const getPublicDiscussAccountStats = async (req, res) => {
+  try {
+    const accounts = await DiscussAccount.find()
+      .select("collegeName clubName isAuthorized")
+      .lean();
+
+    const uniqueRegisteredClubs = new Set(
+      accounts
+        .map((account) =>
+          `${account.collegeName || ""}::${account.clubName || ""}`.trim()
+        )
+        .filter((value) => value !== "::")
+    ).size;
+
+    const uniqueAuthorizedClubs = new Set(
+      accounts
+        .filter((account) => account.isAuthorized)
+        .map((account) =>
+          `${account.collegeName || ""}::${account.clubName || ""}`.trim()
+        )
+        .filter((value) => value !== "::")
+    ).size;
+
+    res.json({
+      registeredClubs: uniqueRegisteredClubs,
+      authorizedClubs: uniqueAuthorizedClubs,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 export const updateDiscussAccountByAdmin = async (req, res) => {
   try {
     const account = await DiscussAccount.findById(req.params.id);
@@ -167,6 +209,7 @@ export const updateDiscussAccountByAdmin = async (req, res) => {
     if (req.body.clubName !== undefined) account.clubName = req.body.clubName;
     if (req.body.contactName !== undefined) account.contactName = req.body.contactName;
     if (req.body.contactPhone !== undefined) account.contactPhone = req.body.contactPhone;
+    if (req.body.website !== undefined) account.website = req.body.website;
     if (req.body.handle !== undefined || req.body.email !== undefined) {
       const normalizedEmail = normalizeDiscussEmail(req.body.handle || req.body.email);
       if (!normalizedEmail) {

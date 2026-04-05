@@ -3,6 +3,35 @@ import Alumni from "../models/alumni.model.js";
 import cloudinary from "../config/cloudinary.js";
 import { syncTeamMemberToLegacy } from "../services/legacySync.service.js";
 
+const mergeSocialHandles = (primary = {}, fallback = {}) => ({
+  linkedin: primary.linkedin?.trim() || fallback.linkedin?.trim() || "",
+  instagram: primary.instagram?.trim() || fallback.instagram?.trim() || "",
+  twitter: primary.twitter?.trim() || fallback.twitter?.trim() || "",
+});
+
+const resolveExistingSocialHandles = async (email = "", currentId = null) => {
+  const normalizedEmail = email?.trim().toLowerCase();
+  if (!normalizedEmail) return { linkedin: "", instagram: "", twitter: "" };
+
+  const [existingTeamMember, existingLegacy] = await Promise.all([
+    TeamMember.findOne({
+      email: normalizedEmail,
+      ...(currentId ? { _id: { $ne: currentId } } : {}),
+    }).sort({
+      year: -1,
+      order: 1,
+      updatedAt: -1,
+      createdAt: -1,
+    }),
+    Alumni.findOne({ email: normalizedEmail }).sort({
+      updatedAt: -1,
+      createdAt: -1,
+    }),
+  ]);
+
+  return mergeSocialHandles(existingTeamMember || {}, existingLegacy || {});
+};
+
 export const createTeamMember = async (req, res) => {
   try {
     const {
@@ -67,6 +96,7 @@ export const createTeamMember = async (req, res) => {
         error: "Profile photo is required",
       });
     }
+    const inferredHandles = await resolveExistingSocialHandles(email);
 
     const member = await TeamMember.create({
       name,
@@ -76,9 +106,7 @@ export const createTeamMember = async (req, res) => {
       email,
       team,
       year,
-      linkedin,
-      instagram,
-      twitter,
+      ...mergeSocialHandles({ linkedin, instagram, twitter }, inferredHandles),
       aboutText,
       messageText,
       order,
@@ -146,6 +174,25 @@ export const updateTeamMember = async (req, res) => {
         member[field] = req.body[field];
       }
     });
+
+    if (req.body.email !== undefined || req.body.linkedin !== undefined || req.body.instagram !== undefined || req.body.twitter !== undefined) {
+      const inferredHandles = await resolveExistingSocialHandles(
+        req.body.email ?? member.email,
+        member._id
+      );
+      const mergedHandles = mergeSocialHandles(
+        {
+          linkedin: req.body.linkedin ?? member.linkedin,
+          instagram: req.body.instagram ?? member.instagram,
+          twitter: req.body.twitter ?? member.twitter,
+        },
+        inferredHandles
+      );
+
+      member.linkedin = mergedHandles.linkedin;
+      member.instagram = mergedHandles.instagram;
+      member.twitter = mergedHandles.twitter;
+    }
 
     await member.save();
     await syncTeamMemberToLegacy(member);

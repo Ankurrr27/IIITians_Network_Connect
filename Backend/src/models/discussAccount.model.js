@@ -21,6 +21,11 @@ const discussAccountSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    website: {
+      type: String,
+      trim: true,
+      default: "",
+    },
     email: {
       type: String,
       required: true,
