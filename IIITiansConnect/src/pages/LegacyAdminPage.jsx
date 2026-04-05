@@ -271,7 +271,7 @@ export default function LegacyAdminPage() {
       linkedin: entry.linkedin || "",
       instagram: entry.instagram || "",
       twitter: entry.twitter || "",
-      aboutText: entry.bio || "",
+      aboutText: "",
       messageText: "",
       team: "Core",
       year: entry.generation || "",

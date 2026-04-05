@@ -17,8 +17,12 @@ export default function CollegesPage() {
   const [filter, setFilter] = useState("NONE");
 
   useEffect(() => {
+    const requestNonce = Date.now();
     Promise.allSettled([
-      api.get("/colleges"),
+      api.get("/colleges", {
+        params: { _: requestNonce },
+        headers: { "Cache-Control": "no-cache" },
+      }),
       api.get("/team"),
       api.get("/alumni"),
       api.get("/discuss-accounts/public"),

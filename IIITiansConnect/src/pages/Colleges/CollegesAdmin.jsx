@@ -54,6 +54,7 @@ export default function CollegesAdmin() {
   });
 
   const [createCollegeForm, setCreateCollegeForm] = useState(initialCollegeForm);
+  const [createPhotoFile, setCreatePhotoFile] = useState(null);
   const [createGalleryFiles, setCreateGalleryFiles] = useState([]);
   const [createLogoFile, setCreateLogoFile] = useState(null);
 
@@ -62,16 +63,21 @@ export default function CollegesAdmin() {
 
   const [editCollegeId, setEditCollegeId] = useState("");
   const [editCollegeForm, setEditCollegeForm] = useState(initialCollegeForm);
+  const [editPhotoFile, setEditPhotoFile] = useState(null);
   const [editGalleryFiles, setEditGalleryFiles] = useState([]);
   const [editLogoFile, setEditLogoFile] = useState(null);
 
   const loadCollegeData = async () => {
     setCollegeLoading(true);
     setCollegeState((prev) => ({ ...prev, error: "" }));
+    const requestNonce = Date.now();
 
     try {
       const [collegesResponse, teamResponse] = await Promise.all([
-        api.get("/colleges"),
+        api.get("/colleges", {
+          params: { _: requestNonce },
+          headers: { "Cache-Control": "no-cache" },
+        }),
         api.get("/team"),
       ]);
 
@@ -229,10 +235,12 @@ export default function CollegesAdmin() {
         ...createCollegeForm,
         clubLinks: sanitizeClubLinks(createCollegeForm.clubLinks),
       });
+      await uploadCollegeAsset(response.data._id, "photo", createPhotoFile);
       await uploadCollegeGallery(response.data._id, createGalleryFiles);
       await uploadCollegeAsset(response.data._id, "logo", createLogoFile);
 
       setCreateCollegeForm(initialCollegeForm);
+      setCreatePhotoFile(null);
       setCreateGalleryFiles([]);
       setCreateLogoFile(null);
       setCollegeState({
@@ -265,6 +273,7 @@ export default function CollegesAdmin() {
           : [{ name: "", url: "" }],
       description: college.description || "",
     });
+    setEditPhotoFile(null);
     setEditGalleryFiles([]);
     setEditLogoFile(null);
     setCollegeState({
@@ -277,6 +286,7 @@ export default function CollegesAdmin() {
   const cancelEditCollege = () => {
     setEditCollegeId("");
     setEditCollegeForm(initialCollegeForm);
+    setEditPhotoFile(null);
     setEditGalleryFiles([]);
     setEditLogoFile(null);
   };
@@ -292,17 +302,20 @@ export default function CollegesAdmin() {
 
     try {
       await api.patch(`/colleges/${id}`, {
+        name: editCollegeForm.name,
         website: editCollegeForm.website,
         clubLink: editCollegeForm.clubLink,
         clubLinks: sanitizeClubLinks(editCollegeForm.clubLinks),
         description: editCollegeForm.description,
       });
 
+      await uploadCollegeAsset(id, "photo", editPhotoFile);
       await uploadCollegeGallery(id, editGalleryFiles);
       await uploadCollegeAsset(id, "logo", editLogoFile);
 
       setEditCollegeId("");
       setEditCollegeForm(initialCollegeForm);
+      setEditPhotoFile(null);
       setEditGalleryFiles([]);
       setEditLogoFile(null);
       setCollegeState({
@@ -357,7 +370,7 @@ export default function CollegesAdmin() {
           <h2 className="text-xl font-semibold text-slate-900">Add college</h2>
         </div>
 
-        <form onSubmit={handleCreateCollege} className="grid gap-3 lg:grid-cols-[1.05fr_1.05fr_1fr_1fr_1.2fr_auto] lg:items-start">
+        <form onSubmit={handleCreateCollege} className="grid gap-3 lg:grid-cols-[1.05fr_1.05fr_1fr_1fr_1fr_1.2fr_auto] lg:items-start">
           <input
             type="text"
             name="name"
@@ -382,6 +395,11 @@ export default function CollegesAdmin() {
             value={createCollegeForm.clubLink}
             onChange={handleCreateCollegeChange}
             className="w-full rounded-2xl border border-stone-200 bg-[#fffaf2] px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100"
+          />
+          <AssetInlinePicker
+            title="Main college photo"
+            file={createPhotoFile}
+            onPick={(file) => openCropper(file, "create-photo")}
           />
           <MultiAssetInlinePicker
             title="College photos"
@@ -486,8 +504,11 @@ export default function CollegesAdmin() {
                 const coverImage =
                   college.photo?.url ||
                   existingGallery[0]?.url ||
-                  college.logo?.url ||
                   "/placeholder-logo.png";
+                const mainPhotoUrl =
+                  (editPhotoFile && isEditing
+                    ? URL.createObjectURL(editPhotoFile)
+                    : college.photo?.url) || "/placeholder-logo.png";
                 const logoUrl = editLogoFile && isEditing
                   ? URL.createObjectURL(editLogoFile)
                   : college.logo?.url || "/placeholder-logo.png";
@@ -559,25 +580,41 @@ export default function CollegesAdmin() {
                       {isEditing ? (
                         <div className="space-y-4">
                           <div className="grid gap-4 sm:grid-cols-2">
-                            <MultiAssetPicker
-                              title="College photos"
-                              helper="Add one or more campus visuals. Older photos stay saved and new ones get added to them."
-                              files={editGalleryFiles}
-                              existingUrls={coverPhotos.map((item) => item.url)}
-                              onPick={(files) =>
-                                setEditGalleryFiles((prev) => [...prev, ...files])
-                              }
+                            <AssetPicker
+                              title="Main college photo"
+                              helper="This is the large public cover image. It stays separate from the logo."
+                              file={editPhotoFile}
+                              existingUrl={mainPhotoUrl}
+                              fallback="/placeholder-logo.png"
+                              onPick={(file) => openCropper(file, "edit-photo")}
                             />
                             <AssetPicker
                               title="College logo"
-                              helper="Smaller identity mark used with the college name."
+                              helper="Smaller identity mark used near the college name only."
                               file={editLogoFile}
                               existingUrl={logoUrl}
                               fallback="/placeholder-logo.png"
                               onPick={(file) => openCropper(file, "edit-logo")}
                             />
                           </div>
+                          <MultiAssetPicker
+                            title="Extra gallery photos"
+                            helper="Add more campus visuals. These support the main photo and do not replace the logo."
+                            files={editGalleryFiles}
+                            existingUrls={existingGallery.map((item) => item.url)}
+                            onPick={(files) =>
+                              setEditGalleryFiles((prev) => [...prev, ...files])
+                            }
+                          />
 
+                          <input
+                            type="text"
+                            name="name"
+                            value={editCollegeForm.name}
+                            onChange={handleEditCollegeChange}
+                            placeholder="College name"
+                            className="w-full rounded-2xl border border-stone-200 bg-[#fffaf2] px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100 sm:text-base"
+                          />
                           <input
                             type="text"
                             name="website"
@@ -727,7 +764,9 @@ export default function CollegesAdmin() {
           file={rawAssetFile}
           onClose={() => setRawAssetFile(null)}
           onCrop={(croppedFile) => {
+            if (assetTarget === "create-photo") setCreatePhotoFile(croppedFile);
             if (assetTarget === "create-logo") setCreateLogoFile(croppedFile);
+            if (assetTarget === "edit-photo") setEditPhotoFile(croppedFile);
             if (assetTarget === "edit-logo") setEditLogoFile(croppedFile);
             setRawAssetFile(null);
           }}
