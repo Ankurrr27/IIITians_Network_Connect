@@ -70,13 +70,7 @@ export const getCollegeById = async (req, res) => {
 
 export const updateCollege = async (req, res) => {
   try {
-    if (req.body.name) {
-      return res.status(400).json({
-        message: "College name cannot be updated",
-      });
-    }
-
-    const allowedFields = ["description", "website", "clubLink"];
+    const allowedFields = ["name", "description", "website", "clubLink"];
     const updates = {};
 
     allowedFields.forEach((field) => {

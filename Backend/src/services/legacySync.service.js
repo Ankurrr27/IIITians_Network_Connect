@@ -63,6 +63,10 @@ function getYearNumber(value = "") {
   return match ? Number(match[0]) : new Date().getFullYear();
 }
 
+function buildDefaultLegacyBio(member) {
+  return `${member.name} is part of the IIITians Network team and has contributed across leadership roles in the network.`;
+}
+
 async function syncLegacyByEmail(email) {
   const normalizedEmail = email?.trim().toLowerCase();
   if (!normalizedEmail) return null;
@@ -72,6 +76,15 @@ async function syncLegacyByEmail(email) {
 
   const latestMember = getLatestTeamMember(teamMembers);
   const roleHistory = buildRoleHistory(teamMembers);
+  const existing = await Alumni.findOne({
+    $or: [{ email: normalizedEmail }, { sourceTeamMemberId: latestMember._id }],
+  });
+
+  const syncedBio =
+    latestMember.messageText?.trim() ||
+    latestMember.aboutText?.trim() ||
+    existing?.bio?.trim() ||
+    buildDefaultLegacyBio(latestMember);
 
   const payload = {
     name: latestMember.name,
@@ -93,20 +106,13 @@ async function syncLegacyByEmail(email) {
         }
       : undefined,
     twitter: latestMember.twitter || "",
-    bio: `${latestMember.name} is part of the IIITians Network team and has contributed across leadership roles in the network.`,
+    bio: syncedBio,
     status: "approved",
     reviewedAt: new Date(),
     legacyType: "team_member",
     sourceTeamMemberId: latestMember._id,
     roleHistory,
   };
-
-  const existing = await Alumni.findOne({
-    $or: [
-      { email: normalizedEmail },
-      { sourceTeamMemberId: latestMember._id },
-    ],
-  });
 
   if (!existing) {
     return Alumni.create(payload);
