@@ -47,6 +47,16 @@ const teamMemberSchema = new mongoose.Schema(
     linkedin: String,
     instagram: String,
     twitter: String,
+    currentCompany: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    location: {
+      type: String,
+      trim: true,
+      default: "",
+    },
 
     aboutText: {
       type: String,

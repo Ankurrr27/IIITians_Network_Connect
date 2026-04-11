@@ -9,6 +9,12 @@ const mergeSocialHandles = (primary = {}, fallback = {}) => ({
   twitter: primary.twitter?.trim() || fallback.twitter?.trim() || "",
 });
 
+const mergeCareerFields = (primary = {}, fallback = {}) => ({
+  currentCompany:
+    primary.currentCompany?.trim() || fallback.currentCompany?.trim() || "",
+  location: primary.location?.trim() || fallback.location?.trim() || "",
+});
+
 const resolveExistingSocialHandles = async (email = "", currentId = null) => {
   const normalizedEmail = email?.trim().toLowerCase();
   if (!normalizedEmail) return { linkedin: "", instagram: "", twitter: "" };
@@ -32,6 +38,29 @@ const resolveExistingSocialHandles = async (email = "", currentId = null) => {
   return mergeSocialHandles(existingTeamMember || {}, existingLegacy || {});
 };
 
+const resolveExistingCareerFields = async (email = "", currentId = null) => {
+  const normalizedEmail = email?.trim().toLowerCase();
+  if (!normalizedEmail) return { currentCompany: "", location: "" };
+
+  const [existingTeamMember, existingLegacy] = await Promise.all([
+    TeamMember.findOne({
+      email: normalizedEmail,
+      ...(currentId ? { _id: { $ne: currentId } } : {}),
+    }).sort({
+      year: -1,
+      order: 1,
+      updatedAt: -1,
+      createdAt: -1,
+    }),
+    Alumni.findOne({ email: normalizedEmail }).sort({
+      updatedAt: -1,
+      createdAt: -1,
+    }),
+  ]);
+
+  return mergeCareerFields(existingTeamMember || {}, existingLegacy || {});
+};
+
 export const createTeamMember = async (req, res) => {
   try {
     const {
@@ -45,6 +74,8 @@ export const createTeamMember = async (req, res) => {
       linkedin,
       instagram,
       twitter,
+      currentCompany,
+      location,
       aboutText,
       messageText,
       order,
@@ -97,6 +128,7 @@ export const createTeamMember = async (req, res) => {
       });
     }
     const inferredHandles = await resolveExistingSocialHandles(email);
+    const inferredCareerFields = await resolveExistingCareerFields(email);
 
     const member = await TeamMember.create({
       name,
@@ -107,6 +139,10 @@ export const createTeamMember = async (req, res) => {
       team,
       year,
       ...mergeSocialHandles({ linkedin, instagram, twitter }, inferredHandles),
+      ...mergeCareerFields(
+        { currentCompany, location },
+        inferredCareerFields
+      ),
       aboutText,
       messageText,
       order,
@@ -161,6 +197,8 @@ export const updateTeamMember = async (req, res) => {
       "linkedin",
       "instagram",
       "twitter",
+      "currentCompany",
+      "location",
       "aboutText",
       "messageText",
       "team",
@@ -192,6 +230,23 @@ export const updateTeamMember = async (req, res) => {
       member.linkedin = mergedHandles.linkedin;
       member.instagram = mergedHandles.instagram;
       member.twitter = mergedHandles.twitter;
+    }
+
+    if (req.body.email !== undefined || req.body.currentCompany !== undefined || req.body.location !== undefined) {
+      const inferredCareerFields = await resolveExistingCareerFields(
+        req.body.email ?? member.email,
+        member._id
+      );
+      const mergedCareerFields = mergeCareerFields(
+        {
+          currentCompany: req.body.currentCompany ?? member.currentCompany,
+          location: req.body.location ?? member.location,
+        },
+        inferredCareerFields
+      );
+
+      member.currentCompany = mergedCareerFields.currentCompany;
+      member.location = mergedCareerFields.location;
     }
 
     await member.save();

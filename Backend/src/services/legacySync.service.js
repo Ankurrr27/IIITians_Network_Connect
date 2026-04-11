@@ -85,6 +85,10 @@ async function syncLegacyByEmail(email) {
     latestMember.aboutText?.trim() ||
     existing?.bio?.trim() ||
     buildDefaultLegacyBio(latestMember);
+  const syncedCompany =
+    latestMember.currentCompany?.trim() || existing?.currentCompany?.trim() || "";
+  const syncedLocation =
+    latestMember.location?.trim() || existing?.location?.trim() || "";
 
   const payload = {
     name: latestMember.name,
@@ -95,8 +99,8 @@ async function syncLegacyByEmail(email) {
     branch: latestMember.team || "IIITians Network",
     networkPost: latestMember.role || "",
     currentRole: latestMember.role || "",
-    currentCompany: "",
-    location: latestMember.iiit || "",
+    currentCompany: syncedCompany,
+    location: syncedLocation,
     linkedin: latestMember.linkedin || "",
     instagram: latestMember.instagram || "",
     photo: latestMember.photo?.url
