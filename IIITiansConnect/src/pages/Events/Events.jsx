@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import api from "../../api/axios";
+import { notifyPageEntry } from "../../utils/appNotifications";
 
 import EventsGrid from "./Sections/EventsGrid";
 import EventsHeader from "./Sections/EventsHeader";
@@ -13,6 +14,12 @@ export default function PublicEvents() {
   const [sortBy, setSortBy] = useState("newest");
 
   useEffect(() => {
+    notifyPageEntry(
+      "Congratulations, events page loaded",
+      "Fresh events are ready to browse.",
+      "page-events-loaded"
+    );
+
     api
       .get("/events")
       .then((res) => setEvents(res.data))

@@ -3,6 +3,7 @@ import {
   getAllPlacements,
   getPlacementByCollegeName,
 } from "../../api/placementApi";
+import { notifyAppAction, notifyPageEntry } from "../../utils/appNotifications";
 
 import PlacementSearchBar from "./sections/PlacementSearchBar";
 import PlacementPreview from "./sections/PlacementPreview";
@@ -18,6 +19,12 @@ export default function Placement() {
   const [collegeOptions, setCollegeOptions] = useState([]);
 
   useEffect(() => {
+    notifyPageEntry(
+      "Congratulations, placement page loaded",
+      "Placement insights are ready for search.",
+      "page-placement-loaded"
+    );
+
     getAllPlacements()
       .then((response) => {
         const names = (response.data || [])
@@ -27,6 +34,12 @@ export default function Placement() {
         setCollegeOptions(
           [...new Set(names)].sort((a, b) => a.localeCompare(b))
         );
+        notifyAppAction({
+          title: "Congratulations, placement data fetched",
+          message: "Placement directory options have been loaded.",
+          type: "milestone",
+          dedupeKey: "placement-options-fetched",
+        });
       })
       .catch(() => {
         setCollegeOptions([]);
@@ -45,6 +58,13 @@ export default function Placement() {
 
       const years = (res.data.yearlyPlacements || []).map((entry) => entry.year);
       setYear(years.length ? Math.max(...years) : null);
+      notifyAppAction({
+        title: "Congratulations, placement data fetched",
+        message: `${name.trim()} placement stats are now on screen.`,
+        type: "milestone",
+        dedupeKey: `placement-search-${name.trim().toLowerCase()}`,
+        dedupeWindowMs: 120000,
+      });
     } catch (err) {
       console.error("Placement fetch failed:", err);
       setData(null);

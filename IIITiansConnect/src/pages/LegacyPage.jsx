@@ -11,6 +11,7 @@ import {
   MapPin,
   Search,
   ShieldCheck,
+  SlidersHorizontal,
   Sparkles,
   Milestone,
   Users,
@@ -19,6 +20,7 @@ import api from "../api/axios";
 import useThemeMode from "../hooks/useThemeMode.jsx";
 import { Link, useSearchParams } from "react-router-dom";
 import ImageCropModal from "../components/ImageCropModal";
+import { notifyAppAction, notifyPageEntry } from "../utils/appNotifications";
 
 const initialForm = {
   name: "",
@@ -79,6 +81,7 @@ export default function LegacyPage() {
   const [networkPostFilter, setNetworkPostFilter] = useState(
     searchParams.get("networkPost") || ""
   );
+  const [areFiltersOpen, setAreFiltersOpen] = useState(false);
 
   const filteredEntries = useMemo(() => {
     const queryIiit = searchParams.get("iiit");
@@ -154,6 +157,11 @@ export default function LegacyPage() {
   useEffect(() => {
     fetchTeamMembers();
     fetchColleges();
+    notifyPageEntry(
+      "Congratulations, legacy page loaded",
+      "Network Legacy is ready to explore.",
+      "page-legacy-loaded"
+    );
   }, []);
 
   useEffect(() => {
@@ -278,6 +286,12 @@ export default function LegacyPage() {
         error: "",
         success:
           "Your Network Legacy request has been submitted. It will appear after admin approval.",
+      });
+      notifyAppAction({
+        title: "Congratulations, form submitted successfully",
+        message: "Your Network Legacy profile request has been sent.",
+        type: "legacy",
+        dedupeKey: "legacy-form-submit",
       });
       setApiUnavailable(false);
       fetchEntries();
@@ -572,7 +586,7 @@ export default function LegacyPage() {
                 </div>
 
                 <div
-                  className={`rounded-2xl border p-4 ${
+                  className={`rounded-2xl border p-4 max-sm:border-transparent max-sm:bg-transparent max-sm:px-0 max-sm:py-1 ${
                     isDarkMode
                       ? "border-slate-700 bg-slate-950"
                       : "border-slate-200 bg-slate-50"
@@ -661,16 +675,15 @@ export default function LegacyPage() {
                 </button>
               </form>
             )}
-          </div>
+            <div
+              className={`my-6 h-px ${
+                isDarkMode
+                  ? "bg-gradient-to-r from-transparent via-slate-700 to-transparent"
+                  : "bg-gradient-to-r from-transparent via-indigo-100 to-transparent"
+              }`}
+            />
 
-          <div
-            className={`rounded-[1.75rem] border p-5 shadow-[0_20px_50px_rgba(148,163,184,0.1)] sm:p-6 lg:p-7 ${
-              isDarkMode
-                ? cardShell.dark
-                : "border-slate-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.95),rgba(248,250,252,0.92))]"
-            }`}
-          >
-            <div className="max-w-2xl pb-5">
+            <div className="max-w-2xl px-1 pb-4 sm:px-0 sm:pb-5">
               <h2
                 className={`text-xl font-semibold sm:text-2xl ${
                   isDarkMode ? "text-slate-100" : "text-slate-900"
@@ -689,14 +702,14 @@ export default function LegacyPage() {
             </div>
 
             <div
-              className={`rounded-[1.5rem] border p-4 sm:p-5 ${
+              className={`rounded-[1.5rem] border p-0 sm:p-5 max-sm:border-transparent max-sm:bg-transparent max-sm:shadow-none ${
                 isDarkMode
                   ? "border-slate-800 bg-slate-950/50"
                   : "border-slate-200 bg-white/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]"
               }`}
             >
-              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-              <label className="relative block">
+              <div className="flex items-center gap-3">
+              <label className="relative block flex-1">
                 <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                 <input
                   type="text"
@@ -710,65 +723,80 @@ export default function LegacyPage() {
                   }`}
                 />
               </label>
-
-              <div className="relative">
-                <select
-                  value={generationFilter}
-                  onChange={(event) => setGenerationFilter(event.target.value)}
-                  title={generationFilter || "All generations"}
-                  className={filterSelectClass}
+                <button
+                  type="button"
+                  onClick={() => setAreFiltersOpen((prev) => !prev)}
+                  className={`inline-flex h-[3.15rem] w-[3.15rem] flex-shrink-0 items-center justify-center rounded-2xl border transition sm:w-auto sm:gap-2 sm:px-4 ${
+                    isDarkMode
+                      ? "border-slate-700 bg-slate-950 text-slate-100"
+                      : "border-slate-200 bg-white text-slate-700 shadow-sm"
+                  }`}
+                  aria-label="Toggle filters"
                 >
-                  <option value="">All generations</option>
-                  {generationOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <SlidersHorizontal className="h-4.5 w-4.5" />
+                  <span className="hidden text-sm font-semibold sm:inline">
+                    Filters
+                  </span>
+                </button>
               </div>
 
-              <div className="relative">
-                <select
-                  value={iiitFilter}
-                  onChange={(event) => setIiitFilter(event.target.value)}
-                  title={iiitFilter || "All institutes"}
-                  className={filterSelectClass}
-                >
-                  <option value="">All institutes</option>
-                  {iiitOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-              </div>
+              <div className={`${areFiltersOpen ? "mt-4 grid" : "hidden"} gap-4 md:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)]`}>
+                <div className="relative">
+                  <select
+                    value={generationFilter}
+                    onChange={(event) => setGenerationFilter(event.target.value)}
+                    title={generationFilter || "All generations"}
+                    className={filterSelectClass}
+                  >
+                    <option value="">All generations</option>
+                    {generationOptions.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                </div>
 
-              <div className="relative">
-                <select
-                  value={professionalStatusFilter}
-                  onChange={(event) =>
-                    setProfessionalStatusFilter(event.target.value)
-                  }
-                  title={
-                    professionalStatusFilter === "working"
-                      ? "Working professionals"
-                      : professionalStatusFilter === "open"
-                      ? "Open to next move"
-                      : "All professional stages"
-                  }
-                  className={filterSelectClass}
-                >
-                  <option value="">All professional stages</option>
-                  <option value="working">Working professionals</option>
-                  <option value="open">Open to next move</option>
-                </select>
-                <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-              </div>
-              </div>
+                <div className="relative">
+                  <select
+                    value={iiitFilter}
+                    onChange={(event) => setIiitFilter(event.target.value)}
+                    title={iiitFilter || "All institutes"}
+                    className={filterSelectClass}
+                  >
+                    <option value="">All institutes</option>
+                    {iiitOptions.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                </div>
 
-              <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_12rem]">
+                <div className="relative">
+                  <select
+                    value={professionalStatusFilter}
+                    onChange={(event) =>
+                      setProfessionalStatusFilter(event.target.value)
+                    }
+                    title={
+                      professionalStatusFilter === "working"
+                        ? "Working professionals"
+                        : professionalStatusFilter === "open"
+                        ? "Open to next move"
+                        : "All professional stages"
+                    }
+                    className={filterSelectClass}
+                  >
+                    <option value="">All professional stages</option>
+                    <option value="working">Working professionals</option>
+                    <option value="open">Open to next move</option>
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                </div>
+
                 <div className="relative">
                   <select
                     value={legacyTypeFilter}
@@ -1037,7 +1065,7 @@ export default function LegacyPage() {
                           </div>
 
                           <div
-                            className={`rounded-[1.4rem] px-4 py-3 text-sm sm:min-w-[13rem] ${
+                            className={`rounded-[1.4rem] px-4 py-3 text-sm sm:min-w-[13rem] max-sm:bg-transparent max-sm:px-0 max-sm:py-0 ${
                               isDarkMode
                                 ? "bg-slate-800 text-indigo-200"
                                 : "bg-indigo-50 text-indigo-900"
@@ -1065,7 +1093,7 @@ export default function LegacyPage() {
 
                         {dedupedRoleHistory.length > 0 && (
                           <div
-                            className={`mt-5 rounded-[1.5rem] border p-3 sm:p-4 ${
+                            className={`mt-5 rounded-[1.5rem] border p-3 sm:p-4 max-sm:border-slate-200/70 max-sm:bg-white/60 ${
                               isDarkMode
                                 ? "border-slate-800 bg-slate-950/50"
                                 : "border-slate-200 bg-slate-50"

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../../api/axios";
+import { notifyAppAction, notifyPageEntry } from "../../utils/appNotifications";
 
 import CollegesHeader from "./Section/CollegesHeader";
 import CollegesSearch from "./Section/CollegesSearch";
@@ -33,6 +34,12 @@ export default function CollegesPage() {
   }, []);
 
   useEffect(() => {
+    notifyPageEntry(
+      "Congratulations, colleges page loaded",
+      "The IIIT directory is ready to explore.",
+      "page-colleges-loaded"
+    );
+
     const requestNonce = Date.now();
     Promise.allSettled([
       api.get("/colleges", {
@@ -60,6 +67,12 @@ export default function CollegesPage() {
             ? discussAccountsResult.value.data || []
             : []
         );
+        notifyAppAction({
+          title: "Congratulations, college data fetched",
+          message: "The college directory data has been loaded successfully.",
+          type: "club",
+          dedupeKey: "colleges-data-fetched",
+        });
       })
       .catch(() => setError("Failed to load colleges"))
       .finally(() => setLoading(false));
@@ -70,6 +83,16 @@ export default function CollegesPage() {
 
     const normalizedSearch = search.trim().toLowerCase();
     if (!normalizedSearch || normalizedSearch.length < 2) return;
+
+    const searchToastTimer = setTimeout(() => {
+      notifyAppAction({
+        title: "Congratulations, searching for colleges",
+        message: `Looking through the college directory for "${search.trim()}".`,
+        type: "club",
+        dedupeKey: `college-search-${normalizedSearch}`,
+        dedupeWindowMs: 120000,
+      });
+    }, 500);
 
     const timer = setTimeout(() => {
       const matchedCollege = colleges.find(
@@ -92,7 +115,10 @@ export default function CollegesPage() {
       );
     }, 250);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(searchToastTimer);
+    };
   }, [search, colleges, recentSearches]);
 
   let filtered = colleges.filter((c) =>

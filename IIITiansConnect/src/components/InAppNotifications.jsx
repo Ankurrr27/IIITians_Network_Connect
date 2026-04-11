@@ -1,14 +1,25 @@
 import { useEffect, useRef, useState } from "react";
-import { Bell, Megaphone, ShieldCheck, Sparkles, Users, X } from "lucide-react";
+import {
+  Bell,
+  CalendarDays,
+  Megaphone,
+  ShieldCheck,
+  Sparkles,
+  Users,
+  X,
+} from "lucide-react";
 import api from "../api/axios";
+import { APP_NOTIFICATION_EVENT } from "../utils/appNotifications";
 
 const POLL_INTERVAL_MS = 90000;
-const MILESTONE_STORAGE_KEY = "iiitians-network-20k-toast-shown";
+const VIEW_MILESTONE_STORAGE_KEY = "iiitians-network-last-view-milestone";
 const VIEW_STORAGE_KEY = "iiitians-network-total-views";
+const ENTRY_NOTIFICATION_STORAGE_KEY = "iiitians-network-last-entry-notification";
 
 function buildInitialSnapshot() {
   return {
     posts: 0,
+    events: 0,
     legacy: 0,
     team: 0,
     clubs: 0,
@@ -28,6 +39,12 @@ function getVariantMeta(type) {
         icon: ShieldCheck,
         shell: "border-indigo-200 bg-indigo-50 text-indigo-900",
         badge: "bg-indigo-100 text-indigo-700",
+      };
+    case "event":
+      return {
+        icon: CalendarDays,
+        shell: "border-fuchsia-200 bg-fuchsia-50 text-fuchsia-900",
+        badge: "bg-fuchsia-100 text-fuchsia-700",
       };
     case "team":
       return {
@@ -69,21 +86,65 @@ export default function InAppNotifications() {
 
     const maybeCelebrateViews = () => {
       const views = Number(localStorage.getItem(VIEW_STORAGE_KEY) || 0);
-      const alreadyShown = localStorage.getItem(MILESTONE_STORAGE_KEY) === "true";
+      const currentMilestone = Math.floor(views / 1000) * 1000;
+      if (currentMilestone < 1000) return;
 
-      if (views >= 20000 && !alreadyShown) {
-        localStorage.setItem(MILESTONE_STORAGE_KEY, "true");
+      const storedMilestone = Number(
+        localStorage.getItem(VIEW_MILESTONE_STORAGE_KEY) || 0
+      );
+
+      if (!storedMilestone) {
+        localStorage.setItem(
+          VIEW_MILESTONE_STORAGE_KEY,
+          String(currentMilestone)
+        );
+        return;
+      }
+
+      if (currentMilestone > storedMilestone) {
+        localStorage.setItem(
+          VIEW_MILESTONE_STORAGE_KEY,
+          String(currentMilestone)
+        );
         pushNotification({
           type: "milestone",
-          title: "20k views crossed",
-          message: "Congratulations. IIITians Network has crossed the 20,000 views milestone.",
+          title: `Congratulations, we just hit ${currentMilestone.toLocaleString()} views`,
+          message: "IIITians Network just crossed another view milestone.",
         });
       }
     };
 
+    const maybeShowCustomEntryNotification = async () => {
+      try {
+        const response = await api.get("/app-notifications/public-active");
+        const notification = response.data;
+        if (!notification?._id || !notification?.title || !notification?.message) {
+          return;
+        }
+
+        const version = `${notification._id}:${notification.updatedAt || ""}`;
+        const lastSeenVersion =
+          sessionStorage.getItem(ENTRY_NOTIFICATION_STORAGE_KEY) || "";
+
+        if (lastSeenVersion === version) {
+          return;
+        }
+
+        sessionStorage.setItem(ENTRY_NOTIFICATION_STORAGE_KEY, version);
+        pushNotification({
+          type: notification.type || "milestone",
+          title: notification.title,
+          message: notification.message,
+        });
+      } catch {
+        // Keep custom entry notifications quiet if unavailable.
+      }
+    };
+
     const loadSnapshot = async () => {
-      const [postsRes, legacyRes, teamRes, clubsRes] = await Promise.allSettled([
+      const [postsRes, eventsRes, legacyRes, teamRes, clubsRes] = await Promise.allSettled([
         api.get("/discuss"),
+        api.get("/events"),
         api.get("/alumni"),
         api.get("/team"),
         api.get("/discuss-accounts/public/stats"),
@@ -91,6 +152,10 @@ export default function InAppNotifications() {
 
       return {
         posts: postsRes.status === "fulfilled" ? postsRes.value.data?.length || 0 : snapshotRef.current.posts,
+        events:
+          eventsRes.status === "fulfilled"
+            ? eventsRes.value.data?.length || 0
+            : snapshotRef.current.events,
         legacy:
           legacyRes.status === "fulfilled" ? legacyRes.value.data?.length || 0 : snapshotRef.current.legacy,
         team: teamRes.status === "fulfilled" ? teamRes.value.data?.length || 0 : snapshotRef.current.team,
@@ -110,6 +175,7 @@ export default function InAppNotifications() {
           snapshotRef.current = nextSnapshot;
           initializedRef.current = true;
           maybeCelebrateViews();
+          maybeShowCustomEntryNotification();
           return;
         }
 
@@ -122,8 +188,20 @@ export default function InAppNotifications() {
             title: diff > 1 ? `${diff} new posts added` : "New post added",
             message:
               diff > 1
-                ? "Fresh announcements or event pushes are now live on Discuss."
-                : "A fresh announcement or event push just went live on Discuss.",
+                ? "Fresh conversations and updates are now live on Discuss."
+                : "A fresh conversation or update just went live on Discuss.",
+          });
+        }
+
+        if (nextSnapshot.events > previousSnapshot.events) {
+          const diff = nextSnapshot.events - previousSnapshot.events;
+          pushNotification({
+            type: "event",
+            title:
+              diff > 1
+                ? `Congratulations, ${diff} new events were added`
+                : "Congratulations, a new event was added",
+            message: "The events section has just been updated with something new.",
           });
         }
 
@@ -140,7 +218,10 @@ export default function InAppNotifications() {
           const diff = nextSnapshot.team - previousSnapshot.team;
           pushNotification({
             type: "team",
-            title: diff > 1 ? `${diff} new team members added` : "New team member added",
+            title:
+              diff > 1
+                ? `Congratulations, ${diff} new team members were added`
+                : "Congratulations, a new team member was added",
             message: "The live team directory has just been updated.",
           });
         }
@@ -163,10 +244,16 @@ export default function InAppNotifications() {
 
     poll();
     const intervalId = window.setInterval(poll, POLL_INTERVAL_MS);
+    const handleAppNotification = (event) => {
+      if (!event?.detail?.title) return;
+      pushNotification(event.detail);
+    };
+    window.addEventListener(APP_NOTIFICATION_EVENT, handleAppNotification);
 
     return () => {
       active = false;
       window.clearInterval(intervalId);
+      window.removeEventListener(APP_NOTIFICATION_EVENT, handleAppNotification);
     };
   }, []);
 

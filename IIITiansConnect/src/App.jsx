@@ -29,6 +29,7 @@ const DiscussPage = lazy(() => import("./pages/Discuss/DiscussPage.jsx"));
 const DiscussAdminPage = lazy(() => import("./pages/Discuss/DiscussAdminPage.jsx"));
 const GuidePage = lazy(() => import("./pages/Guide/GuidePage.jsx"));
 const AdminGuide = lazy(() => import("./pages/Guide/AdminGuide.jsx"));
+const AdminNotificationsPage = lazy(() => import("./pages/AdminNotificationsPage.jsx"));
 
 function LegacyAdminRedirect() {
   const { status } = useParams();
@@ -112,6 +113,7 @@ function App() {
               <Route path="/placement/admin" element={<PlacementPage />} />
               <Route path="/events/admin" element={<Events />} />
               <Route path="/discuss/admin" element={<DiscussAdminPage />} />
+              <Route path="/admin/notifications" element={<AdminNotificationsPage />} />
             </Route>
           </Route>
           

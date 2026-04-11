@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ArrowRight, Search, Users, UserPlus } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
 import api from "../../api/axios";
+import { notifyPageEntry } from "../../utils/appNotifications";
 
 import TeamGrid from "./Components/TeamGrid.jsx";
 
@@ -34,6 +35,12 @@ export default function TeamPage() {
   const [role, setRole] = useState("ALL");
 
   useEffect(() => {
+    notifyPageEntry(
+      "Congratulations, team page loaded",
+      "The live team directory is ready.",
+      "page-team-loaded"
+    );
+
     api
       .get("/team")
       .then((res) => setMembers(res.data))
