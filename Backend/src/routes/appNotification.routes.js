@@ -1,15 +1,17 @@
 import express from "express";
 import adminAuth from "../middlewares/adminAuth.js";
 import {
-  getAdminAppNotification,
+  createAdminAppNotification,
+  getAdminAppNotifications,
   getPublicActiveAppNotification,
-  upsertAdminAppNotification,
+  updateAdminAppNotification,
 } from "../controllers/appNotification.controller.js";
 
 const router = express.Router();
 
 router.get("/public-active", getPublicActiveAppNotification);
-router.get("/admin/current", adminAuth, getAdminAppNotification);
-router.put("/admin/current", adminAuth, upsertAdminAppNotification);
+router.get("/admin", adminAuth, getAdminAppNotifications);
+router.post("/admin", adminAuth, createAdminAppNotification);
+router.put("/admin/:id", adminAuth, updateAdminAppNotification);
 
 export default router;

@@ -1,60 +1,84 @@
 import AppNotification from "../models/appNotification.model.js";
 
-async function getSingletonNotification() {
-  let notification = await AppNotification.findOne().sort({ updatedAt: -1, createdAt: -1 });
+const allowedFields = [
+  "title",
+  "message",
+  "type",
+  "colorTone",
+  "order",
+  "isActive",
+  "showOnEntry",
+];
 
-  if (!notification) {
-    notification = await AppNotification.create({
-      title: "",
-      message: "",
-      type: "milestone",
-      isActive: false,
-      showOnEntry: true,
-    });
-  }
-
-  return notification;
+function assignFields(notification, payload = {}) {
+  allowedFields.forEach((field) => {
+    if (payload[field] !== undefined) {
+      notification[field] = payload[field];
+    }
+  });
 }
 
 export const getPublicActiveAppNotification = async (req, res) => {
   try {
-    const notification = await AppNotification.findOne({
+    const notifications = await AppNotification.find({
       isActive: true,
       showOnEntry: true,
       title: { $ne: "" },
       message: { $ne: "" },
-    }).sort({ updatedAt: -1, createdAt: -1 });
+    }).sort({ order: 1, updatedAt: -1, createdAt: -1 });
 
-    if (!notification) {
-      return res.json(null);
-    }
-
-    res.json(notification);
+    res.json(notifications);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-export const getAdminAppNotification = async (req, res) => {
+export const getAdminAppNotifications = async (req, res) => {
   try {
-    const notification = await getSingletonNotification();
-    res.json(notification);
+    const notifications = await AppNotification.find().sort({
+      order: 1,
+      updatedAt: -1,
+      createdAt: -1,
+    });
+    res.json(notifications);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-export const upsertAdminAppNotification = async (req, res) => {
+export const createAdminAppNotification = async (req, res) => {
   try {
-    const notification = await getSingletonNotification();
-
-    const allowedFields = ["title", "message", "type", "isActive", "showOnEntry"];
-    allowedFields.forEach((field) => {
-      if (req.body[field] !== undefined) {
-        notification[field] = req.body[field];
-      }
+    const lastNotification = await AppNotification.findOne().sort({
+      order: -1,
+      createdAt: -1,
     });
 
+    const notification = new AppNotification({
+      title: "",
+      message: "",
+      type: "milestone",
+      colorTone: "indigo",
+      order: lastNotification ? Number(lastNotification.order || 0) + 1 : 1,
+      isActive: false,
+      showOnEntry: true,
+    });
+
+    assignFields(notification, req.body);
+    await notification.save();
+    res.status(201).json(notification);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+export const updateAdminAppNotification = async (req, res) => {
+  try {
+    const notification = await AppNotification.findById(req.params.id);
+    if (!notification) {
+      return res.status(404).json({ message: "Notification not found" });
+    }
+
+    assignFields(notification, req.body);
     await notification.save();
     res.json(notification);
   } catch (error) {
