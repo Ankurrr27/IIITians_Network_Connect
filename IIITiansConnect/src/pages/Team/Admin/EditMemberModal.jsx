@@ -16,6 +16,8 @@ export default function EditMemberModal({ member, onClose, onUpdated }) {
     linkedin: member.linkedin || "",
     instagram: member.instagram || "",
     twitter: member.twitter || "",
+    currentCompany: member.currentCompany || "",
+    location: member.location || "",
     aboutText: member.aboutText || "",
     messageText: member.messageText || "",
     order: member.order ?? 0,
@@ -204,6 +206,20 @@ export default function EditMemberModal({ member, onClose, onUpdated }) {
                     placeholder="e.g. ankur@iiitkota.ac.in"
                     className="input sm:col-span-2"
                     required
+                  />
+                  <input
+                    name="currentCompany"
+                    value={form.currentCompany}
+                    onChange={handleChange}
+                    placeholder="e.g. Google"
+                    className="input"
+                  />
+                  <input
+                    name="location"
+                    value={form.location}
+                    onChange={handleChange}
+                    placeholder="e.g. Bengaluru, India"
+                    className="input"
                   />
                 </div>
               </section>

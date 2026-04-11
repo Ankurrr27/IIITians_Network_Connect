@@ -7,7 +7,6 @@ import {
   GraduationCap,
   Instagram,
   Linkedin,
-  LoaderCircle,
   Mail,
   MapPin,
   Search,
@@ -230,6 +229,12 @@ export default function LegacyPage() {
     [entries]
   );
 
+  const filterSelectClass = `w-full appearance-none rounded-2xl border px-4 py-3 pr-12 text-sm outline-none transition duration-300 truncate sm:text-base ${
+    isDarkMode
+      ? "border-slate-700 bg-slate-950 text-slate-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20"
+      : "border-slate-200 bg-white/90 text-slate-900 shadow-sm focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-100"
+  }`;
+
   const handleChange = (event) => {
     setForm((prev) => ({
       ...prev,
@@ -300,64 +305,98 @@ export default function LegacyPage() {
         isDarkMode
           ? "bg-slate-950"
           : "bg-[linear-gradient(180deg,_#eff6ff_0%,_#f8faff_40%,_#ffffff_100%)]"
-      } pb-14 pt-20 text-slate-900 sm:pb-20 sm:pt-24`}
+      } pb-16 pt-20 text-slate-900 sm:pb-24 sm:pt-24`}
     >
       {/* Radial Gradient Overlay */}
       <div className="pointer-events-none absolute inset-0 opacity-60 [background-image:radial-gradient(circle_at_20%_20%,rgba(59,130,246,0.16),transparent_0_22%),radial-gradient(circle_at_80%_18%,rgba(125,211,252,0.18),transparent_0_20%),radial-gradient(circle_at_72%_72%,rgba(96,165,250,0.12),transparent_0_24%)]" />
 
-      <section className="relative z-10 px-4 pb-6 pt-0 sm:px-6 sm:pb-10">
+      <section className="relative z-10 px-4 pb-8 pt-4 sm:px-6 sm:pb-12 sm:pt-6">
         <div className="mx-auto max-w-7xl">
-          <div className={`inline-flex items-center gap-2 rounded-full border ${isDarkMode ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' : 'bg-white text-indigo-700 border-indigo-100 shadow-sm'} px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.24em]`}>
-            <Sparkles className="h-4 w-4" />
-            Network Legacy
-          </div>
-
-          <h1
-            className={`mt-4 text-3xl font-semibold tracking-tight sm:text-5xl ${
-              isDarkMode ? "text-slate-100" : "text-slate-900"
+          <div
+            className={`relative overflow-hidden rounded-[2rem] border px-5 py-8 shadow-[0_24px_70px_rgba(148,163,184,0.14)] sm:px-8 sm:py-10 lg:px-10 lg:py-12 ${
+              isDarkMode
+                ? "border-slate-800 bg-[linear-gradient(180deg,rgba(15,23,42,0.92),rgba(15,23,42,0.82))]"
+                : "border-white/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.88),rgba(255,255,255,0.7))] backdrop-blur-sm"
             }`}
           >
-            Network Legacy
-          </h1>
+            <div className="pointer-events-none absolute inset-0 opacity-80 [background-image:radial-gradient(circle_at_top_left,rgba(99,102,241,0.12),transparent_34%),radial-gradient(circle_at_85%_20%,rgba(56,189,248,0.1),transparent_28%)]" />
+            <div className="relative flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between">
+              <div className="max-w-3xl lg:pr-8">
+                <div className={`inline-flex items-center gap-2 rounded-full border ${isDarkMode ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' : 'bg-white/90 text-indigo-700 border-indigo-100 shadow-sm'} px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.24em]`}>
+                  <Sparkles className="h-4 w-4" />
+                  Network Legacy
+                </div>
 
-          <p
-            className={`mt-4 max-w-3xl text-sm leading-7 sm:text-base ${
-              isDarkMode ? "text-slate-300" : "text-slate-600"
-            }`}
-          >
-            "Once a member of the network, always a part of its legacy."
-          </p>
-
-          <div className="mt-6 grid gap-3 sm:mt-8 sm:grid-cols-2 xl:grid-cols-4">
-            {stats.map((item) => {
-              const Icon = item.icon;
-
-              return (
-                <div
-                  key={item.label}
-                  className={`rounded-[1.5rem] border p-4 sm:rounded-[1.75rem] sm:p-5 ${
-                    isDarkMode ? cardShell.dark : cardShell.light
+                <h1
+                  className={`mt-4 text-3xl font-semibold tracking-tight sm:text-5xl ${
+                    isDarkMode ? "text-slate-100" : "text-slate-900"
                   }`}
                 >
-                  <Icon className="h-5 w-5 text-indigo-600" />
-                  <div
-                    className={`mt-3 text-2xl font-semibold sm:text-3xl ${
-                      isDarkMode ? "text-slate-100" : "text-slate-900"
-                    }`}
-                  >
-                    {item.value}
-                  </div>
-                  <div
-                    className={`mt-1 text-sm ${
-                      isDarkMode ? "text-slate-400" : "text-slate-600"
-                    }`}
-                  >
-                    {item.label}
-                  </div>
-                </div>
-              );
-            })}
+                  Network Legacy
+                </h1>
+
+                <p
+                  className={`mt-4 max-w-3xl text-sm leading-7 sm:text-base ${
+                    isDarkMode ? "text-slate-300" : "text-slate-600"
+                  }`}
+                >
+                  "Once a member of the network, always a part of its legacy."
+                </p>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2 lg:w-[24rem] lg:flex-shrink-0">
+                {stats.map((item) => {
+                  const Icon = item.icon;
+
+                  return (
+                    <div
+                      key={item.label}
+                      className={`group rounded-[1.35rem] border px-4 py-4 transition duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(99,102,241,0.12)] sm:px-4.5 ${
+                        isDarkMode
+                          ? `${cardShell.dark} hover:border-indigo-500/30`
+                          : "border-white/90 bg-white/85 shadow-[0_14px_34px_rgba(148,163,184,0.12)] hover:border-indigo-100"
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div
+                          className={`flex h-9 w-9 items-center justify-center rounded-2xl ${
+                            isDarkMode ? "bg-indigo-500/10" : "bg-indigo-50"
+                          }`}
+                        >
+                          <Icon className="h-4.5 w-4.5 text-indigo-600" />
+                        </div>
+                        <div className="min-w-0 text-right">
+                          <div
+                            className={`text-2xl font-semibold leading-none ${
+                              isDarkMode ? "text-slate-100" : "text-slate-900"
+                            }`}
+                          >
+                            {item.value}
+                          </div>
+                          <div
+                            className={`mt-2 text-sm leading-5 ${
+                              isDarkMode ? "text-slate-400" : "text-slate-600"
+                            }`}
+                          >
+                            {item.label}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           </div>
+
+          <div
+            className={`mt-8 h-px w-full ${
+              isDarkMode
+                ? "bg-gradient-to-r from-transparent via-slate-700 to-transparent"
+                : "bg-gradient-to-r from-transparent via-indigo-100 to-transparent"
+            }`}
+          />
+
         </div>
       </section>
 
@@ -389,12 +428,14 @@ export default function LegacyPage() {
           )}
 
           <div
-            className={`rounded-[1.5rem] border p-4 sm:rounded-[2rem] sm:p-6 ${
-              isDarkMode ? cardShell.dark : cardShell.light
+            className={`overflow-hidden rounded-[1.75rem] border p-5 shadow-[0_22px_60px_rgba(99,102,241,0.08)] sm:rounded-[2rem] sm:p-6 lg:p-7 ${
+              isDarkMode
+                ? cardShell.dark
+                : "border-indigo-100 bg-[linear-gradient(135deg,rgba(239,246,255,0.9),rgba(255,255,255,0.95))]"
             }`}
           >
-            <div className="flex flex-col gap-4 sm:gap-5 lg:flex-row lg:items-start lg:justify-between">
-              <div>
+            <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center lg:gap-8">
+              <div className="max-w-2xl">
                 <h2
                   className={`text-xl font-semibold sm:text-2xl ${
                     isDarkMode ? "text-slate-100" : "text-slate-900"
@@ -412,24 +453,26 @@ export default function LegacyPage() {
                 </p>
                 <Link
                   to="/guide"
-                  className="mt-3 inline-flex items-center gap-2 rounded-full border border-indigo-100 bg-indigo-50 px-4 py-2 text-sm font-semibold text-indigo-700 transition hover:bg-indigo-100"
+                  className="mt-4 inline-flex items-center gap-2 rounded-full border border-indigo-100 bg-white/80 px-4 py-2 text-sm font-semibold text-indigo-700 transition duration-300 hover:-translate-y-0.5 hover:bg-white hover:shadow-sm"
                 >
                   Need help? Open Guide
                 </Link>
               </div>
 
-              <button
-                type="button"
-                onClick={() => setIsFormOpen((prev) => !prev)}
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700"
-              >
-                {isFormOpen ? "Close form" : "Open form"}
-                {isFormOpen ? (
-                  <ChevronUp className="h-4 w-4" />
-                ) : (
-                  <ChevronDown className="h-4 w-4" />
-                )}
-              </button>
+              <div className="flex items-center justify-start lg:justify-end">
+                <button
+                  type="button"
+                  onClick={() => setIsFormOpen((prev) => !prev)}
+                  className="inline-flex min-w-[11rem] items-center justify-center gap-2 rounded-full bg-[linear-gradient(135deg,#4f46e5,#6366f1)] px-5 py-3 text-sm font-semibold text-white shadow-[0_18px_36px_rgba(99,102,241,0.28)] transition duration-300 ease-out hover:-translate-y-0.5 hover:scale-[1.01] hover:shadow-[0_24px_44px_rgba(99,102,241,0.34)] active:scale-[0.99]"
+                >
+                  {isFormOpen ? "Close form" : "Open form"}
+                  {isFormOpen ? (
+                    <ChevronUp className="h-4 w-4" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
             </div>
 
             {isFormOpen && (
@@ -612,7 +655,7 @@ export default function LegacyPage() {
                 <button
                   type="submit"
                   disabled={submitState.loading}
-                  className="w-full rounded-2xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60 sm:text-base"
+                  className="w-full rounded-2xl bg-[linear-gradient(135deg,#4f46e5,#6366f1)] px-4 py-3 text-sm font-semibold text-white shadow-[0_18px_36px_rgba(99,102,241,0.24)] transition duration-300 ease-out hover:-translate-y-0.5 hover:shadow-[0_24px_44px_rgba(99,102,241,0.3)] hover:brightness-[1.02] disabled:cursor-not-allowed disabled:opacity-60 sm:text-base"
                 >
                   {submitState.loading ? "Submitting..." : "Send legacy request"}
                 </button>
@@ -620,8 +663,14 @@ export default function LegacyPage() {
             )}
           </div>
 
-          <div className="mt-12">
-            <div>
+          <div
+            className={`rounded-[1.75rem] border p-5 shadow-[0_20px_50px_rgba(148,163,184,0.1)] sm:p-6 lg:p-7 ${
+              isDarkMode
+                ? cardShell.dark
+                : "border-slate-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.95),rgba(248,250,252,0.92))]"
+            }`}
+          >
+            <div className="max-w-2xl pb-5">
               <h2
                 className={`text-xl font-semibold sm:text-2xl ${
                   isDarkMode ? "text-slate-100" : "text-slate-900"
@@ -639,7 +688,14 @@ export default function LegacyPage() {
               </p>
             </div>
 
-            <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            <div
+              className={`rounded-[1.5rem] border p-4 sm:p-5 ${
+                isDarkMode
+                  ? "border-slate-800 bg-slate-950/50"
+                  : "border-slate-200 bg-white/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]"
+              }`}
+            >
+              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
               <label className="relative block">
                 <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                 <input
@@ -647,115 +703,128 @@ export default function LegacyPage() {
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
                   placeholder="Try: Ankur, Vice President, Adobe, CSE, or IIIT Surat"
-                  className={`w-full rounded-2xl border px-11 py-3 text-sm outline-none transition sm:text-base ${
+                  className={`w-full rounded-2xl border px-11 py-3 text-sm outline-none transition duration-300 placeholder:text-slate-500 sm:text-base ${
                     isDarkMode
                       ? "border-slate-700 bg-slate-950 text-slate-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20"
-                      : "border-slate-200 bg-slate-50 text-slate-900 focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100"
+                      : "border-slate-200 bg-white/90 text-slate-900 shadow-sm focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-100"
                   }`}
                 />
               </label>
 
-              <select
-                value={generationFilter}
-                onChange={(event) => setGenerationFilter(event.target.value)}
-                className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition sm:text-base ${
-                  isDarkMode
-                    ? "border-slate-700 bg-slate-950 text-slate-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20"
-                    : "border-slate-200 bg-slate-50 text-slate-900 focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100"
-                }`}
-              >
-                <option value="">All generations</option>
-                {generationOptions.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
+              <div className="relative">
+                <select
+                  value={generationFilter}
+                  onChange={(event) => setGenerationFilter(event.target.value)}
+                  title={generationFilter || "All generations"}
+                  className={filterSelectClass}
+                >
+                  <option value="">All generations</option>
+                  {generationOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              </div>
 
-              <select
-                value={iiitFilter}
-                onChange={(event) => setIiitFilter(event.target.value)}
-                className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition sm:text-base ${
-                  isDarkMode
-                    ? "border-slate-700 bg-slate-950 text-slate-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20"
-                    : "border-slate-200 bg-slate-50 text-slate-900 focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100"
-                }`}
-              >
-                <option value="">All institutes</option>
-                {iiitOptions.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
+              <div className="relative">
+                <select
+                  value={iiitFilter}
+                  onChange={(event) => setIiitFilter(event.target.value)}
+                  title={iiitFilter || "All institutes"}
+                  className={filterSelectClass}
+                >
+                  <option value="">All institutes</option>
+                  {iiitOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              </div>
 
-              <select
-                value={professionalStatusFilter}
-                onChange={(event) =>
-                  setProfessionalStatusFilter(event.target.value)
-                }
-                className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition sm:text-base ${
-                  isDarkMode
-                    ? "border-slate-700 bg-slate-950 text-slate-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20"
-                    : "border-slate-200 bg-slate-50 text-slate-900 focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100"
-                }`}
-              >
-                <option value="">All professional stages</option>
-                <option value="working">Working professionals</option>
-                <option value="open">Open to next move</option>
-              </select>
-            </div>
+              <div className="relative">
+                <select
+                  value={professionalStatusFilter}
+                  onChange={(event) =>
+                    setProfessionalStatusFilter(event.target.value)
+                  }
+                  title={
+                    professionalStatusFilter === "working"
+                      ? "Working professionals"
+                      : professionalStatusFilter === "open"
+                      ? "Open to next move"
+                      : "All professional stages"
+                  }
+                  className={filterSelectClass}
+                >
+                  <option value="">All professional stages</option>
+                  <option value="working">Working professionals</option>
+                  <option value="open">Open to next move</option>
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              </div>
+              </div>
 
-            <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-              <select
-                value={legacyTypeFilter}
-                onChange={(event) => setLegacyTypeFilter(event.target.value)}
-                className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition sm:text-base ${
-                  isDarkMode
-                    ? "border-slate-700 bg-slate-950 text-slate-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20"
-                    : "border-slate-200 bg-slate-50 text-slate-900 focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100"
-                }`}
-              >
-                <option value="">All legacy types</option>
-                <option value="team_member">Team members</option>
-                <option value="alumni">Submitted alumni</option>
-              </select>
+              <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_12rem]">
+                <div className="relative">
+                  <select
+                    value={legacyTypeFilter}
+                    onChange={(event) => setLegacyTypeFilter(event.target.value)}
+                    title={
+                      legacyTypeFilter === "team_member"
+                        ? "Team members"
+                        : legacyTypeFilter === "alumni"
+                        ? "Submitted alumni"
+                        : "All legacy types"
+                    }
+                    className={filterSelectClass}
+                  >
+                    <option value="">All legacy types</option>
+                    <option value="team_member">Team members</option>
+                    <option value="alumni">Submitted alumni</option>
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                </div>
 
-              <select
-                value={networkPostFilter}
-                onChange={(event) => setNetworkPostFilter(event.target.value)}
-                className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition sm:text-base ${
-                  isDarkMode
-                    ? "border-slate-700 bg-slate-950 text-slate-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20"
-                    : "border-slate-200 bg-slate-50 text-slate-900 focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100"
-                }`}
-              >
-                <option value="">All network posts</option>
-                {networkPostOptions.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
+                <div className="relative">
+                  <select
+                    value={networkPostFilter}
+                    onChange={(event) => setNetworkPostFilter(event.target.value)}
+                    title={networkPostFilter || "All network posts"}
+                    className={filterSelectClass}
+                  >
+                    <option value="">All network posts</option>
+                    {networkPostOptions.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                </div>
 
-              <button
-                type="button"
-                onClick={() => {
-                  setSearch("");
-                  setGenerationFilter("");
-                  setIiitFilter("");
-                  setProfessionalStatusFilter("");
-                  setLegacyTypeFilter("");
-                  setNetworkPostFilter("");
-                }}
-                className={`rounded-2xl border px-4 py-3 text-sm font-semibold transition sm:text-base ${
-                  isDarkMode
-                    ? "border-slate-700 bg-slate-950 text-slate-100 hover:bg-slate-900"
-                    : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-                }`}
-              >
-                Clear filters
-              </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearch("");
+                    setGenerationFilter("");
+                    setIiitFilter("");
+                    setProfessionalStatusFilter("");
+                    setLegacyTypeFilter("");
+                    setNetworkPostFilter("");
+                  }}
+                  className={`rounded-2xl border px-4 py-3 text-sm font-semibold transition duration-300 hover:-translate-y-0.5 sm:text-base ${
+                    isDarkMode
+                      ? "border-slate-700 bg-slate-950 text-slate-100 hover:bg-slate-900"
+                      : "border-slate-200 bg-white text-slate-700 shadow-sm hover:bg-slate-50 hover:shadow-md"
+                  }`}
+                >
+                  Clear filters
+                </button>
+              </div>
             </div>
           </div>
 
@@ -831,21 +900,23 @@ export default function LegacyPage() {
               </div>
             ) : (
               filteredEntries.map((entry) => {
+                const companyValue =
+                  entry.currentCompany || entry.company || entry.organisation || "";
+                const locationValue =
+                  entry.location || entry.currentLocation || entry.city || "";
                 const normalizedNetworkPost = normalizeText(entry.networkPost);
                 const normalizedCurrentRole = normalizeText(entry.currentRole);
-                const normalizedCurrentCompany = normalizeText(
-                  entry.currentCompany
-                );
+                const normalizedCurrentCompany = normalizeText(companyValue);
                 const normalizedIiit = normalizeText(entry.iiit);
-                const normalizedLocation = normalizeText(entry.location);
+                const normalizedLocation = normalizeText(locationValue);
                 const showRoleChip =
                   entry.currentRole &&
                   normalizedCurrentRole !== normalizedNetworkPost;
                 const showCompanyChip =
-                  entry.currentCompany &&
+                  companyValue &&
                   normalizedCurrentCompany !== normalizedIiit;
                 const showLocationChip =
-                  entry.location &&
+                  locationValue &&
                   normalizedLocation !== normalizedIiit &&
                   normalizedLocation !== normalizedCurrentCompany;
                 const dedupedRoleHistory = (entry.roleHistory || []).filter(
@@ -948,7 +1019,7 @@ export default function LegacyPage() {
                                   }`}
                                 >
                                   <Building2 className="h-4 w-4 text-indigo-600" />
-                                  {entry.currentCompany}
+                                  {companyValue}
                                 </span>
                               )}
 
@@ -959,7 +1030,7 @@ export default function LegacyPage() {
                                   }`}
                                 >
                                   <MapPin className="h-4 w-4 text-indigo-600" />
-                                  {entry.location}
+                                  {locationValue}
                                 </span>
                               )}
                             </div>

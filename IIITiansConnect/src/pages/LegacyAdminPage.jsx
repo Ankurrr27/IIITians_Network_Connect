@@ -80,6 +80,8 @@ export default function LegacyAdminPage() {
     linkedin: "",
     instagram: "",
     twitter: "",
+    currentCompany: "",
+    location: "",
     aboutText: "",
     messageText: "",
     team: "Core",
@@ -271,8 +273,10 @@ export default function LegacyAdminPage() {
       linkedin: entry.linkedin || "",
       instagram: entry.instagram || "",
       twitter: entry.twitter || "",
-      aboutText: "",
-      messageText: "",
+      currentCompany: entry.currentCompany || "",
+      location: entry.location || "",
+      aboutText: entry.bio || "",
+      messageText: entry.bio || "",
       team: "Core",
       year: entry.generation || "",
       order: 0,
@@ -291,6 +295,8 @@ export default function LegacyAdminPage() {
       linkedin: "",
       instagram: "",
       twitter: "",
+      currentCompany: "",
+      location: "",
       aboutText: "",
       messageText: "",
       team: "Core",
@@ -641,6 +647,36 @@ export default function LegacyAdminPage() {
                         value={teamForm.order}
                         onChange={handleTeamFormChange}
                         placeholder="Display order"
+                        className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100"
+                      />
+                      <input
+                        name="currentCompany"
+                        value={teamForm.currentCompany}
+                        onChange={handleTeamFormChange}
+                        placeholder="Current company"
+                        className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100"
+                      />
+                      <input
+                        name="location"
+                        value={teamForm.location}
+                        onChange={handleTeamFormChange}
+                        placeholder="Location"
+                        className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100"
+                      />
+                      <textarea
+                        name="aboutText"
+                        value={teamForm.aboutText}
+                        onChange={handleTeamFormChange}
+                        placeholder="About text"
+                        rows={4}
+                        className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100"
+                      />
+                      <textarea
+                        name="messageText"
+                        value={teamForm.messageText}
+                        onChange={handleTeamFormChange}
+                        placeholder="Public message"
+                        rows={4}
                         className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100"
                       />
                     </div>

@@ -13,6 +13,8 @@ const initialForm = {
   linkedin: "",
   instagram: "",
   twitter: "",
+  currentCompany: "",
+  location: "",
   aboutText: "",
   messageText: "",
   order: 0,
@@ -53,6 +55,8 @@ function buildFormFromMember(member, transitionType, currentYear) {
     linkedin: member?.linkedin || "",
     instagram: member?.instagram || "",
     twitter: member?.twitter || "",
+    currentCompany: member?.currentCompany || "",
+    location: member?.location || "",
     aboutText: member?.aboutText || "",
     messageText: member?.messageText || "",
     order: member?.order ?? 0,
@@ -156,6 +160,8 @@ export default function TeamMemberForm({ onSuccess, members = [], initialData = 
         year: initialData.year || latestTeamYear,
         linkedin: initialData.linkedin || "",
         instagram: initialData.instagram || "",
+        currentCompany: initialData.currentCompany || "",
+        location: initialData.location || "",
         aboutText: initialData.aboutText || "",
         messageText: initialData.messageText || "",
         roleType: "MEMBER", // Default for new applicants
@@ -448,6 +454,8 @@ export default function TeamMemberForm({ onSuccess, members = [], initialData = 
               ["linkedin", "e.g. https://linkedin.com/in/ankur-singh"],
               ["instagram", "e.g. https://instagram.com/ankurwrites"],
               ["twitter", "e.g. https://x.com/ankursingh"],
+              ["currentCompany", "e.g. Google"],
+              ["location", "e.g. Bengaluru, India"],
             ].map(([key, placeholder]) => (
               <input
                 key={key}
@@ -456,7 +464,15 @@ export default function TeamMemberForm({ onSuccess, members = [], initialData = 
                 onChange={handleChange}
                 placeholder={placeholder}
                 className="w-full rounded-2xl border border-slate-200 px-3 py-3 text-sm outline-none transition focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100"
-                required={!["linkedin", "instagram", "twitter"].includes(key)}
+                required={
+                  ![
+                    "linkedin",
+                    "instagram",
+                    "twitter",
+                    "currentCompany",
+                    "location",
+                  ].includes(key)
+                }
               />
             ))}
 
