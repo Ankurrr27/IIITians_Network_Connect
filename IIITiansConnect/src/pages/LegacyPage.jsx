@@ -324,7 +324,7 @@ export default function LegacyPage() {
       {/* Radial Gradient Overlay */}
       <div className="pointer-events-none absolute inset-0 opacity-60 [background-image:radial-gradient(circle_at_20%_20%,rgba(59,130,246,0.16),transparent_0_22%),radial-gradient(circle_at_80%_18%,rgba(125,211,252,0.18),transparent_0_20%),radial-gradient(circle_at_72%_72%,rgba(96,165,250,0.12),transparent_0_24%)]" />
 
-      <section className="relative z-10 px-4 pb-8 pt-4 sm:px-6 sm:pb-12 sm:pt-6">
+      <section className="relative z-10 px-4 pb-8 pt-6 sm:px-6 sm:pb-12 sm:pt-8 lg:pt-10">
         <div className="mx-auto max-w-7xl">
           <div
             className={`relative overflow-hidden rounded-[2rem] border px-5 py-8 shadow-[0_24px_70px_rgba(148,163,184,0.14)] sm:px-8 sm:py-10 lg:px-10 lg:py-12 ${
@@ -701,13 +701,7 @@ export default function LegacyPage() {
               </p>
             </div>
 
-            <div
-              className={`rounded-[1.5rem] border p-0 sm:p-5 max-sm:border-transparent max-sm:bg-transparent max-sm:shadow-none ${
-                isDarkMode
-                  ? "border-slate-800 bg-slate-950/50"
-                  : "border-slate-200 bg-white/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]"
-              }`}
-            >
+            <div className="p-0 sm:p-1">
               <div className="flex items-center gap-3">
               <label className="relative block flex-1">
                 <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />

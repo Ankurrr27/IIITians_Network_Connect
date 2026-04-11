@@ -117,25 +117,37 @@ export default function InAppNotifications() {
     const maybeShowCustomEntryNotification = async () => {
       try {
         const response = await api.get("/app-notifications/public-active");
-        const notification = response.data;
-        if (!notification?._id || !notification?.title || !notification?.message) {
+        const notifications = Array.isArray(response.data) ? response.data : [];
+        if (!notifications.length) {
           return;
         }
 
-        const version = `${notification._id}:${notification.updatedAt || ""}`;
-        const lastSeenVersion =
-          sessionStorage.getItem(ENTRY_NOTIFICATION_STORAGE_KEY) || "";
+        const seenVersions = JSON.parse(
+          sessionStorage.getItem(ENTRY_NOTIFICATION_STORAGE_KEY) || "[]"
+        );
 
-        if (lastSeenVersion === version) {
-          return;
-        }
+        notifications.forEach((notification) => {
+          if (!notification?._id || !notification?.title || !notification?.message) {
+            return;
+          }
 
-        sessionStorage.setItem(ENTRY_NOTIFICATION_STORAGE_KEY, version);
-        pushNotification({
-          type: notification.type || "milestone",
-          title: notification.title,
-          message: notification.message,
+          const version = `${notification._id}:${notification.updatedAt || ""}`;
+          if (seenVersions.includes(version)) {
+            return;
+          }
+
+          pushNotification({
+            type: notification.type || "milestone",
+            title: notification.title,
+            message: notification.message,
+          });
+          seenVersions.push(version);
         });
+
+        sessionStorage.setItem(
+          ENTRY_NOTIFICATION_STORAGE_KEY,
+          JSON.stringify(seenVersions.slice(-20))
+        );
       } catch {
         // Keep custom entry notifications quiet if unavailable.
       }
