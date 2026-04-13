@@ -224,7 +224,7 @@ const NotificationCard = React.forwardRef(({ item, onClose }, ref) => {
       initial={{ opacity: 0, y: 30, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
-      className="pointer-events-auto relative overflow-hidden rounded-xl border border-white bg-stone-50/80 p-3.5 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] backdrop-blur-2xl dark:border-zinc-800/80 dark:bg-zinc-950/90"
+      className="pointer-events-auto relative overflow-hidden rounded-xl border border-white/40 bg-zinc-50/70 p-4 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.1)] backdrop-blur-3xl dark:border-white/5 dark:bg-zinc-950/80 ring-1 ring-white/20 inset-ring-1 inset-ring-white/10"
     >
       {/* Sidebar Accent Indicator */}
       <div className={`absolute left-0 top-0 h-full w-1 ${accentColor} opacity-80`} />
