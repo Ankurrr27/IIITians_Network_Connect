@@ -170,10 +170,15 @@ const CollegeCard = ({ college, teamCount = 0, discussClubs = [] }) => {
           </button>
         )}
 
-        {showFullDescription && mergedClubs.length > 0 && (
+          {showFullDescription && mergedClubs.length > 0 && (
           <div className="mb-4 rounded-2xl bg-slate-50 p-3 ring-1 ring-slate-200/80">
-            <div className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-              Clubs & Societies
+            <div className="mb-2 flex items-center justify-between">
+              <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                Clubs & Societies
+              </div>
+              <div className="rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-bold text-indigo-700">
+                {mergedClubs.length} Active
+              </div>
             </div>
             <div className="flex flex-wrap gap-2">
               {mergedClubs.map((club) =>

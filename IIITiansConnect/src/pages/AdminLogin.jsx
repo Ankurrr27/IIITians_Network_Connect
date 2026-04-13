@@ -97,6 +97,9 @@ export default function AdminLogin() {
     success: "",
   });
 
+  const [pendingCount, setPendingCount] = useState(0);
+  const accessGranted = searchParams.get("gate") === "secure";
+
   const loadAdminPanel = async () => {
     const token = localStorage.getItem("adminToken");
     if (!token) {
@@ -113,6 +116,14 @@ export default function AdminLogin() {
     try {
       const meResponse = await api.get("/admin/me");
       setCurrentAdmin(meResponse.data);
+
+      // Fetch pending notifications for the red alert
+      try {
+        const alumniRes = await api.get("/alumni/admin/requests", { params: { status: "pending" } });
+        setPendingCount(alumniRes.data?.length || 0);
+      } catch (e) {
+        console.warn("Could not fetch pending counts for dashboard.");
+      }
 
       if (meResponse.data.role === "super_admin") {
         try {
@@ -178,6 +189,7 @@ export default function AdminLogin() {
     setIsAdminLoggedIn(false);
     setCurrentAdmin(null);
     setAdmins([]);
+    setPendingCount(0);
     setAdminPanelError("");
     setAdminListNotice("");
     setForm({ email: "", password: "" });
@@ -348,6 +360,25 @@ export default function AdminLogin() {
     <section className="relative min-h-screen bg-[linear-gradient(180deg,_#eef7ff_0%,_#f7fbff_36%,_#f9fcff_100%)] px-3 py-12 sm:px-6 sm:py-16">
       <div className="pointer-events-none absolute inset-0 opacity-60 [background-image:radial-gradient(circle_at_20%_20%,rgba(59,130,246,0.16),transparent_0_22%),radial-gradient(circle_at_80%_18%,rgba(125,211,252,0.18),transparent_0_20%),radial-gradient(circle_at_72%_72%,rgba(96,165,250,0.12),transparent_0_24%)]" />
       <div className="relative z-10 mx-auto max-w-6xl space-y-6">
+        
+        {isAdminLoggedIn && pendingCount > 0 && (
+          <div className="flex animate-bounce items-center justify-center gap-3 rounded-2xl border border-rose-200 bg-rose-50 px-6 py-4 text-rose-800 shadow-lg">
+             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-rose-500 text-white animate-pulse">
+                <Users className="h-5 w-5" />
+             </div>
+             <div>
+                <div className="font-bold">Action Required</div>
+                <div className="text-sm opacity-90">There are {pendingCount} pending legacy requests waiting for your approval.</div>
+             </div>
+             <Link 
+               to="/legacy/admin/pending"
+               className="ml-auto rounded-full bg-rose-600 px-4 py-2 text-xs font-bold text-white transition hover:bg-rose-700"
+             >
+               Review Now
+             </Link>
+          </div>
+        )}
+
         <Surface className="overflow-hidden">
           <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
             <div className="relative">
@@ -442,7 +473,9 @@ export default function AdminLogin() {
                 </div>
                 <h2 className="mt-4 text-2xl font-semibold text-slate-900">Sign in</h2>
                 <p className="mt-2 text-sm leading-7 text-slate-600">
-                  Use your admin credentials to enter the workspace and manage live content.
+                  {accessGranted 
+                    ? "Enter your credentials to manage the IIITians Network." 
+                    : "This area is restricted. Authorized admins only."}
                 </p>
               </div>
               <div className="hidden h-20 w-20 rounded-[1.4rem] bg-[linear-gradient(135deg,_#e0e7ff,_#dbeafe)] sm:block" />
@@ -459,6 +492,15 @@ export default function AdminLogin() {
                   <p className="mt-2 text-sm text-slate-600">
                     Use the quick jump panels on the left or the top navigation 
                     to manage the network.
+                  </p>
+               </div>
+            ) : !accessGranted ? (
+               <div className="mt-8 p-10 text-center rounded-[2rem] border border-dashed border-slate-300 bg-slate-50/50">
+                  <LockKeyhole className="mx-auto h-12 w-12 text-slate-300 mb-4" />
+                  <h3 className="text-lg font-bold text-slate-900">Secure Gate Active</h3>
+                  <p className="mt-2 text-sm text-slate-500">
+                    Access to the login terminal requires a valid security key in the URL.
+                    Please contact the Tech Lead if you have lost your access link.
                   </p>
                </div>
             ) : (
@@ -515,17 +557,30 @@ export default function AdminLogin() {
               </div>
             </div>
 
-            <div className="mt-6 rounded-[1.5rem] border border-emerald-100 bg-emerald-50/70 p-4">
-              <div className="text-sm font-semibold text-emerald-800">
-                {adminPanelLoading
-                  ? "Checking session..."
-                  : currentAdmin?.email || "No active admin session"}
+            <div className="mt-6 space-y-3">
+              <div className="rounded-[1.5rem] border border-emerald-100 bg-emerald-50/70 p-4">
+                <div className="text-sm font-semibold text-emerald-800">
+                  {adminPanelLoading
+                    ? "Checking session..."
+                    : currentAdmin?.email || "No active admin session"}
+                </div>
+                <div className="mt-1 text-sm text-emerald-700/90">
+                  {currentAdmin?.role
+                    ? currentAdmin.role.replace("_", " ")
+                    : "Sign in to unlock admin routes"}
+                </div>
               </div>
-              <div className="mt-1 text-sm text-emerald-700/90">
-                {currentAdmin?.role
-                  ? currentAdmin.role.replace("_", " ")
-                  : "Sign in to unlock admin routes"}
-              </div>
+              
+              {isAdminLoggedIn && pendingCount > 0 && (
+                <div className="rounded-[1.5rem] border border-rose-100 bg-rose-50 p-4">
+                  <div className="text-sm font-bold text-rose-800">
+                     ⚠️ {pendingCount} Pending Requests
+                  </div>
+                  <div className="mt-1 text-xs text-rose-700/90">
+                     New entries were made in the main website. Action required.
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="mt-5 grid gap-3 sm:grid-cols-2">

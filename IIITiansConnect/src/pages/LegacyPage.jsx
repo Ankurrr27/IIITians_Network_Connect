@@ -258,7 +258,7 @@ export default function LegacyPage() {
         isDarkMode
           ? "bg-slate-950"
           : "bg-[linear-gradient(180deg,_#eff6ff_0%,_#f8faff_40%,_#ffffff_100%)]"
-      } pb-16 pt-20 text-slate-900 sm:pb-24 sm:pt-24`}
+      } pb-16 pt-14 text-slate-900 sm:pb-24 sm:pt-16`}
     >
       <div className="pointer-events-none absolute inset-0 opacity-60 [background-image:radial-gradient(circle_at_20%_20%,rgba(59,130,246,0.16),transparent_0_22%),radial-gradient(circle_at_80%_18%,rgba(125,211,252,0.18),transparent_0_20%),radial-gradient(circle_at_72%_72%,rgba(96,165,250,0.12),transparent_0_24%)]" />
 

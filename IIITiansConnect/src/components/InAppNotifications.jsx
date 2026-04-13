@@ -224,28 +224,28 @@ const NotificationCard = React.forwardRef(({ item, onClose }, ref) => {
       initial={{ opacity: 0, y: 30, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
-      className="pointer-events-auto relative overflow-hidden rounded-xl border border-white/40 bg-zinc-50/70 p-4 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.1)] backdrop-blur-3xl dark:border-white/5 dark:bg-zinc-950/80 ring-1 ring-white/20 inset-ring-1 inset-ring-white/10"
+      className="pointer-events-auto relative overflow-hidden rounded-xl border border-white/60 bg-white/70 p-4 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.12)] backdrop-blur-3xl ring-1 ring-white/30"
     >
       {/* Sidebar Accent Indicator */}
-      <div className={`absolute left-0 top-0 h-full w-1 ${accentColor} opacity-80`} />
+      <div className={`absolute left-0 top-0 h-full w-1 ${accentColor} opacity-90`} />
       
       <div className="flex items-start justify-between gap-4 pl-1">
         <div className="flex-1 min-w-0">
           <div className="mb-1">
-            <span className="text-[9px] font-black uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">
+            <span className="text-[9px] font-black uppercase tracking-[0.2em] text-indigo-600/80">
               {item.type || "Update"}
             </span>
           </div>
-          <h4 className="text-[13px] font-bold text-zinc-900 dark:text-zinc-100 leading-tight">
+          <h4 className="text-[13px] font-bold text-slate-900 leading-tight">
             {item.title}
           </h4>
-          <p className="mt-1 text-[11px] text-zinc-500 dark:text-zinc-400 leading-relaxed line-clamp-2">
+          <p className="mt-1 text-[11px] text-slate-600 font-medium leading-relaxed line-clamp-2">
             {item.message}
           </p>
         </div>
         <button
           onClick={onClose}
-          className="shrink-0 -mt-1 p-1 text-zinc-300 transition-colors hover:text-zinc-900 dark:text-zinc-600 dark:hover:text-zinc-100"
+          className="shrink-0 -mt-1 p-1 text-slate-300 transition-colors hover:bg-black/5 hover:text-slate-900 rounded-lg"
           aria-label="Dismiss"
         >
           <X className="h-3.5 w-3.5" />
