@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
   ArrowUpRight,
   BadgeCheck,
@@ -70,6 +70,7 @@ function Surface({ children, className = "" }) {
 
 export default function AdminLogin() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(
     Boolean(localStorage.getItem("adminToken"))
   );
