@@ -20,20 +20,8 @@ function buildInitialSnapshot() {
 }
 
 function getAccentColor(type) {
-  switch (type) {
-    case "post":
-      return "bg-sky-500";
-    case "legacy":
-      return "bg-indigo-500";
-    case "event":
-      return "bg-fuchsia-500";
-    case "team":
-      return "bg-emerald-500";
-    case "club":
-      return "bg-amber-500";
-    default:
-      return "bg-zinc-500";
-  }
+  // Use a consistent brand blue/indigo shade for the entire app as requested
+  return "bg-indigo-500";
 }
 
 export default function InAppNotifications() {
@@ -236,20 +224,20 @@ const NotificationCard = React.forwardRef(({ item, onClose }, ref) => {
       initial={{ opacity: 0, y: 30, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
-      className="pointer-events-auto relative overflow-hidden rounded-2xl border border-white/20 bg-white/75 p-3.5 shadow-[0_10px_30px_-5px_rgba(0,0,0,0.1)] backdrop-blur-xl dark:border-zinc-800/50 dark:bg-zinc-900/80"
+      className="pointer-events-auto relative overflow-hidden rounded-2xl border border-white/20 bg-indigo-50/80 p-3.5 shadow-[0_10px_30px_-5px_rgba(0,0,0,0.1)] backdrop-blur-xl dark:border-indigo-500/20 dark:bg-indigo-950/90"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
             <div className={`h-1.5 w-1.5 rounded-full ${accentColor}`} />
-            <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-indigo-500 dark:text-indigo-400">
               {item.type || "Update"}
             </span>
           </div>
-          <h4 className="text-[13px] font-bold text-zinc-900 dark:text-zinc-100 leading-tight">
+          <h4 className="text-[13px] font-bold text-indigo-950 dark:text-indigo-50">
             {item.title}
           </h4>
-          <p className="mt-1 text-[11.5px] text-zinc-500 dark:text-zinc-400 leading-normal line-clamp-2">
+          <p className="mt-1 text-[11.5px] text-indigo-800/80 dark:text-indigo-300/80 leading-normal line-clamp-2">
             {item.message}
           </p>
         </div>
@@ -258,7 +246,7 @@ const NotificationCard = React.forwardRef(({ item, onClose }, ref) => {
           className="group -mt-1 p-1 transition-colors"
           aria-label="Dismiss"
         >
-          <X className="h-3.5 w-3.5 text-zinc-400 transition-colors group-hover:text-zinc-900 dark:group-hover:text-zinc-100" />
+          <X className="h-3.5 w-3.5 text-indigo-400 transition-colors group-hover:text-indigo-950 dark:group-hover:text-indigo-50" />
         </button>
       </div>
     </motion.div>
