@@ -51,7 +51,7 @@ export default function ImageCropModal({ file, onClose, onCrop, aspect = 1 }) {
       <motion.div 
         initial={{ opacity: 0, scale: 0.95, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="bg-white/95 rounded-[2rem] w-full max-w-lg p-6 shadow-[0_20px_50px_rgba(0,0,0,0.15)] backdrop-blur-xl dark:bg-zinc-900/95 border border-zinc-200 dark:border-zinc-800"
+        className="bg-stone-50/80 rounded-[2rem] w-full max-w-lg p-6 shadow-[0_20px_50px_rgba(0,0,0,0.15)] backdrop-blur-2xl dark:bg-zinc-900/90 border border-white dark:border-zinc-800"
       >
         <div className="mb-5 px-1">
           <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-tight">Crop Profile Photo</h3>

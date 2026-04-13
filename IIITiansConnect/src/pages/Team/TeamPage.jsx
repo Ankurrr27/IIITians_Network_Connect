@@ -103,7 +103,7 @@ export default function TeamPage() {
   return (
     <div className="relative min-h-screen bg-[linear-gradient(180deg,_#eef7ff_0%,_#f7fbff_36%,_#f9fcff_100%)]">
       <div className="pointer-events-none absolute inset-0 opacity-60 [background-image:radial-gradient(circle_at_20%_20%,rgba(59,130,246,0.16),transparent_0_22%),radial-gradient(circle_at_80%_18%,rgba(125,211,252,0.18),transparent_0_20%),radial-gradient(circle_at_72%_72%,rgba(96,165,250,0.12),transparent_0_24%)]" />
-      <section className="relative z-10 px-4 pb-8 pt-6 sm:px-6 sm:pb-12 sm:pt-8 lg:pt-10">
+      <section className="relative z-10 px-4 pb-8 pt-12 sm:px-6 sm:pb-12 sm:pt-16 lg:pt-20">
         <div className="mx-auto max-w-7xl">
           <div className="relative overflow-hidden rounded-[2rem] border border-white/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.88),rgba(255,255,255,0.7))] px-5 py-8 shadow-[0_24px_70px_rgba(148,163,184,0.14)] backdrop-blur-sm sm:px-8 sm:py-10 lg:px-10 lg:py-12">
             <div className="pointer-events-none absolute inset-0 opacity-80 [background-image:radial-gradient(circle_at_top_left,rgba(99,102,241,0.12),transparent_34%),radial-gradient(circle_at_85%_20%,rgba(56,189,248,0.1),transparent_28%)]" />
