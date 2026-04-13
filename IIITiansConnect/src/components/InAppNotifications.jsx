@@ -1,13 +1,6 @@
-import { useEffect, useRef, useState } from "react";
-import {
-  Bell,
-  CalendarDays,
-  Megaphone,
-  ShieldCheck,
-  Sparkles,
-  Users,
-  X,
-} from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { X } from "lucide-react";
 import api from "../api/axios";
 import { APP_NOTIFICATION_EVENT } from "../utils/appNotifications";
 
@@ -26,44 +19,20 @@ function buildInitialSnapshot() {
   };
 }
 
-function getVariantMeta(type) {
+function getAccentColor(type) {
   switch (type) {
     case "post":
-      return {
-        icon: Megaphone,
-        shell: "border-sky-200 bg-sky-50 text-sky-900",
-        badge: "bg-sky-100 text-sky-700",
-      };
+      return "bg-sky-500";
     case "legacy":
-      return {
-        icon: ShieldCheck,
-        shell: "border-indigo-200 bg-indigo-50 text-indigo-900",
-        badge: "bg-indigo-100 text-indigo-700",
-      };
+      return "bg-indigo-500";
     case "event":
-      return {
-        icon: CalendarDays,
-        shell: "border-fuchsia-200 bg-fuchsia-50 text-fuchsia-900",
-        badge: "bg-fuchsia-100 text-fuchsia-700",
-      };
+      return "bg-fuchsia-500";
     case "team":
-      return {
-        icon: Users,
-        shell: "border-emerald-200 bg-emerald-50 text-emerald-900",
-        badge: "bg-emerald-100 text-emerald-700",
-      };
+      return "bg-emerald-500";
     case "club":
-      return {
-        icon: Bell,
-        shell: "border-amber-200 bg-amber-50 text-amber-900",
-        badge: "bg-amber-100 text-amber-700",
-      };
+      return "bg-amber-500";
     default:
-      return {
-        icon: Sparkles,
-        shell: "border-violet-200 bg-violet-50 text-violet-900",
-        badge: "bg-violet-100 text-violet-700",
-      };
+      return "bg-zinc-500";
   }
 }
 
@@ -77,11 +46,11 @@ export default function InAppNotifications() {
 
     const pushNotification = (notification) => {
       const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-      setItems((prev) => [{ id, ...notification }, ...prev].slice(0, 5));
+      setItems((prev) => [{ id, ...notification }, ...prev].slice(0, 3));
 
       window.setTimeout(() => {
         setItems((prev) => prev.filter((item) => item.id !== id));
-      }, 6500);
+      }, 7000);
     };
 
     const maybeCelebrateViews = () => {
@@ -108,7 +77,7 @@ export default function InAppNotifications() {
         );
         pushNotification({
           type: "milestone",
-          title: `Congratulations, we just hit ${currentMilestone.toLocaleString()} views`,
+          title: `Milestone: ${currentMilestone.toLocaleString()} views`,
           message: "IIITians Network just crossed another view milestone.",
         });
       }
@@ -118,23 +87,17 @@ export default function InAppNotifications() {
       try {
         const response = await api.get("/app-notifications/public-active");
         const notifications = Array.isArray(response.data) ? response.data : [];
-        if (!notifications.length) {
-          return;
-        }
+        if (!notifications.length) return;
 
         const seenVersions = JSON.parse(
           sessionStorage.getItem(ENTRY_NOTIFICATION_STORAGE_KEY) || "[]"
         );
 
         notifications.forEach((notification) => {
-          if (!notification?._id || !notification?.title || !notification?.message) {
-            return;
-          }
+          if (!notification?._id || !notification?.title || !notification?.message) return;
 
           const version = `${notification._id}:${notification.updatedAt || ""}`;
-          if (seenVersions.includes(version)) {
-            return;
-          }
+          if (seenVersions.includes(version)) return;
 
           pushNotification({
             type: notification.type || "milestone",
@@ -149,7 +112,7 @@ export default function InAppNotifications() {
           JSON.stringify(seenVersions.slice(-20))
         );
       } catch {
-        // Keep custom entry notifications quiet if unavailable.
+        // Silent error
       }
     };
 
@@ -164,17 +127,10 @@ export default function InAppNotifications() {
 
       return {
         posts: postsRes.status === "fulfilled" ? postsRes.value.data?.length || 0 : snapshotRef.current.posts,
-        events:
-          eventsRes.status === "fulfilled"
-            ? eventsRes.value.data?.length || 0
-            : snapshotRef.current.events,
-        legacy:
-          legacyRes.status === "fulfilled" ? legacyRes.value.data?.length || 0 : snapshotRef.current.legacy,
+        events: eventsRes.status === "fulfilled" ? eventsRes.value.data?.length || 0 : snapshotRef.current.events,
+        legacy: legacyRes.status === "fulfilled" ? legacyRes.value.data?.length || 0 : snapshotRef.current.legacy,
         team: teamRes.status === "fulfilled" ? teamRes.value.data?.length || 0 : snapshotRef.current.team,
-        clubs:
-          clubsRes.status === "fulfilled"
-            ? clubsRes.value.data?.registeredClubs || 0
-            : snapshotRef.current.clubs,
+        clubs: clubsRes.status === "fulfilled" ? clubsRes.value.data?.registeredClubs || 0 : snapshotRef.current.clubs,
       };
     };
 
@@ -194,55 +150,41 @@ export default function InAppNotifications() {
         const previousSnapshot = snapshotRef.current;
 
         if (nextSnapshot.posts > previousSnapshot.posts) {
-          const diff = nextSnapshot.posts - previousSnapshot.posts;
           pushNotification({
             type: "post",
-            title: diff > 1 ? `${diff} new posts added` : "New post added",
-            message:
-              diff > 1
-                ? "Fresh conversations and updates are now live on Discuss."
-                : "A fresh conversation or update just went live on Discuss.",
+            title: "Discussion Update",
+            message: "Fresh conversations and updates are now live on Discuss.",
           });
         }
 
         if (nextSnapshot.events > previousSnapshot.events) {
-          const diff = nextSnapshot.events - previousSnapshot.events;
           pushNotification({
             type: "event",
-            title:
-              diff > 1
-                ? `Congratulations, ${diff} new events were added`
-                : "Congratulations, a new event was added",
+            title: "New Event",
             message: "The events section has just been updated with something new.",
           });
         }
 
         if (nextSnapshot.legacy > previousSnapshot.legacy) {
-          const diff = nextSnapshot.legacy - previousSnapshot.legacy;
           pushNotification({
             type: "legacy",
-            title: diff > 1 ? `${diff} new legacy members added` : "New legacy member added",
+            title: "Legacy Updated",
             message: "Network Legacy has been updated with newly approved profiles.",
           });
         }
 
         if (nextSnapshot.team > previousSnapshot.team) {
-          const diff = nextSnapshot.team - previousSnapshot.team;
           pushNotification({
             type: "team",
-            title:
-              diff > 1
-                ? `Congratulations, ${diff} new team members were added`
-                : "Congratulations, a new team member was added",
+            title: "Team Update",
             message: "The live team directory has just been updated.",
           });
         }
 
         if (nextSnapshot.clubs > previousSnapshot.clubs) {
-          const diff = nextSnapshot.clubs - previousSnapshot.clubs;
           pushNotification({
             type: "club",
-            title: diff > 1 ? `${diff} clubs registered` : "New club registered",
+            title: "New Club",
             message: "A new campus community has joined the network.",
           });
         }
@@ -250,7 +192,7 @@ export default function InAppNotifications() {
         snapshotRef.current = nextSnapshot;
         maybeCelebrateViews();
       } catch {
-        // Keep notifications quiet if polling fails.
+        // Silent error
       }
     };
 
@@ -269,44 +211,59 @@ export default function InAppNotifications() {
     };
   }, []);
 
-  if (!items.length) return null;
-
   return (
-    <div className="pointer-events-none fixed right-4 top-24 z-[70] flex w-[min(24rem,calc(100vw-2rem))] flex-col gap-3 sm:right-6 sm:top-28">
-      {items.map((item) => (
-        <NotificationCard
-          key={item.id}
-          item={item}
-          onClose={() => setItems((prev) => prev.filter((entry) => entry.id !== item.id))}
-        />
-      ))}
+    <div className="pointer-events-none fixed bottom-6 left-1/2 z-[70] flex w-full max-w-[min(20rem,calc(100vw-2rem))] -translate-x-1/2 flex-col gap-2.5 sm:bottom-auto sm:top-24 sm:right-6 sm:left-auto sm:translate-x-0">
+      <AnimatePresence mode="popLayout">
+        {items.map((item) => (
+          <NotificationCard
+            key={item.id}
+            item={item}
+            onClose={() => setItems((prev) => prev.filter((entry) => entry.id !== item.id))}
+          />
+        ))}
+      </AnimatePresence>
     </div>
   );
 }
 
-function NotificationCard({ item, onClose }) {
-  const meta = getVariantMeta(item.type);
-  const Icon = meta.icon;
+const NotificationCard = React.forwardRef(({ item, onClose }, ref) => {
+  const accentColor = getAccentColor(item.type);
 
   return (
-    <div className={`pointer-events-auto rounded-[1.35rem] border px-4 py-3 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.35)] backdrop-blur ${meta.shell}`}>
-      <div className="flex items-start gap-3">
-        <div className={`mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${meta.badge}`}>
-          <Icon className="h-4.5 w-4.5" />
-        </div>
-        <div className="min-w-0 flex-1">
-          <div className="text-sm font-semibold">{item.title}</div>
-          <div className="mt-1 text-sm leading-6 opacity-90">{item.message}</div>
+    <motion.div
+      ref={ref}
+      layout
+      initial={{ opacity: 0, y: 30, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
+      className="pointer-events-auto relative overflow-hidden rounded-2xl border border-white/20 bg-white/75 p-3.5 shadow-[0_10px_30px_-5px_rgba(0,0,0,0.1)] backdrop-blur-xl dark:border-zinc-800/50 dark:bg-zinc-900/80"
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <div className={`h-1.5 w-1.5 rounded-full ${accentColor}`} />
+            <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
+              {item.type || "Update"}
+            </span>
+          </div>
+          <h4 className="text-[13px] font-bold text-zinc-900 dark:text-zinc-100 leading-tight">
+            {item.title}
+          </h4>
+          <p className="mt-1 text-[11.5px] text-zinc-500 dark:text-zinc-400 leading-normal line-clamp-2">
+            {item.message}
+          </p>
         </div>
         <button
-          type="button"
           onClick={onClose}
-          className="rounded-full p-1 opacity-60 transition hover:bg-white/50 hover:opacity-100"
-          aria-label="Dismiss notification"
+          className="group -mt-1 p-1 transition-colors"
+          aria-label="Dismiss"
         >
-          <X className="h-4 w-4" />
+          <X className="h-3.5 w-3.5 text-zinc-400 transition-colors group-hover:text-zinc-900 dark:group-hover:text-zinc-100" />
         </button>
       </div>
-    </div>
+    </motion.div>
   );
-}
+});
+
+NotificationCard.displayName = "NotificationCard";
+
