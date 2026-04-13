@@ -520,7 +520,7 @@ export default function CollegesAdmin() {
                     key={college._id}
                     className="group flex flex-col overflow-hidden rounded-[1.6rem] border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
                   >
-                    <div className="relative aspect-video overflow-hidden bg-slate-50">
+                    <div className="relative aspect-[16/7] overflow-hidden bg-slate-50">
                       <img
                         src={coverImage}
                         alt={`${college.name} college`}
@@ -764,7 +764,7 @@ export default function CollegesAdmin() {
       {rawAssetFile && (
         <ImageCropModal
           file={rawAssetFile}
-          aspect={assetTarget.includes("photo") ? 16 / 9 : 1}
+          aspect={assetTarget.includes("photo") ? 16 / 7 : 1}
           onClose={() => setRawAssetFile(null)}
           onCrop={(croppedFile) => {
             if (assetTarget === "create-photo") setCreatePhotoFile(croppedFile);

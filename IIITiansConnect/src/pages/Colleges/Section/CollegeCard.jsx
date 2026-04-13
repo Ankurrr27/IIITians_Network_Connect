@@ -74,7 +74,7 @@ const CollegeCard = ({ college, teamCount = 0, discussClubs = [] }) => {
         hover:-translate-y-1 hover:shadow-xl sm:rounded-2xl
       "
     >
-      <div className="relative aspect-video overflow-hidden bg-slate-50">
+      <div className="relative aspect-[16/7] overflow-hidden bg-slate-50">
         <img
           src={coverSrc}
           alt={`${name} college`}
