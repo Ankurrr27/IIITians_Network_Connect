@@ -224,29 +224,31 @@ const NotificationCard = React.forwardRef(({ item, onClose }, ref) => {
       initial={{ opacity: 0, y: 30, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
-      className="pointer-events-auto relative overflow-hidden rounded-2xl border border-white/20 bg-indigo-50/80 p-3.5 shadow-[0_10px_30px_-5px_rgba(0,0,0,0.1)] backdrop-blur-xl dark:border-indigo-500/20 dark:bg-indigo-950/90"
+      className="pointer-events-auto relative overflow-hidden rounded-xl border border-zinc-200/60 bg-white/90 p-3.5 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] backdrop-blur-xl dark:border-zinc-800/80 dark:bg-zinc-950/90"
     >
-      <div className="flex items-start justify-between gap-3">
+      {/* Sidebar Accent Indicator */}
+      <div className={`absolute left-0 top-0 h-full w-1 ${accentColor} opacity-80`} />
+      
+      <div className="flex items-start justify-between gap-4 pl-1">
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <div className={`h-1.5 w-1.5 rounded-full ${accentColor}`} />
-            <span className="text-[10px] font-bold uppercase tracking-widest text-indigo-500 dark:text-indigo-400">
+          <div className="mb-1">
+            <span className="text-[9px] font-black uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">
               {item.type || "Update"}
             </span>
           </div>
-          <h4 className="text-[13px] font-bold text-indigo-950 dark:text-indigo-50">
+          <h4 className="text-[13px] font-bold text-zinc-900 dark:text-zinc-100 leading-tight">
             {item.title}
           </h4>
-          <p className="mt-1 text-[11.5px] text-indigo-800/80 dark:text-indigo-300/80 leading-normal line-clamp-2">
+          <p className="mt-1 text-[11px] text-zinc-500 dark:text-zinc-400 leading-relaxed line-clamp-2">
             {item.message}
           </p>
         </div>
         <button
           onClick={onClose}
-          className="group -mt-1 p-1 transition-colors"
+          className="shrink-0 -mt-1 p-1 text-zinc-300 transition-colors hover:text-zinc-900 dark:text-zinc-600 dark:hover:text-zinc-100"
           aria-label="Dismiss"
         >
-          <X className="h-3.5 w-3.5 text-indigo-400 transition-colors group-hover:text-indigo-950 dark:group-hover:text-indigo-50" />
+          <X className="h-3.5 w-3.5" />
         </button>
       </div>
     </motion.div>
