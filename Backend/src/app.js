@@ -13,28 +13,32 @@ import appNotificationRoutes from "./routes/appNotification.routes.js";
 
 const app = express();
 
-const defaultOrigins = [
-  "http://localhost:5173",
-  "https://iiitians-network-connect.vercel.app",
-];
-
 const allowedOrigins = [
-  ...defaultOrigins,
-  ...(process.env.CORS_ORIGINS || "")
-    .split(",")
-    .map((origin) => origin.trim())
-    .filter(Boolean),
+  "https://iiitiansnetwork.in",
+  "https://www.iiitiansnetwork.in",
+  "http://localhost:5173",
+  "http://localhost:3000",
 ];
 
 app.use(
   cors({
-    origin(origin, callback) {
+    origin: function (origin, callback) {
       if (!origin || allowedOrigins.includes(origin)) {
-        return callback(null, true);
+        callback(null, true);
+      } else {
+        callback(null, false);
       }
-
-      return callback(new Error("Not allowed by CORS"));
     },
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: true,
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-Requested-With",
+      "Accept",
+      "Origin",
+    ],
+    optionsSuccessStatus: 200,
   })
 );
 
