@@ -16,6 +16,11 @@ const app = express();
 const allowedOrigins = [
   "https://iiitiansnetwork.in",
   "https://www.iiitiansnetwork.in",
+  "http://iiitiansnetwork.in",
+  "http://www.iiitiansnetwork.in",
+  "https://iiitians-network-connect.vercel.app",
+  "https://iiitians-network-connect.onrender.com",
+  "https://iiitiansconnect.vercel.app",
   "http://localhost:5173",
   "http://localhost:3000",
 ];
