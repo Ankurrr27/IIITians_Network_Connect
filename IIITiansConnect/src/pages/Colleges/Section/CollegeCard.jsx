@@ -56,7 +56,7 @@ const CollegeCard = ({ college, teamCount = 0, discussClubs = [] }) => {
     ...discussClubs.map((club, index) => ({
       id: club.id || `discuss-${club.clubName}-${index}`,
       name: club.clubName,
-      url: "",
+      url: club.website || "",
       source: "discuss",
       isAuthorized: Boolean(club.isAuthorized),
       badgeLabel: club.badgeLabel || "Verified by network",
@@ -190,8 +190,8 @@ const CollegeCard = ({ college, teamCount = 0, discussClubs = [] }) => {
                     rel="noreferrer"
                     className={`inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-sm transition ${
                       club.source === "discuss"
-                        ? "bg-sky-50 text-sky-700 ring-1 ring-sky-100 hover:bg-sky-100"
-                        : "bg-white text-slate-700 ring-1 ring-slate-200 hover:bg-slate-100"
+                        ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100 hover:bg-emerald-100"
+                        : "bg-white text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"
                     }`}
                   >
                     {club.name}
@@ -200,7 +200,12 @@ const CollegeCard = ({ college, teamCount = 0, discussClubs = [] }) => {
                 ) : (
                   <span
                     key={club.id}
-                    className="inline-flex items-center gap-2 rounded-full bg-sky-50 px-3 py-1.5 text-sm text-sky-700 ring-1 ring-sky-100"
+                    title="No link provided"
+                    className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm cursor-help ${
+                      club.source === "discuss"
+                        ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100"
+                        : "bg-white text-slate-600 ring-1 ring-slate-200"
+                    }`}
                   >
                     {club.name}
                     {club.isAuthorized && (

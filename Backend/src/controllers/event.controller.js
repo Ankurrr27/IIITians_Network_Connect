@@ -1,6 +1,43 @@
 import Event from "../models/Events.model.js";
+import College from "../models/College.model.js";
+import DiscussAccount from "../models/discussAccount.model.js";
 import cloudinary from "../config/cloudinary.js";
 import { backfillApprovedDiscussEvents } from "../services/discussEventSync.service.js";
+
+/* =========================
+   HELPERS
+========================= */
+const ensureClubRegistered = async (collegeName, clubName, clubLink) => {
+  if (!collegeName || !clubName) return;
+
+  try {
+    // 1. Check if club already has a Discuss account
+    const discussAccount = await DiscussAccount.findOne({
+      collegeName: { $regex: new RegExp(`^${collegeName.trim()}$`, "i") },
+      clubName: { $regex: new RegExp(`^${clubName.trim()}$`, "i") },
+      isAuthorized: true,
+    });
+    if (discussAccount) return;
+
+    // 2. Check if already in College.clubLinks
+    const college = await College.findOne({
+      name: { $regex: new RegExp(`^${collegeName.trim()}$`, "i") },
+    });
+    if (!college) return;
+
+    const exists = college.clubLinks.some(
+      (link) =>
+        (link.name || "").trim().toLowerCase() === clubName.trim().toLowerCase()
+    );
+
+    if (!exists) {
+      college.clubLinks.push({ name: clubName, url: clubLink || "" });
+      await college.save();
+    }
+  } catch (err) {
+    console.error("ENSURE CLUB REGISTERED ERROR:", err);
+  }
+};
 
 /* =========================
    CREATE EVENT
@@ -40,6 +77,7 @@ export const createEvent = async (req, res) => {
     });
 
     res.status(201).json(event);
+    await ensureClubRegistered(collegeName, clubName, link);
   } catch (err) {
     console.error("CREATE EVENT ERROR:", err);
     res.status(500).json({ message: err.message });
@@ -115,6 +153,10 @@ export const updateEvent = async (req, res) => {
 
     if (!event) {
       return res.status(404).json({ message: "Event not found" });
+    }
+
+    if (event.collegeName && event.clubName) {
+      await ensureClubRegistered(event.collegeName, event.clubName, event.link);
     }
 
     res.json(event);
