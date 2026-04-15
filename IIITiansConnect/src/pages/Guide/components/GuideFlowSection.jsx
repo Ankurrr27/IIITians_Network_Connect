@@ -46,7 +46,7 @@ export default function GuideFlowSection({
           ))}
         </div>
 
-        {variant !== "admin" && note && (
+        {note && (
           <div className="mt-6 flex items-start gap-3 rounded-[1.4rem] border border-emerald-100 bg-emerald-50/70 p-4 text-sm leading-7 text-emerald-900">
             <CheckCircle2 className="mt-1 h-5 w-5 shrink-0 text-emerald-600" />
             <p>{note}</p>
@@ -54,11 +54,9 @@ export default function GuideFlowSection({
         )}
       </div>
 
-      {variant !== "admin" && (
-        <div className="order-1 flex items-center lg:order-2 lg:pl-1">
-          <GuideMockup variant={variant} />
-        </div>
-      )}
+      <div className="order-1 flex items-center lg:order-2 lg:pl-1">
+        <GuideMockup variant={variant} />
+      </div>
     </section>
   );
 }

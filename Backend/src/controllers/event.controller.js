@@ -52,7 +52,7 @@ export const createEvent = async (req, res) => {
 export const getEvents = async (req, res) => {
   try {
     await backfillApprovedDiscussEvents();
-    const events = await Event.find().sort({ createdAt: -1 });
+    const events = await Event.find().sort({ date: -1 });
     res.json(events);
   } catch (err) {
     console.error("GET EVENTS ERROR:", err);

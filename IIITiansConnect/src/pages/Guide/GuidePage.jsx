@@ -49,7 +49,7 @@ const flowTabs = [
     eyebrow: "Guide",
     title: "How to post an announcement or push something as an event",
     description:
-      "Discuss works for normal announcements, collaborations, campaigns, and events. When a club pushes a post as an event and it gets approved, it can appear on the Events page too.",
+      "Discuss works for normal announcements, collaborations, campaigns, and events. When a club pushes a post as an event, it automatically appears on the Events page and is sorted by event date for the main page Highlights.",
     steps: [
       {
         title: "Open Post update",
@@ -65,10 +65,38 @@ const flowTabs = [
       },
       {
         title: "Wait for approval",
-        text: "Approved announcements appear on Discuss, and approved event posts are eligible to show on the Events page.",
+        text: "Approved event posts appear on the Events page and are displayed as Latest Highlights on the home page based on their occurrence date.",
       },
     ],
     note: "Use the Manage account sidebar to edit or delete any past post later.",
+  },
+  {
+    id: "admin",
+    label: "Colleges & Admin",
+    icon: ShieldCheck,
+    eyebrow: "Guide",
+    title: "Managing institutions and network access",
+    description:
+      "The college workspace allows admins to keep institute profiles ready with card photos, reusable logos, and verified society links.",
+    steps: [
+      {
+        title: "Manage College Cards",
+        text: "Use the Colleges Admin to update institute photos, website links, and descriptions for every IIIT.",
+      },
+      {
+        title: "Identity & Branding",
+        text: "Add official logos and campus visuals using the cropping tool to ensure every institute has a premium presence.",
+      },
+      {
+        title: "Admin Role Control",
+        text: "Super admins can manage access levels, add new admin accounts, and monitor the overall health of the platform.",
+      },
+      {
+        title: "Dashboard Workspace",
+        text: "The main admin gate provides real-time alerts for pending legacy requests, club approvals, and recent site activity.",
+      },
+    ],
+    note: "Colleges and their social links can be updated anytime to reflect current campus presence.",
   },
   {
     id: "legacy",
@@ -153,7 +181,8 @@ const guideActivityFeed = [
   "Legacy profile approved",
   "Event push reviewed",
   "Team member added",
-  "College links updated",
+  "College asset updated",
+  "Admin role adjusted",
   "Announcement published",
 ];
 
@@ -202,8 +231,8 @@ export default function GuidePage() {
               <div className="grid gap-3 sm:grid-cols-3">
                 <GuideStat
                   icon={BookOpenText}
-                  title="5 guided flows"
-                  text="Clubs, events, legacy, member path, and collabs."
+                  title="6 guided flows"
+                  text="Clubs, events, admin, legacy, member path, and collabs."
                 />
                 <GuideStat
                   icon={Megaphone}
@@ -317,6 +346,11 @@ export default function GuidePage() {
                 step="07"
                 title="Confused about a field?"
                 text="Most forms now show a clear field label plus an example value, and many college fields suggest the right IIIT from the saved college list."
+              />
+              <MiniPath
+                step="08"
+                title="Managing a specific college?"
+                text="Use the Colleges Admin to update photos, logos, and mission statements for any IIIT in the network."
               />
             </div>
           </div>
