@@ -227,7 +227,7 @@ export default function GuidePage() {
               </p>
             </div>
 
-            <div className="rounded-[2rem] bg-white/90 p-4 shadow-[0_24px_70px_-38px_rgba(79,70,229,0.2)] sm:p-6">
+            <div className="relative rounded-[2.4rem] border border-white bg-white/40 p-5 shadow-[0_32px_80px_-40px_rgba(79,70,229,0.25)] backdrop-blur-xl sm:p-7">
               <div className="grid gap-3 sm:grid-cols-3">
                 <GuideStat
                   icon={BookOpenText}
@@ -278,16 +278,16 @@ export default function GuidePage() {
             })}
           </div>
 
-          <div className="mt-4 overflow-hidden rounded-[1.4rem] border border-indigo-100 bg-white/90 px-4 py-3 shadow-[0_18px_50px_-36px_rgba(79,70,229,0.18)]">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-              <div className="shrink-0 text-[11px] font-semibold uppercase tracking-[0.22em] text-indigo-700">
-                Activity preview
+          <div className="mt-5 overflow-hidden rounded-[1.6rem] border border-indigo-100 bg-white/60 p-1.5 shadow-[0_12px_40px_-20px_rgba(79,70,229,0.15)] backdrop-blur-md">
+            <div className="flex flex-col gap-2 p-2.5 sm:flex-row sm:items-center">
+              <div className="shrink-0 text-[10px] font-bold uppercase tracking-[0.24em] text-indigo-700">
+                Activity Stream
               </div>
               <div className="flex flex-1 flex-wrap gap-2">
                 {guideActivityFeed.map((item) => (
                   <span
                     key={item}
-                    className="inline-flex items-center rounded-full bg-indigo-50 px-3 py-1.5 text-xs font-medium text-indigo-700 ring-1 ring-indigo-100"
+                    className="inline-flex items-center rounded-full bg-indigo-50/80 px-3 py-1.5 text-[11px] font-semibold text-indigo-700 ring-1 ring-indigo-200/50"
                   >
                     {item}
                   </span>
@@ -307,11 +307,14 @@ export default function GuidePage() {
             />
           </div>
 
-          <div className="mt-6 rounded-[2rem] bg-white/90 p-4 shadow-[0_24px_70px_-38px_rgba(79,70,229,0.18)] sm:p-7">
-            <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
-              Quick use path
-            </h2>
-            <div className="mt-5 grid gap-4 md:grid-cols-3 xl:grid-cols-5">
+          <div className="mt-8 rounded-[2.4rem] border border-white bg-white/40 p-5 shadow-[0_32px_80px_-40px_rgba(79,70,229,0.18)] backdrop-blur-xl sm:p-8">
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+                Quick use path
+              </h2>
+              <p className="mt-2 text-slate-600">Common actions and solutions for every user.</p>
+            </div>
+            <div className="grid gap-5 md:grid-cols-3 xl:grid-cols-4">
               <MiniPath
                 step="01"
                 title="Need to announce something?"
@@ -345,7 +348,7 @@ export default function GuidePage() {
               <MiniPath
                 step="07"
                 title="Confused about a field?"
-                text="Most forms now show a clear field label plus an example value, and many college fields suggest the right IIIT from the saved college list."
+                text="Most forms now show a clear field label plus an example value, and many college fields suggest the right IIIT."
               />
               <MiniPath
                 step="08"
@@ -362,9 +365,11 @@ export default function GuidePage() {
 
 function GuideStat({ icon: Icon, title, text }) {
   return (
-    <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-4">
-      <Icon className="h-5 w-5 text-indigo-600" />
-      <div className="mt-3 text-sm font-semibold text-slate-900">{title}</div>
+    <div className="group rounded-[1.8rem] border border-white/40 bg-white/50 p-4 transition-all duration-300 hover:bg-white/80 md:p-5">
+      <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 shadow-sm transition-transform group-hover:scale-110 group-hover:bg-indigo-600 group-hover:text-white">
+        <Icon className="h-5 w-5" />
+      </div>
+      <div className="mt-4 text-sm font-bold text-slate-900">{title}</div>
       <div className="mt-1 text-sm leading-6 text-slate-600">{text}</div>
     </div>
   );
@@ -372,12 +377,12 @@ function GuideStat({ icon: Icon, title, text }) {
 
 function MiniPath({ step, title, text }) {
   return (
-    <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-4">
-      <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-indigo-700">
-        {step}
+    <div className="group relative rounded-[1.8rem] border border-white bg-white/60 p-5 shadow-[0_10px_30px_-15px_rgba(79,70,229,0.1)] backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:bg-white/90 hover:shadow-[0_22px_45px_-20px_rgba(79,70,229,0.2)] sm:p-7">
+      <div className="text-[10px] font-bold uppercase tracking-[0.26em] text-indigo-700 transition-transform group-hover:scale-105 group-hover:text-indigo-600">
+        Step {step}
       </div>
-      <div className="mt-3 text-lg font-semibold text-slate-900">{title}</div>
-      <p className="mt-2 text-sm leading-7 text-slate-600">{text}</p>
+      <div className="mt-3 text-lg font-bold text-slate-900 leading-tight">{title}</div>
+      <p className="mt-3 text-sm leading-7 text-slate-600 group-hover:text-slate-700">{text}</p>
     </div>
   );
 }

@@ -26,18 +26,18 @@ export default function GuideFlowSection({
           {steps.map((step, index) => (
             <div
               key={step.title}
-              className="rounded-[1.4rem] border border-slate-200 bg-slate-50 p-4 sm:p-5"
+              className="group relative rounded-[1.6rem] border border-white bg-white/60 p-5 shadow-[0_8px_30px_-12px_rgba(79,70,229,0.12)] backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:bg-white/80 hover:shadow-[0_20px_40px_-20px_rgba(79,70,229,0.2)] md:p-6"
             >
-              <div className="flex items-start gap-3">
-                <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-sm font-semibold text-white sm:h-9 sm:w-9">
+              <div className="flex items-start gap-4">
+                <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,_#6366f1,_#4f46e5)] text-base font-bold text-white shadow-[0_10px_20px_-8px_rgba(79,70,229,0.5)] transition-transform group-hover:scale-110">
                   {index + 1}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2 text-[15px] font-semibold text-slate-900 sm:text-base">
+                  <div className="flex items-center gap-2 text-[16px] font-bold text-slate-900 sm:text-lg">
                     <span>{step.title}</span>
-                    <ArrowRight className="h-4 w-4 text-indigo-400" />
+                    <ArrowRight className="h-4 w-4 text-indigo-400 opacity-0 transition-all group-hover:translate-x-1 group-hover:opacity-100" />
                   </div>
-                  <p className="mt-2 text-sm leading-7 text-slate-600">
+                  <p className="mt-2 text-sm leading-7 text-slate-600 sm:text-[15px]">
                     {step.text}
                   </p>
                 </div>
@@ -47,9 +47,9 @@ export default function GuideFlowSection({
         </div>
 
         {note && (
-          <div className="mt-6 flex items-start gap-3 rounded-[1.4rem] border border-emerald-100 bg-emerald-50/70 p-4 text-sm leading-7 text-emerald-900">
+          <div className="mt-8 flex items-start gap-3 rounded-[1.6rem] border border-emerald-100 bg-emerald-50/60 p-5 text-[15px] leading-7 text-emerald-900 backdrop-blur-sm shadow-sm ring-1 ring-emerald-200/20">
             <CheckCircle2 className="mt-1 h-5 w-5 shrink-0 text-emerald-600" />
-            <p>{note}</p>
+            <p className="font-medium">{note}</p>
           </div>
         )}
       </div>

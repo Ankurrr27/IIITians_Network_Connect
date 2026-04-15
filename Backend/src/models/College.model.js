@@ -61,6 +61,7 @@ const collegeSchema = new mongoose.Schema(
       {
         public_id: String,
         url: String,
+        caption: String,
       },
     ],
   },

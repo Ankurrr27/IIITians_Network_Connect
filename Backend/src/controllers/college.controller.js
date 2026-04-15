@@ -171,9 +171,14 @@ export const addCollegeGallery = async (req, res) => {
       return res.status(400).json({ message: "Images are required" });
     }
 
-    const images = req.files.map((file) => ({
+    const captions = Array.isArray(req.body.captions) 
+      ? req.body.captions 
+      : [req.body.caption || ""];
+
+    const images = req.files.map((file, index) => ({
       public_id: file.filename,
       url: file.path,
+      caption: captions[index] || captions[0] || "",
     }));
 
     const college = await College.findByIdAndUpdate(
@@ -189,6 +194,35 @@ export const addCollegeGallery = async (req, res) => {
     res.json(college);
   } catch (error) {
     console.error("addCollegeGallery error:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const deleteCollegeGalleryImage = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { imageUrl } = req.body;
+
+    if (!imageUrl) {
+      return res.status(400).json({ message: "imageUrl is required" });
+    }
+
+    const college = await College.findById(id);
+    if (!college) {
+      return res.status(404).json({ message: "College not found" });
+    }
+
+    const targetImage = college.gallery.find((img) => img.url === imageUrl);
+    if (targetImage && targetImage.public_id) {
+      await cloudinary.uploader.destroy(targetImage.public_id);
+    }
+
+    college.gallery = college.gallery.filter((img) => img.url !== imageUrl);
+    await college.save();
+
+    res.json(college);
+  } catch (error) {
+    console.error("deleteCollegeGalleryImage error:", error);
     res.status(500).json({ message: error.message });
   }
 };

@@ -15,6 +15,7 @@ const TeamJoinPage = lazy(() => import("./pages/Team/TeamJoinPage"));
 const Index = lazy(() => import("./pages/Index/index.jsx"));
 const Colleges = lazy(() => import("./pages/Colleges/Colleges.jsx"));
 const CollegesAdmin = lazy(() => import("./pages/Colleges/CollegesAdmin.jsx"));
+const AdminGallery = lazy(() => import("./pages/Colleges/AdminGallery.jsx"));
 const Events = lazy(() => import("./pages/Events/EventsAdmin.jsx"));
 const Placement = lazy(() => import("./pages/Placement/Placement.jsx"));
 const NotFound = lazy(() => import("./pages/NotFound.jsx"));
@@ -109,6 +110,7 @@ function App() {
               <Route path="/alumni/admin" element={<LegacyAdminRedirect />} />
               <Route path="/alumni/admin/:status" element={<LegacyAdminRedirect />} />
               <Route path="/colleges/admin" element={<CollegesAdmin />} />
+              <Route path="/admin/gallery" element={<AdminGallery />} />
               <Route path="/team/admin" element={<TeamAdmin />} />
               <Route path="/placement/admin" element={<PlacementPage />} />
               <Route path="/events/admin" element={<Events />} />

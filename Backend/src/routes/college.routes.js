@@ -3,6 +3,7 @@ import adminAuth from "../middlewares/adminAuth.js";
 import {
   addCollegeGallery,
   createCollege,
+  deleteCollegeGalleryImage,
   getCollegeById,
   getCollegeLogo,
   getColleges,
@@ -36,11 +37,14 @@ router.patch(
   updateCollegeLogo
 );
 
+// Anyone can add photos to the collaborative gallery
 router.patch(
   "/:id/gallery",
-  adminAuth,
   upload.array("images", 10),
   addCollegeGallery
 );
+
+// Only admins can delete photos
+router.delete("/:id/gallery", adminAuth, deleteCollegeGalleryImage);
 
 export default router;

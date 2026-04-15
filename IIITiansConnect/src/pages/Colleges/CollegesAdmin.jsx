@@ -6,6 +6,8 @@ import {
   ImagePlus,
   Link2,
   Pencil,
+  Plus,
+  Sparkles,
   Upload,
   Users,
 } from "lucide-react";
@@ -68,7 +70,6 @@ export default function CollegesAdmin() {
   const [editPhotoFile, setEditPhotoFile] = useState(null);
   const [editGalleryFiles, setEditGalleryFiles] = useState([]);
   const [editLogoFile, setEditLogoFile] = useState(null);
-
   const loadCollegeData = async () => {
     setCollegeLoading(true);
     setCollegeState((prev) => ({ ...prev, error: "" }));
@@ -783,19 +784,20 @@ function AssetPicker({ title, helper, file, existingUrl, fallback, onPick }) {
   const previewUrl = file ? URL.createObjectURL(file) : existingUrl || fallback;
 
   return (
-    <div className="rounded-[1.4rem] bg-slate-50/90 p-4 ring-1 ring-slate-200/80">
-      <div className="flex items-center gap-3">
-        <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-white ring-1 ring-slate-200/80">
+    <div className="group overflow-hidden rounded-[1.8rem] border border-white bg-white/60 p-5 shadow-[0_12px_30px_-15px_rgba(79,70,229,0.12)] backdrop-blur-md transition-all hover:bg-white/80">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+        <div className="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-white shadow-md ring-1 ring-slate-200 transition-transform group-hover:scale-[1.05]">
           <img src={previewUrl} alt={title} className="h-full w-full object-cover" />
+          <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/5" />
         </div>
-        <div className="space-y-2">
+        <div className="flex-1 space-y-3">
           <div>
-            <div className="text-sm font-semibold text-slate-900">{title}</div>
-            <div className="text-xs leading-5 text-slate-500">{helper}</div>
+            <div className="text-[15px] font-bold text-slate-900">{title}</div>
+            <div className="mt-1 text-xs leading-5 text-slate-500">{helper}</div>
           </div>
-          <label className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800">
+          <label className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-[linear-gradient(135deg,_#6366f1,_#4f46e5)] px-5 py-2.5 text-xs font-bold text-white shadow-[0_10px_20px_-8px_rgba(79,70,229,0.5)] transition-all hover:scale-105 active:scale-95">
             <Upload className="h-4 w-4" />
-            {file ? "Replace" : "Upload"}
+            {file ? "Change Asset" : "Choose Photo"}
             <input
               type="file"
               accept="image/*"
@@ -815,10 +817,10 @@ function AssetPicker({ title, helper, file, existingUrl, fallback, onPick }) {
 
 function AssetInlinePicker({ title, file, onPick }) {
   return (
-    <label className="flex cursor-pointer items-center justify-between rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-700 ring-1 ring-slate-200/80 transition hover:bg-white hover:ring-indigo-200">
-      <span className="font-medium">{file ? `${title} ready` : title}</span>
-      <span className="rounded-full bg-slate-900 px-3 py-1 text-xs font-semibold text-white">
-        <Upload className="mr-1 inline h-3.5 w-3.5" />
+    <label className="group flex cursor-pointer items-center justify-between rounded-2xl border border-white bg-white/60 px-5 py-4 text-sm text-slate-800 shadow-sm backdrop-blur-md transition-all hover:bg-white/90 hover:shadow-md">
+      <span className="font-bold tracking-tight">{file ? `${title} Loaded` : title}</span>
+      <span className="flex items-center gap-2 rounded-full bg-[linear-gradient(135deg,_#6366f1,_#4f46e5)] px-4 py-2 text-[11px] font-bold uppercase tracking-wider text-white shadow-lg transition-transform group-hover:scale-105">
+        <Upload className="h-3.5 w-3.5" />
         Upload
       </span>
       <input
@@ -867,27 +869,27 @@ function MultiAssetPicker({ title, helper, files = [], existingUrls = [], onPick
   ];
 
   return (
-    <div className="rounded-[1.4rem] bg-slate-50/90 p-4 ring-1 ring-slate-200/80">
-      <div className="space-y-3">
+    <div className="group rounded-[1.8rem] border border-white bg-white/60 p-5 shadow-[0_12px_30px_-15px_rgba(79,70,229,0.12)] backdrop-blur-md transition-all hover:bg-white/80">
+      <div className="space-y-4">
         <div>
-          <div className="text-sm font-semibold text-slate-900">{title}</div>
-          <div className="text-xs leading-5 text-slate-500">{helper}</div>
+          <div className="text-[15px] font-bold text-slate-900">{title}</div>
+          <div className="mt-1 text-xs leading-5 text-slate-500">{helper}</div>
         </div>
 
-        <div className="grid grid-cols-3 gap-2">
-          {(previewUrls.length ? previewUrls : [COLLEGE_PLACEHOLDER]).slice(0, 6).map((url, index) => (
+        <div className="grid grid-cols-3 gap-3">
+          {(previewUrls.length ? previewUrls.slice(0, 6) : [COLLEGE_PLACEHOLDER]).map((url, index) => (
             <div
               key={`${url}-${index}`}
-              className="flex aspect-square items-center justify-center overflow-hidden rounded-2xl bg-white ring-1 ring-slate-200/80"
+              className="relative flex aspect-square items-center justify-center overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 transition-transform hover:scale-[1.05] hover:shadow-md"
             >
               <img src={url} alt={`${title} ${index + 1}`} className="h-full w-full object-cover" />
             </div>
           ))}
         </div>
 
-        <label className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800">
+        <label className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-[linear-gradient(135deg,_#6366f1,_#4f46e5)] px-6 py-3 text-xs font-bold text-white shadow-[0_10px_25px_-8px_rgba(79,70,229,0.5)] transition-all hover:scale-105 active:scale-95">
           <Upload className="h-4 w-4" />
-          Add more photos
+          Add More Experience Photos
           <input
             type="file"
             accept="image/*"

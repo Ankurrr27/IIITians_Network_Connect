@@ -204,12 +204,12 @@ function AdminMockup() {
     <Shell>
       <div className="grid h-[28rem] gap-3 lg:grid-cols-[11rem_1fr] sm:h-[32rem]">
         {/* Sidebar */}
-        <div className="flex flex-col gap-1 rounded-[1.2rem] bg-slate-950 p-3 text-white">
+        <div className="flex flex-col gap-1 rounded-[1.2rem] bg-indigo-950 p-3 text-white">
           <div className="mb-4 flex items-center gap-2 px-2 py-1">
-            <div className="h-6 w-6 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center ring-1 ring-emerald-500/30">
+            <div className="h-6 w-6 rounded-lg bg-indigo-500/20 text-indigo-300 flex items-center justify-center ring-1 ring-indigo-500/30">
               <ShieldCheck className="h-4 w-4" />
             </div>
-            <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-emerald-400">
+            <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-indigo-300">
               Admin
             </span>
           </div>
@@ -222,10 +222,10 @@ function AdminMockup() {
           <SidebarPill icon={Users2} label="Team" />
           
           <div className="mt-auto rounded-xl bg-white/5 p-3 ring-1 ring-white/10">
-            <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">
+            <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-indigo-300/60">
               Session
             </div>
-            <div className="mt-1 text-[11px] text-emerald-400">
+            <div className="mt-1 text-[11px] text-sky-400">
               Root Authenticated
             </div>
           </div>
@@ -288,7 +288,7 @@ function AdminMockup() {
                   <div className="truncate text-[10px] text-slate-500">Edit Legacy Record • 2024-28</div>
                 </div>
                 <div className="flex gap-1.5">
-                  <div className="h-7 rounded-lg bg-emerald-500 px-2 flex items-center text-[10px] font-bold text-white">Approve</div>
+                  <div className="h-7 rounded-lg bg-emerald-500 px-2 flex items-center text-[10px] font-bold text-white shadow-[0_4px_12px_-4px_rgba(16,185,129,0.5)]">Approve</div>
                   <div className="h-7 rounded-lg bg-slate-200 px-2 flex items-center text-[10px] font-bold text-slate-600">Details</div>
                 </div>
               </div>
@@ -296,16 +296,16 @@ function AdminMockup() {
           </div>
 
           {/* Audit Log / Mini Feed */}
-          <div className="rounded-[1.4rem] bg-slate-900 px-4 py-3 text-white">
-            <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-indigo-400">
+          <div className="rounded-[1.4rem] bg-indigo-50/50 px-4 py-3 ring-1 ring-indigo-100/50 backdrop-blur-sm shadow-inner">
+            <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-indigo-700">
               Audit Stream (Live)
             </div>
-            <div className="mt-2 flex items-center gap-3 text-[11px] text-slate-300">
-              <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
+            <div className="mt-2 flex items-center gap-3 text-[11px] text-indigo-800">
+              <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.7)]" />
               <span>Admin @super verified Neon Club POC • 2m ago</span>
             </div>
-            <div className="mt-1 flex items-center gap-3 text-[11px] text-slate-400">
-              <div className="h-1.5 w-1.5 rounded-full bg-slate-600" />
+            <div className="mt-1 flex items-center gap-3 text-[11px] text-indigo-500">
+              <div className="h-1.5 w-1.5 rounded-full bg-slate-400" />
               <span>Legacy batch 2025 published by Admin @alex • 8m ago</span>
             </div>
           </div>
@@ -318,10 +318,10 @@ function AdminMockup() {
 function SidebarPill({ icon: Icon, label, active = false }) {
   return (
     <div
-      className={`flex items-center gap-2.5 rounded-lg px-3 py-2 transition-all ${
+      className={`flex items-center gap-2.5 rounded-xl px-3 py-2.5 transition-all duration-200 ${
         active 
-          ? "bg-white text-slate-950 font-semibold shadow-sm" 
-          : "text-slate-400 hover:bg-white/5 hover:text-slate-100"
+          ? "bg-white text-indigo-950 font-bold shadow-[0_8px_20px_-6px_rgba(0,0,0,0.15)] ring-1 ring-white/20" 
+          : "text-indigo-300 hover:bg-white/10 hover:text-white"
       }`}
     >
       <Icon className="h-4 w-4" />
