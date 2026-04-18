@@ -79,18 +79,31 @@ app.use((err, req, res, next) => {
     return next(err);
   }
 
+  // Handle Multer/Cloudinary errors that use http_code instead of statusCode
   const statusCode =
-    err.statusCode || (err.message === "Not allowed by CORS" ? 403 : 500);
+    err.http_code || 
+    err.statusCode || 
+    (err.message === "Not allowed by CORS" ? 403 : 500);
+
   const message =
     process.env.NODE_ENV === "production" && statusCode === 500
       ? "Internal server error"
-      : err.message;
+      : err.message || "An unexpected error occurred";
 
   if (statusCode >= 500) {
-    console.error(err);
+    console.error("Server Error:", err);
+  } else {
+    console.warn("Request Error:", {
+      statusCode,
+      message: err.message,
+      path: req.path
+    });
   }
 
-  res.status(statusCode).json({ message });
+  res.status(statusCode).json({ 
+    message,
+    status: statusCode >= 500 ? "error" : "fail"
+  });
 });
 
 export default app;
