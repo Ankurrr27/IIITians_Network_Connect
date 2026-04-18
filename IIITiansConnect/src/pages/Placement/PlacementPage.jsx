@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { Building2, LoaderCircle } from "lucide-react";
+import { Building2, LoaderCircle, ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import api from "../../api/axios";
 import {
   createPlacement,
@@ -18,6 +19,7 @@ const createEmptyPlacementRow = () => ({
 });
 
 export default function PlacementPage() {
+  const navigate = useNavigate();
   const [colleges, setColleges] = useState([]);
   const [selectedCollegeId, setSelectedCollegeId] = useState("");
   const [loadingColleges, setLoadingColleges] = useState(true);
@@ -29,6 +31,7 @@ export default function PlacementPage() {
   const [existingYears, setExistingYears] = useState([]);
   const [year, setYear] = useState(new Date().getFullYear());
   const [placements, setPlacements] = useState([createEmptyPlacementRow()]);
+  const [fullPlacementData, setFullPlacementData] = useState(null);
 
   useEffect(() => {
     const loadColleges = async () => {
@@ -73,6 +76,7 @@ export default function PlacementPage() {
 
         if (response.data?._id) {
           setPlacementId(response.data._id);
+          setFullPlacementData(response.data);
 
           if (Array.isArray(response.data.yearlyPlacements)) {
             setExistingYears(
@@ -99,6 +103,33 @@ export default function PlacementPage() {
     () => colleges.find((college) => college._id === selectedCollegeId) || null,
     [colleges, selectedCollegeId]
   );
+
+  useEffect(() => {
+    if (!fullPlacementData) {
+      setPlacements([createEmptyPlacementRow()]);
+      return;
+    }
+
+    const entry = (fullPlacementData.yearlyPlacements || []).find(
+      (p) => Number(p.year) === Number(year)
+    );
+
+    if (entry && Array.isArray(entry.placements) && entry.placements.length > 0) {
+      setPlacements(
+        entry.placements.map((p) => ({
+          branch: p.branch || "",
+          highestPackage: p.highestPackage || "",
+          averagePackage: p.averagePackage || "",
+          lowestPackage: p.lowestPackage || "",
+          placementPercentage: p.placementPercentage || "",
+          studentsPlaced: p.studentsPlaced || "",
+          totalStudents: p.totalStudents || "",
+        }))
+      );
+    } else {
+      setPlacements([createEmptyPlacementRow()]);
+    }
+  }, [year, fullPlacementData]);
 
   const handleCreatePlacement = async () => {
     if (!selectedCollegeId) {
@@ -200,9 +231,18 @@ export default function PlacementPage() {
   return (
     <div className="space-y-8">
       <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
-        <p className="text-sm font-semibold uppercase tracking-[0.24em] text-indigo-600">
-          Placement workspace
-        </p>
+        <div className="flex items-center gap-3 mb-4">
+          <button
+            onClick={() => navigate(-1)}
+            className="group flex h-9 w-9 items-center justify-center rounded-full border border-indigo-100 bg-white/80 text-indigo-600 shadow-sm backdrop-blur-sm transition-all hover:bg-white hover:text-indigo-700 hover:shadow-md active:scale-95"
+          >
+            <ArrowLeft size={18} className="transition-transform group-hover:-translate-x-0.5" />
+          </button>
+          <div className="h-px w-8 bg-slate-200" />
+          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-indigo-600">
+            Placement workspace
+          </p>
+        </div>
         <h1 className="mt-2 text-3xl font-semibold text-slate-900">
           Placements Admin
         </h1>
@@ -329,73 +369,100 @@ export default function PlacementPage() {
                     </button>
                   </div>
 
-                  <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                    <input
-                      placeholder="e.g. CSE"
-                      value={row.branch}
-                      onChange={(event) =>
-                        updateField(index, "branch", event.target.value)
-                      }
-                      className="rounded-2xl border border-slate-200 bg-white px-4 py-3"
-                    />
-                    <input
-                      type="number"
-                      placeholder="e.g. 44"
-                      value={row.highestPackage}
-                      onChange={(event) =>
-                        updateField(index, "highestPackage", event.target.value)
-                      }
-                      className="rounded-2xl border border-slate-200 bg-white px-4 py-3"
-                    />
-                    <input
-                      type="number"
-                      placeholder="e.g. 19.5"
-                      value={row.averagePackage}
-                      onChange={(event) =>
-                        updateField(index, "averagePackage", event.target.value)
-                      }
-                      className="rounded-2xl border border-slate-200 bg-white px-4 py-3"
-                    />
-                    <input
-                      type="number"
-                      placeholder="e.g. 6"
-                      value={row.lowestPackage}
-                      onChange={(event) =>
-                        updateField(index, "lowestPackage", event.target.value)
-                      }
-                      className="rounded-2xl border border-slate-200 bg-white px-4 py-3"
-                    />
-                    <input
-                      type="number"
-                      placeholder="e.g. 87"
-                      value={row.placementPercentage}
-                      onChange={(event) =>
-                        updateField(
-                          index,
-                          "placementPercentage",
-                          event.target.value
-                        )
-                      }
-                      className="rounded-2xl border border-slate-200 bg-white px-4 py-3"
-                    />
-                    <input
-                      type="number"
-                      placeholder="e.g. 52"
-                      value={row.studentsPlaced}
-                      onChange={(event) =>
-                        updateField(index, "studentsPlaced", event.target.value)
-                      }
-                      className="rounded-2xl border border-slate-200 bg-white px-4 py-3"
-                    />
-                    <input
-                      type="number"
-                      placeholder="e.g. 60"
-                      value={row.totalStudents}
-                      onChange={(event) =>
-                        updateField(index, "totalStudents", event.target.value)
-                      }
-                      className="rounded-2xl border border-slate-200 bg-white px-4 py-3"
-                    />
+                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider ml-1">Branch</label>
+                      <input
+                        placeholder="e.g. CSE"
+                        value={row.branch}
+                        onChange={(event) =>
+                          updateField(index, "branch", event.target.value)
+                        }
+                        className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-600/10 transition-all font-medium"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider ml-1">Highest (LPA)</label>
+                      <input
+                        type="number"
+                        placeholder="e.g. 44"
+                        value={row.highestPackage}
+                        onChange={(event) =>
+                          updateField(index, "highestPackage", event.target.value)
+                        }
+                        className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-600/10 transition-all font-medium"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider ml-1">Average (LPA)</label>
+                      <input
+                        type="number"
+                        placeholder="e.g. 19.5"
+                        value={row.averagePackage}
+                        onChange={(event) =>
+                          updateField(index, "averagePackage", event.target.value)
+                        }
+                        className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-600/10 transition-all font-medium"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider ml-1">Lowest (LPA)</label>
+                      <input
+                        type="number"
+                        placeholder="e.g. 6"
+                        value={row.lowestPackage}
+                        onChange={(event) =>
+                          updateField(index, "lowestPackage", event.target.value)
+                        }
+                        className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-600/10 transition-all font-medium"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider ml-1">Placed %</label>
+                      <input
+                        type="number"
+                        placeholder="e.g. 87"
+                        value={row.placementPercentage}
+                        onChange={(event) =>
+                          updateField(
+                            index,
+                            "placementPercentage",
+                            event.target.value
+                          )
+                        }
+                        className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-600/10 transition-all font-medium"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider ml-1">Students Placed</label>
+                      <input
+                        type="number"
+                        placeholder="e.g. 52"
+                        value={row.studentsPlaced}
+                        onChange={(event) =>
+                          updateField(index, "studentsPlaced", event.target.value)
+                        }
+                        className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-600/10 transition-all font-medium"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider ml-1">Total Students</label>
+                      <input
+                        type="number"
+                        placeholder="e.g. 60"
+                        value={row.totalStudents}
+                        onChange={(event) =>
+                          updateField(index, "totalStudents", event.target.value)
+                        }
+                        className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-600/10 transition-all font-medium"
+                      />
+                    </div>
                   </div>
                 </div>
               ))}

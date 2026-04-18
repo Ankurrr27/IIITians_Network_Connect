@@ -7,10 +7,13 @@ import {
   Megaphone,
   ShieldCheck,
   Sparkles,
-  UserPlus2,
   Users,
+  UserPlus,
+  ArrowLeft,
+  Images,
+  BarChart3,
 } from "lucide-react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import GuideFlowSection from "./components/GuideFlowSection";
 
 const flowTabs = [
@@ -41,6 +44,7 @@ const flowTabs = [
       },
     ],
     note: "Every new club signup from Discuss or a college card is first raised as an admin review request.",
+    type: "public",
   },
   {
     id: "event",
@@ -69,6 +73,7 @@ const flowTabs = [
       },
     ],
     note: "Use the Manage account sidebar to edit or delete any past post later.",
+    type: "public",
   },
   {
     id: "admin",
@@ -97,6 +102,7 @@ const flowTabs = [
       },
     ],
     note: "Colleges and their social links can be updated anytime to reflect current campus presence.",
+    type: "admin",
   },
   {
     id: "legacy",
@@ -125,11 +131,12 @@ const flowTabs = [
       },
     ],
     note: "Team members can also flow into legacy with their latest network role and journey history.",
+    type: "public",
   },
   {
     id: "member",
     label: "Become a Member",
-    icon: UserPlus2,
+    icon: UserPlus,
     eyebrow: "Guide",
     title: "How to become a visible member of the network",
     description:
@@ -149,6 +156,7 @@ const flowTabs = [
       },
     ],
     note: "The best network profiles are consistent across Team, Legacy, Colleges, and Discuss.",
+    type: "public",
   },
   {
     id: "collab",
@@ -173,6 +181,62 @@ const flowTabs = [
       },
     ],
     note: "Collaboration posts work best when they are short, visual, and clear about the expected outcome.",
+    type: "public",
+  },
+  {
+    id: "gallery",
+    label: "Gallery Hub",
+    icon: Images,
+    eyebrow: "Guide",
+    steps: [
+      {
+        title: "Access the Hub",
+        text: "Open the Gallery Admin from the dashboard to see the entire network's visual library in one place.",
+      },
+      {
+        title: "Select an Institute",
+        text: "Use the viewmode dropdown to filter the gallery by a specific college or audit the entire network at once.",
+      },
+      {
+        title: "Push official assets",
+        text: "Select a college, add a brief caption, and upload a high-resolution photo. These official pushes are prioritized in public galleries.",
+      },
+      {
+        title: "Audit & Cleanup",
+        text: "Identify outdated or low-quality photos and remove them permanently to keep the college profiles premium.",
+      },
+    ],
+    note: "High-quality campus visuals are essential for a premium institute presence.",
+    type: "both",
+  },
+  {
+    id: "placement",
+    label: "Placement Data",
+    icon: BarChart3,
+    eyebrow: "Guide",
+    title: "How to manage yearly placement and branch statistics",
+    description:
+      "The Placement Workspace allows admins to initialize and track yearly placement records, highest packages, and branch-specific trends for every IIIT.",
+    steps: [
+      {
+        title: "Initialize the record",
+        text: "If a college doesn't have placement data yet, use the 'Initialize' button to create a master record for that institute.",
+      },
+      {
+        title: "Set the academic year",
+        text: "Enter the target academic year (e.g., 2024) to start adding or updating specific branch data for that period.",
+      },
+      {
+        title: "Add branch rows",
+        text: "Enter highest, average, and lowest packages (in LPA), along with placement percentages and student counts for every branch.",
+      },
+      {
+        title: "Save and verify",
+        text: "Use the 'Add / Update Year Data' button to commit the values. These stats automatically populate the placement charts on college profiles.",
+      },
+    ],
+    note: "Placement data is one of the most visited sections; accuracy and yearly updates are vital.",
+    type: "admin",
   },
 ];
 
@@ -180,50 +244,108 @@ const guideActivityFeed = [
   "Club request created",
   "Legacy profile approved",
   "Event push reviewed",
-  "Team member added",
-  "College asset updated",
-  "Admin role adjusted",
+  "Placement record initialized",
+  "College gallery audited",
+  "Yearly stats published",
   "Announcement published",
 ];
 
-export default function GuidePage() {
+export default function GuidePage({ isAdmin = false }) {
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialFlow = searchParams.get("flow");
+
+  const filteredFlows = useMemo(() => {
+    if (isAdmin) {
+      return flowTabs.filter((item) => item.type === "admin" || item.type === "both");
+    }
+    return flowTabs.filter((item) => item.type === "public" || item.type === "both");
+  }, [isAdmin]);
+
   const [activeFlow, setActiveFlow] = useState(
-    flowTabs.some((item) => item.id === initialFlow) ? initialFlow : "discuss"
+    filteredFlows.some((item) => item.id === initialFlow)
+      ? initialFlow
+      : filteredFlows[0].id
   );
 
   useEffect(() => {
     const flow = searchParams.get("flow");
-    if (flow && flowTabs.some((item) => item.id === flow) && flow !== activeFlow) {
+    if (
+      flow &&
+      filteredFlows.some((item) => item.id === flow) &&
+      flow !== activeFlow
+    ) {
       setActiveFlow(flow);
     }
-  }, [activeFlow, searchParams]);
+  }, [activeFlow, searchParams, filteredFlows]);
 
-  const currentFlow = useMemo(
-    () => flowTabs.find((item) => item.id === activeFlow) || flowTabs[0],
-    [activeFlow]
-  );
+  const currentFlow = useMemo(() => {
+    const tab = filteredFlows.find((item) => item.id === activeFlow) || filteredFlows[0];
+    
+    // Adapt content for shared flows like 'gallery'
+    if (tab.id === "gallery") {
+      return {
+        ...tab,
+        title: isAdmin ? "Audit and publish college visuals" : "Contribute your college photos",
+        description: isAdmin 
+          ? "The Central Gallery Hub allows admins to audit user contributions or publish official campus visuals." 
+          : "Every student can contribute photos of their campus, clubs, and fests to help build their institute's public identity.",
+        steps: isAdmin 
+          ? tab.steps 
+          : [
+              {
+                title: "Open the College Card",
+                text: "Find your college on the main directory and click on 'View Gallery'.",
+              },
+              {
+                title: "Upload contribution",
+                text: "Enter a caption that describes the photo (e.g., 'Annual Fest Night') and upload a clear visual.",
+              },
+              {
+                title: "Wait for validation",
+                text: "Your contributions help others see your campus life. Admins review images to ensure the profile stay premium.",
+              },
+              {
+                title: "Official Visibility",
+                text: "Highly rated or clear photos are featured in the college's main display slider.",
+              },
+            ],
+        note: isAdmin ? tab.note : "Contribution is open to everyone, but quality visuals help your college stand out."
+      };
+    }
+
+    return tab;
+  }, [activeFlow, filteredFlows, isAdmin]);
 
   return (
     <div className="min-h-screen bg-[linear-gradient(180deg,_#eef4ff_0%,_#f7fbff_34%,_#ffffff_100%)]">
       <section className="relative overflow-hidden px-4 pb-8 pt-20 sm:px-6 sm:pb-12 sm:pt-24">
         <div className="absolute inset-x-0 top-0 h-72 bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.18),_transparent_56%)]" />
         <div className="mx-auto max-w-7xl">
-          <div className="inline-flex items-center gap-2 rounded-full border border-indigo-100 bg-white/85 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-indigo-700">
-            <Sparkles className="h-4 w-4" />
-            Website Guide
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => navigate(-1)}
+              className="group flex h-9 w-9 items-center justify-center rounded-full border border-indigo-100 bg-white/80 text-indigo-600 shadow-sm backdrop-blur-sm transition-all hover:bg-white hover:shadow-md active:scale-95"
+            >
+              <ArrowLeft size={18} className="transition-transform group-hover:-translate-x-0.5" />
+            </button>
+            <div className="inline-flex items-center gap-2 rounded-full border border-indigo-100 bg-white/85 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-indigo-700">
+              <Sparkles className="h-4 w-4" />
+              {isAdmin ? "Admin Manual" : "Website Guide"}
+            </div>
           </div>
 
           <div className="mt-6 grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
             <div>
               <h1 className="max-w-4xl text-4xl font-semibold tracking-tight text-slate-900 sm:text-5xl">
-                Learn how to use every major part of IIITians Network.
+                {isAdmin
+                  ? "The official handbook for network moderators."
+                  : "Learn how to use every major part of IIITians Network."}
               </h1>
               <p className="mt-4 max-w-3xl text-sm leading-8 text-slate-600 sm:text-lg">
-                This guide shows how clubs post updates, how events move into the
-                Events page, how people become part of the network, and how admins
-                run the platform, all inside the same site flow and theme.
+                {isAdmin
+                  ? "As an admin, you hold the authority to approve members, audit campus visuals, and manage critical placement statistics. Follow these protocols strictly."
+                  : "This guide shows how clubs post updates, how events move into the Events page, and how students join the network history."}
               </p>
             </div>
 
@@ -231,13 +353,13 @@ export default function GuidePage() {
               <div className="grid gap-3 sm:grid-cols-3">
                 <GuideStat
                   icon={BookOpenText}
-                  title="6 guided flows"
-                  text="Clubs, events, admin, legacy, member path, and collabs."
+                  title={`${filteredFlows.length} guided flows`}
+                  text={isAdmin ? "Colleges, Gallery Hub, and Placement Stats." : "Clubs, events, legacy, membership, and collabs."}
                 />
                 <GuideStat
                   icon={Megaphone}
-                  title="Event-ready"
-                  text="Push as event with date and link."
+                  title={isAdmin ? "Governance" : "Event-ready"}
+                  text={isAdmin ? "Manage approvals and site-wide branding." : "Push as event with date and link."}
                 />
                 <GuideStat
                   icon={FileText}
@@ -253,7 +375,7 @@ export default function GuidePage() {
       <section className="px-4 pb-16 sm:px-6 sm:pb-20">
         <div className="mx-auto max-w-7xl">
           <div className="flex flex-wrap gap-3">
-            {flowTabs.map((item) => {
+            {filteredFlows.map((item) => {
               const Icon = item.icon;
               const isActive = item.id === activeFlow;
 
@@ -315,46 +437,53 @@ export default function GuidePage() {
               <p className="mt-2 text-slate-600">Common actions and solutions for every user.</p>
             </div>
             <div className="grid gap-5 md:grid-cols-3 xl:grid-cols-4">
-              <MiniPath
-                step="01"
-                title="Need to announce something?"
-                text="Open Discuss, log into the club account, and post an announcement."
-              />
-              <MiniPath
-                step="02"
-                title="Need to promote an event?"
-                text="Choose event while posting, attach date and link, then let approval push it live."
-              />
-              <MiniPath
-                step="03"
-                title="Need to join legacy?"
-                text="Open Network Legacy, submit details, and wait for approval before public listing."
-              />
-              <MiniPath
-                step="04"
-                title="Want to become a network member?"
-                text="Use the member guide to see the clean path from activity to public presence."
-              />
-              <MiniPath
-                step="05"
-                title="Need a collaboration push?"
-                text="Use the collaboration guide to post a cleaner ask with context, links, and value."
-              />
-              <MiniPath
-                step="06"
-                title="Need to register a club from a college?"
-                text="Use the three-dot menu on the college card and jump into prefilled club registration."
-              />
-              <MiniPath
-                step="07"
-                title="Confused about a field?"
-                text="Most forms now show a clear field label plus an example value, and many college fields suggest the right IIIT."
-              />
-              <MiniPath
-                step="08"
-                title="Managing a specific college?"
-                text="Use the Colleges Admin to update photos, logos, and mission statements for any IIIT in the network."
-              />
+              {isAdmin ? (
+                <>
+                  <MiniPath
+                    step="01"
+                    title="Auditing Photos"
+                    text="Open Gallery Admin, filter by college, and remove low-quality photos permanently."
+                  />
+                  <MiniPath
+                    step="02"
+                    title="Updating Stats"
+                    text="Enter the Placement workspace, select an IIIT, and add the latest yearly packages."
+                  />
+                  <MiniPath
+                    step="03"
+                    title="Approving Clubs"
+                    text="Review club registration requests from Discuss and verify their POC before approval."
+                  />
+                  <MiniPath
+                    step="04"
+                    title="Member Tenure"
+                    text="Do not delete old team members; transition them to legacy status to keep site history."
+                  />
+                </>
+              ) : (
+                <>
+                  <MiniPath
+                    step="01"
+                    title="Need to announce something?"
+                    text="Open Discuss, log into the club account, and post an announcement."
+                  />
+                  <MiniPath
+                    step="02"
+                    title="Need to promote an event?"
+                    text="Choose event while posting, attach date and link, then let approval push it live."
+                  />
+                  <MiniPath
+                    step="03"
+                    title="Need to join legacy?"
+                    text="Open Network Legacy, submit details, and wait for approval before public listing."
+                  />
+                  <MiniPath
+                    step="04"
+                    title="Want to become a network member?"
+                    text="Use the member guide to see the clean path from activity to public presence."
+                  />
+                </>
+              )}
             </div>
           </div>
         </div>

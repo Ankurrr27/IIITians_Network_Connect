@@ -171,14 +171,15 @@ export const addCollegeGallery = async (req, res) => {
       return res.status(400).json({ message: "Images are required" });
     }
 
-    const captions = Array.isArray(req.body.captions) 
-      ? req.body.captions 
-      : [req.body.caption || ""];
+    let captions = req.body.captions || req.body.caption || "";
+    if (typeof captions === "string") {
+      captions = [captions];
+    }
 
     const images = req.files.map((file, index) => ({
       public_id: file.filename,
       url: file.path,
-      caption: captions[index] || captions[0] || "",
+      caption: (Array.isArray(captions) ? captions[index] : captions) || captions[0] || "",
     }));
 
     const college = await College.findByIdAndUpdate(

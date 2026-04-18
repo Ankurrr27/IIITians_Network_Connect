@@ -15,6 +15,9 @@ import {
   ShieldPlus,
   Users,
   Users2,
+  BarChart3,
+  Images,
+  TrendingUp,
 } from "lucide-react";
 
 export default function GuideMockup({ variant = "discuss" }) {
@@ -23,6 +26,8 @@ export default function GuideMockup({ variant = "discuss" }) {
   if (variant === "member") return <MemberMockup />;
   if (variant === "collab") return <CollabMockup />;
   if (variant === "admin") return <AdminMockup />;
+  if (variant === "gallery") return <GalleryMockup />;
+  if (variant === "placement") return <PlacementMockup />;
   return <DiscussMockup />;
 }
 
@@ -437,6 +442,105 @@ function AdminStat({ label, value }) {
       </div>
       <div className="mt-2 text-2xl font-semibold text-slate-900">{value}</div>
     </div>
+  );
+}
+
+function GalleryMockup() {
+  return (
+    <Shell>
+      <div className="rounded-[1.5rem] border border-white bg-white/70 p-5 shadow-sm backdrop-blur-xl sm:p-6">
+        <div className="flex items-center justify-between gap-3 mb-5">
+          <div className="space-y-1">
+            <div className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-indigo-700">
+              Gallery Audit
+            </div>
+            <div className="text-xl font-bold text-slate-900">Campus Visuals</div>
+          </div>
+          <div className="h-10 w-10 rounded-xl bg-slate-900 flex items-center justify-center text-white">
+            <Plus className="h-5 w-5" />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          <div className="aspect-video rounded-xl bg-[linear-gradient(135deg,_#eef2ff,_#e0e7ff)] ring-1 ring-slate-200 overflow-hidden relative">
+             <div className="absolute inset-0 flex items-center justify-center opacity-20">
+                <Images size={24} />
+             </div>
+             <div className="absolute bottom-2 left-2 right-2 h-7 rounded-lg bg-white/80 backdrop-blur px-2 flex items-center justify-between">
+                <div className="w-12 h-1.5 rounded-full bg-indigo-200" />
+                <div className="w-4 h-4 rounded-md bg-rose-500" />
+             </div>
+          </div>
+          <div className="aspect-video rounded-xl bg-[linear-gradient(135deg,_#f0f9ff,_#e0f2fe)] ring-1 ring-slate-200 overflow-hidden relative">
+             <div className="absolute inset-0 flex items-center justify-center opacity-20">
+                <Images size={24} />
+             </div>
+             <div className="absolute bottom-2 left-2 right-2 h-7 rounded-lg bg-white/80 backdrop-blur px-2 flex items-center justify-between">
+                <div className="w-12 h-1.5 rounded-full bg-sky-200" />
+                <div className="w-4 h-4 rounded-md bg-rose-500" />
+             </div>
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-dashed border-indigo-200 bg-indigo-50/30 p-4 text-center">
+           <div className="mx-auto h-8 w-8 rounded-full bg-white flex items-center justify-center text-indigo-600 shadow-sm border border-indigo-100">
+              <Plus size={16} />
+           </div>
+           <div className="mt-2 text-[11px] font-bold text-indigo-700 uppercase tracking-widest">Publish official photo</div>
+        </div>
+      </div>
+    </Shell>
+  );
+}
+
+function PlacementMockup() {
+  return (
+    <Shell>
+      <div className="rounded-[1.5rem] border border-white bg-white/70 p-5 shadow-sm backdrop-blur-xl sm:p-6">
+        <div className="flex items-center justify-between gap-3 mb-5">
+          <div className="space-y-1">
+            <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-700">
+              Placement Hub
+            </div>
+            <div className="text-xl font-bold text-slate-900">Yearly Records</div>
+          </div>
+          <div className="text-xs font-bold text-slate-400">AY 2024-25</div>
+        </div>
+
+        <div className="space-y-3">
+           <div className="flex items-center gap-4 p-3 rounded-xl bg-white shadow-sm ring-1 ring-slate-100">
+              <div className="h-10 w-10 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600">
+                 <BarChart3 size={20} />
+              </div>
+              <div className="flex-1">
+                 <div className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">CSE Highly</div>
+                 <div className="text-lg font-bold text-slate-900">48.5 LPA</div>
+              </div>
+              <div className="text-emerald-500">
+                 <TrendingUp size={16} />
+              </div>
+           </div>
+
+           <div className="grid grid-cols-2 gap-3">
+              <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                 <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Avg (LPA)</div>
+                 <div className="mt-1 text-base font-bold text-slate-900">18.2</div>
+              </div>
+              <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                 <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Placed %</div>
+                 <div className="mt-1 text-base font-bold text-slate-900">92.4%</div>
+              </div>
+           </div>
+        </div>
+
+        <div className="mt-5 pt-4 border-t border-slate-100">
+           <div className="flex items-center justify-between gap-2">
+              <div className="h-8 rounded-lg bg-slate-100 px-3 flex items-center text-[11px] font-bold text-slate-600">Add branch</div>
+              <div className="h-8 rounded-lg bg-slate-900 px-4 flex items-center text-[11px] font-bold text-white shadow-lg">Save record</div>
+           </div>
+        </div>
+      </div>
+    </Shell>
   );
 }
 

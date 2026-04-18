@@ -1,10 +1,12 @@
 import { useState, useEffect, useMemo } from "react";
-import { Building2, Images, Trash2, Search, ExternalLink, Sparkles, AlertCircle, LayoutGrid, Filter, Plus, ImagePlus, Upload } from "lucide-react";
+import { Building2, Images, Trash2, Search, ExternalLink, Sparkles, AlertCircle, LayoutGrid, Filter, Plus, ImagePlus, Upload, ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import api from "../../api/axios";
 
 const COLLEGE_PLACEHOLDER = "/placeholder.svg";
 
 export default function AdminGallery() {
+  const navigate = useNavigate();
   const [colleges, setColleges] = useState([]);
   const [selectedId, setSelectedId] = useState("all");
   const [loading, setLoading] = useState(false);
@@ -107,16 +109,26 @@ export default function AdminGallery() {
         <div className="absolute top-0 right-0 -m-20 h-80 w-80 rounded-full bg-indigo-50/40 blur-[80px]" />
         
         <div className="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-indigo-600 ring-1 ring-indigo-100">
-               Central Gallery Hub
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => navigate(-1)}
+                className="group flex h-9 w-9 items-center justify-center rounded-full border border-indigo-100 bg-white/80 text-indigo-600 shadow-sm backdrop-blur-sm transition-all hover:bg-white hover:text-indigo-700 hover:shadow-md active:scale-95"
+              >
+                <ArrowLeft size={18} className="transition-transform group-hover:-translate-x-0.5" />
+              </button>
+              <div className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-indigo-600 ring-1 ring-indigo-100">
+                Central Gallery Hub
+              </div>
             </div>
+            <div className="space-y-2">
             <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
               Audit & <span className="text-indigo-600">Expand</span>
             </h1>
             <p className="max-w-xl text-[13px] font-medium text-slate-500">
               Manage the network's visual memory. Audit contributions or publish official photos.
             </p>
+            </div>
           </div>
 
           <div className="w-full max-w-[300px] space-y-2">

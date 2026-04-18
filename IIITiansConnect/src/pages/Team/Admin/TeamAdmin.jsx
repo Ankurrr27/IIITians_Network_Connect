@@ -3,9 +3,11 @@ import {
   ArrowUpDown, 
   GripVertical, 
   Search, 
-  Users, 
-  ShieldCheck 
+  Users,
+  ShieldCheck,
+  ArrowLeft,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import api from "../../../api/axios";
 
 import TeamMemberForm from "./TeamMemberForm";
@@ -14,6 +16,7 @@ import EditMemberModal from "./EditMemberModal";
 import MockRequestList from "./MockRequestList";
 
 export default function TeamAdmin() {
+  const navigate = useNavigate();
   console.log("Icon Status:", { ShieldCheck, Users });
   const [members, setMembers] = useState([]);
   const [editingMember, setEditingMember] = useState(null);
@@ -157,9 +160,18 @@ export default function TeamAdmin() {
   return (
     <div className="space-y-8">
       <header className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
-        <p className="text-sm font-semibold uppercase tracking-[0.24em] text-indigo-600">
-          Team workspace
-        </p>
+        <div className="flex items-center gap-3 mb-4">
+          <button
+            onClick={() => navigate(-1)}
+            className="group flex h-9 w-9 items-center justify-center rounded-full border border-indigo-100 bg-white/80 text-indigo-600 shadow-sm backdrop-blur-sm transition-all hover:bg-white hover:text-indigo-700 hover:shadow-md active:scale-95"
+          >
+            <ArrowLeft size={18} className="transition-transform group-hover:-translate-x-0.5" />
+          </button>
+          <div className="h-px w-8 bg-slate-200" />
+          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-indigo-600">
+            Team workspace
+          </p>
+        </div>
         <h1 className="mt-2 text-3xl font-semibold text-slate-900">
           Team Management
         </h1>

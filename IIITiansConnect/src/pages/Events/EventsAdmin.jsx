@@ -1,4 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
+import { ArrowLeft, Calendar } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import api from "../../api/axios";
 
 import EventsHeader from "./Sections/EventsHeader";
@@ -7,6 +9,7 @@ import EventsGrid from "./Sections/EventsGrid";
 import AddEventForm from "./Sections/AddEventForm";
 
 export default function EventsPage() {
+  const navigate = useNavigate();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -66,8 +69,27 @@ export default function EventsPage() {
   }, [events, search, sortBy]);
 
   return (
-    <section className="py-20 bg-white">
-      <div className="max-w-6xl mx-auto px-6">
+    <section className="min-h-screen bg-[linear-gradient(180deg,_#eef7ff_0%,_#f7fbff_36%,_#f9fcff_100%)] pb-10 pt-10">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <div className="mb-8 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => navigate("/")}
+                className="group flex h-9 w-9 items-center justify-center rounded-full border border-indigo-100 bg-white/80 text-indigo-600 shadow-sm backdrop-blur-sm transition-all hover:bg-white hover:text-indigo-700 hover:shadow-md active:scale-95"
+              >
+                <ArrowLeft size={18} className="transition-transform group-hover:-translate-x-0.5" />
+              </button>
+              <div className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-indigo-700">
+                <Calendar className="h-4 w-4" />
+                Events Workspace
+              </div>
+            </div>
+            <h1 className="text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
+              Event Management
+            </h1>
+          </div>
+        </div>
         <EventsHeader />
 
         <EventsFilters

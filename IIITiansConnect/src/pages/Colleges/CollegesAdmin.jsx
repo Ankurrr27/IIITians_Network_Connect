@@ -10,7 +10,9 @@ import {
   Sparkles,
   Upload,
   Users,
+  ArrowLeft,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import api from "../../api/axios";
 import ImageCropModal from "../../components/ImageCropModal";
 
@@ -48,6 +50,7 @@ function MetricCard({ label, value }) {
 }
 
 export default function CollegesAdmin() {
+  const navigate = useNavigate();
   const [colleges, setColleges] = useState([]);
   const [teamMembers, setTeamMembers] = useState([]);
   const [collegeLoading, setCollegeLoading] = useState(true);
@@ -340,10 +343,18 @@ export default function CollegesAdmin() {
     <div className="space-y-6">
       <section className="rounded-[1.8rem] border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-indigo-700">
-              <Building2 className="h-4 w-4" />
-              Colleges Workspace
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => navigate(-1)}
+                className="group flex h-9 w-9 items-center justify-center rounded-full border border-indigo-100 bg-white/80 text-indigo-600 shadow-sm backdrop-blur-sm transition-all hover:bg-white hover:text-indigo-700 hover:shadow-md active:scale-95"
+              >
+                <ArrowLeft size={18} className="transition-transform group-hover:-translate-x-0.5" />
+              </button>
+              <div className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-indigo-700">
+                <Building2 className="h-4 w-4" />
+                Colleges Workspace
+              </div>
             </div>
             <h1 className="mt-3 text-3xl font-semibold text-slate-900">
               Manage Colleges
