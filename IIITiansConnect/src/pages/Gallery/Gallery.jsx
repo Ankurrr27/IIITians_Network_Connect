@@ -560,7 +560,7 @@ export default function GalleryPage() {
 
               <div className="flex flex-col md:flex-row h-full max-h-[90vh]">
                 {/* Image */}
-                <div className={`w-full md:w-2/3 h-[50vh] md:h-auto relative ${
+                <div className={`w-full md:w-2/3 h-[68vh] md:h-auto relative ${
                   isDarkMode ? "bg-black" : "bg-slate-100"
                 }`}>
                   <motion.img
@@ -585,23 +585,38 @@ export default function GalleryPage() {
                 </div>
 
                 {/* Sidebar info */}
-                <div className={`w-full md:w-1/3 p-8 flex flex-col justify-between ${
-                  isDarkMode
-                    ? "bg-slate-900 text-white"
-                    : "bg-white text-slate-900"
+                <div className={`w-full md:w-1/3 flex flex-col justify-between overflow-y-auto ${
+                  isDarkMode ? "bg-slate-900 text-white" : "bg-white text-slate-900"
                 }`}>
-                  <div>
-                    <div className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-widest ring-1 ${
-                      isDarkMode
-                        ? "bg-indigo-600/20 text-indigo-400 ring-indigo-600/30"
-                        : "bg-indigo-50 text-indigo-700 ring-indigo-100"
-                    }`}>
-                      {selectedImage.category || "uncategorized"}
+                  {/* Compact mobile header */}
+                  <div className="px-4 py-3 md:p-8">
+                    {/* Category + metadata row (compact on mobile) */}
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest ring-1 ${
+                        isDarkMode
+                          ? "bg-indigo-600/20 text-indigo-400 ring-indigo-600/30"
+                          : "bg-indigo-50 text-indigo-700 ring-indigo-100"
+                      }`}>
+                        {selectedImage.category || "uncategorized"}
+                      </span>
+                      {/* inline meta on mobile */}
+                      <span className="text-[11px] text-slate-500 md:hidden">
+                        {selectedImage.collegeName}
+                      </span>
+                      <span className="text-[11px] text-slate-400 md:hidden">·</span>
+                      <span className="text-[11px] text-slate-500 md:hidden">
+                        {selectedImage.createdAt
+                          ? new Date(selectedImage.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                          : "Unknown date"}
+                      </span>
                     </div>
-                    <h2 className="mt-6 text-2xl font-bold">
+
+                    <h2 className="mt-2 text-base font-semibold leading-snug md:mt-6 md:text-2xl md:font-bold">
                       {selectedImage.caption || "Untitled Memory"}
                     </h2>
-                    <div className="mt-8 space-y-4">
+
+                    {/* Full metadata — desktop only */}
+                    <div className="mt-6 hidden space-y-4 md:block">
                       <div className="flex items-center gap-4 font-medium">
                         <Building2 size={20} className="text-indigo-500 shrink-0" />
                         <div>
@@ -623,11 +638,11 @@ export default function GalleryPage() {
                     </div>
                   </div>
 
-                  <div className="mt-10 space-y-3">
-                    {/* Share URL button */}
+                  {/* Action buttons */}
+                  <div className="border-t border-slate-100 px-4 py-3 space-y-2 md:border-0 md:px-8 md:pb-8 md:pt-0 md:mt-10 md:space-y-3">
                     <button
                       onClick={copyShareUrl}
-                      className={`flex w-full items-center justify-center gap-2 rounded-2xl border py-3.5 text-sm font-extrabold transition ${
+                      className={`flex w-full items-center justify-center gap-2 rounded-xl md:rounded-2xl border py-2.5 md:py-3.5 text-sm font-semibold md:font-extrabold transition ${
                         copied
                           ? "border-emerald-500/40 bg-emerald-500/20 text-emerald-400"
                           : isDarkMode
@@ -641,10 +656,9 @@ export default function GalleryPage() {
                         <><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> Share Photo URL</>
                       )}
                     </button>
-                    {/* Full resolution */}
                     <button
                       onClick={() => window.open(selectedImage.url, '_blank')}
-                      className={`group flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 text-sm font-extrabold transition ${
+                      className={`group flex w-full items-center justify-center gap-2 rounded-xl md:rounded-2xl py-2.5 md:py-3.5 text-sm font-semibold md:font-extrabold transition ${
                         isDarkMode
                           ? "bg-white text-slate-900 hover:bg-indigo-50"
                           : "bg-slate-900 text-white hover:bg-slate-800"
@@ -666,7 +680,7 @@ export default function GalleryPage() {
 
 function GallerySkeleton() {
   return (
-    <div className="min-h-screen bg-[#fafbff] pb-20 pt-24 sm:pt-32">
+    <div className="min-h-screen bg-white pb-20 pt-24 sm:pt-32">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className="flex flex-col items-center gap-4">
           <div className="h-6 w-32 animate-pulse rounded-full bg-slate-200" />

@@ -55,7 +55,8 @@ export default function CollegesPage() {
           throw new Error("Failed to load colleges");
         }
 
-        setColleges(collegesResult.value.data || []);
+        const rawColleges = collegesResult.value.data || [];
+        setColleges([...rawColleges].sort((a, b) => a.name?.localeCompare(b.name)));
         setTeamMembers(
           teamResult.status === "fulfilled" ? teamResult.value.data || [] : []
         );
