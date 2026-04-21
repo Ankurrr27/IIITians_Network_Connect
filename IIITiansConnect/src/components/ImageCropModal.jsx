@@ -1,19 +1,44 @@
 import { useState, useCallback } from "react";
 import Cropper from "react-easy-crop";
 import { motion } from "framer-motion";
+import { RotateCcw, RotateCw } from "lucide-react";
 
-function getCroppedImg(imageSrc, crop) {
+function getRadianAngle(degreeValue) {
+  return (degreeValue * Math.PI) / 180;
+}
+
+function rotateSize(width, height, rotation) {
+  const rotRad = getRadianAngle(rotation);
+  return {
+    width:
+      Math.abs(Math.cos(rotRad) * width) + Math.abs(Math.sin(rotRad) * height),
+    height:
+      Math.abs(Math.sin(rotRad) * width) + Math.abs(Math.cos(rotRad) * height),
+  };
+}
+
+function getCroppedImg(imageSrc, crop, rotation = 0) {
   return new Promise((resolve) => {
     const image = new Image();
     image.src = imageSrc;
     image.onload = () => {
+      const safeArea = rotateSize(image.width, image.height, rotation);
       const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
       canvas.width = crop.width;
       canvas.height = crop.height;
-      const ctx = canvas.getContext("2d");
+
+      const tempCanvas = document.createElement("canvas");
+      const tempCtx = tempCanvas.getContext("2d");
+      tempCanvas.width = safeArea.width;
+      tempCanvas.height = safeArea.height;
+
+      tempCtx.translate(safeArea.width / 2, safeArea.height / 2);
+      tempCtx.rotate(getRadianAngle(rotation));
+      tempCtx.drawImage(image, -image.width / 2, -image.height / 2);
 
       ctx.drawImage(
-        image,
+        tempCanvas,
         crop.x,
         crop.y,
         crop.width,
@@ -32,6 +57,7 @@ function getCroppedImg(imageSrc, crop) {
 export default function ImageCropModal({ file, onClose, onCrop, aspect = 1 }) {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
+  const [rotation, setRotation] = useState(0);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
 
   const imageUrl = URL.createObjectURL(file);
@@ -41,7 +67,7 @@ export default function ImageCropModal({ file, onClose, onCrop, aspect = 1 }) {
   }, []);
 
   const handleSave = async () => {
-    const blob = await getCroppedImg(imageUrl, croppedAreaPixels);
+    const blob = await getCroppedImg(imageUrl, croppedAreaPixels, rotation);
     onCrop(new File([blob], file.name, { type: "image/jpeg" }));
     onClose();
   };
@@ -66,9 +92,11 @@ export default function ImageCropModal({ file, onClose, onCrop, aspect = 1 }) {
             image={imageUrl}
             crop={crop}
             zoom={zoom}
+            rotation={rotation}
             aspect={aspect}
             onCropChange={setCrop}
             onZoomChange={setZoom}
+            onRotationChange={setRotation}
             onCropComplete={onCropComplete}
             classes={{
               containerClassName: "rounded-2xl",
@@ -90,6 +118,34 @@ export default function ImageCropModal({ file, onClose, onCrop, aspect = 1 }) {
                 onChange={(e) => setZoom(e.target.value)}
                 className="flex-1 h-1.5 bg-zinc-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-indigo-600"
               />
+          </div>
+
+          <div className="flex items-center gap-4 px-2">
+            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Rotate</span>
+            <button
+              type="button"
+              onClick={() => setRotation((current) => current - 90)}
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-zinc-200 bg-white text-zinc-700 transition hover:border-indigo-200 hover:text-indigo-600 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200"
+            >
+              <RotateCcw className="h-4 w-4" />
+            </button>
+            <input
+              type="range"
+              value={rotation}
+              min={-180}
+              max={180}
+              step={1}
+              aria-labelledby="Rotate"
+              onChange={(e) => setRotation(Number(e.target.value))}
+              className="flex-1 h-1.5 bg-zinc-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+            />
+            <button
+              type="button"
+              onClick={() => setRotation((current) => current + 90)}
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-zinc-200 bg-white text-zinc-700 transition hover:border-indigo-200 hover:text-indigo-600 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200"
+            >
+              <RotateCw className="h-4 w-4" />
+            </button>
           </div>
 
           <div className="flex justify-end gap-3 mt-2">

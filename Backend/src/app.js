@@ -10,6 +10,7 @@ import alumniRoutes from "./routes/alumni.routes.js";
 import discussRoutes from "./routes/discuss.routes.js";
 import discussAccountRoutes from "./routes/discussAccount.routes.js";
 import appNotificationRoutes from "./routes/appNotification.routes.js";
+import siteStatsRoutes from "./routes/siteStats.routes.js";
 
 const app = express();
 
@@ -69,6 +70,7 @@ app.use("/api/alumni", alumniRoutes);
 app.use("/api/discuss", discussRoutes);
 app.use("/api/discuss-accounts", discussAccountRoutes);
 app.use("/api/app-notifications", appNotificationRoutes);
+app.use("/api/site-stats", siteStatsRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: "Route not found" });

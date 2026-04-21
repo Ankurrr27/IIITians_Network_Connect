@@ -1,6 +1,15 @@
 import College from "../models/College.model.js";
 import cloudinary from "../config/cloudinary.js";
 
+const GALLERY_CATEGORIES = ["infrastructure", "clubs", "events", "others"];
+
+function normalizeGalleryCategory(category) {
+  if (typeof category !== "string") return undefined;
+  const normalized = category.trim().toLowerCase();
+  if (!normalized) return undefined;
+  return GALLERY_CATEGORIES.includes(normalized) ? normalized : undefined;
+}
+
 function normalizeClubLinks(input = []) {
   let normalizedInput = input;
 
@@ -176,10 +185,19 @@ export const addCollegeGallery = async (req, res) => {
       captions = [captions];
     }
 
+    let categories = req.body.categories || req.body.category || "";
+    if (typeof categories === "string") {
+      categories = [categories];
+    }
+
     const images = req.files.map((file, index) => ({
       public_id: file.filename,
       url: file.path,
       caption: (Array.isArray(captions) ? captions[index] : captions) || captions[0] || "",
+      category: normalizeGalleryCategory(
+        (Array.isArray(categories) ? categories[index] : categories) || categories[0]
+      ),
+      createdAt: new Date(),
     }));
 
     const college = await College.findByIdAndUpdate(
@@ -195,6 +213,43 @@ export const addCollegeGallery = async (req, res) => {
     res.json(college);
   } catch (error) {
     console.error("addCollegeGallery error:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const updateCollegeGalleryImage = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { imageUrl, caption, category } = req.body;
+
+    if (!imageUrl) {
+      return res.status(400).json({ message: "imageUrl is required" });
+    }
+
+    const college = await College.findById(id);
+    if (!college) {
+      return res.status(404).json({ message: "College not found" });
+    }
+
+    const targetImage = college.gallery.find((img) => img.url === imageUrl);
+    if (!targetImage) {
+      return res.status(404).json({ message: "Gallery image not found" });
+    }
+
+    if (caption !== undefined) {
+      targetImage.caption = typeof caption === "string" ? caption.trim() : "";
+    }
+
+    if (category !== undefined) {
+      const normalizedCategory = normalizeGalleryCategory(category);
+      targetImage.category = normalizedCategory;
+    }
+
+    await college.save();
+
+    res.json(college);
+  } catch (error) {
+    console.error("updateCollegeGalleryImage error:", error);
     res.status(500).json({ message: error.message });
   }
 };

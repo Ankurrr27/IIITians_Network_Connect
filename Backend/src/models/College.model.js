@@ -62,6 +62,14 @@ const collegeSchema = new mongoose.Schema(
         public_id: String,
         url: String,
         caption: String,
+        category: {
+          type: String,
+          enum: ["infrastructure", "clubs", "events", "others"],
+        },
+        createdAt: {
+          type: Date,
+          default: Date.now,
+        },
       },
     ],
   },

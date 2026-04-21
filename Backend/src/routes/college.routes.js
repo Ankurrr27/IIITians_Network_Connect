@@ -7,6 +7,7 @@ import {
   getCollegeById,
   getCollegeLogo,
   getColleges,
+  updateCollegeGalleryImage,
   updateCollege,
   updateCollegeLogo,
   updateCollegePhoto,
@@ -43,6 +44,9 @@ router.patch(
   upload.array("images", 10),
   addCollegeGallery
 );
+
+// Admins can recategorize or rename existing gallery photos
+router.patch("/:id/gallery/meta", adminAuth, updateCollegeGalleryImage);
 
 // Only admins can delete photos
 router.delete("/:id/gallery", adminAuth, deleteCollegeGalleryImage);

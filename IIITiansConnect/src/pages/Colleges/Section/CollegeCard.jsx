@@ -16,7 +16,7 @@ import {
   Trash2,
   Building2,
 } from "lucide-react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import api from "../../../api/axios";
 
 const COLLEGE_PLACEHOLDER = "/placeholder.svg";
@@ -28,8 +28,19 @@ const CollegeCard = ({ college, teamCount = 0, discussClubs = [] }) => {
   const [uploading, setUploading] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   
-  // Initialize state with props directly to avoid destructuring sync issues
-  const [galleryImages, setGalleryImages] = useState(college.gallery || []);
+  // Sort latest-first — fall back to MongoDB _id timestamp for old photos
+  const sortGallery = (imgs) => {
+    const getTime = (img) => {
+      if (img.createdAt) return new Date(img.createdAt).getTime();
+      if (img._id && typeof img._id === "string" && img._id.length >= 8)
+        return parseInt(img._id.substring(0, 8), 16) * 1000;
+      return 0;
+    };
+    return [...imgs].sort((a, b) => getTime(b) - getTime(a));
+  };
+  const [galleryImages, setGalleryImages] = useState(
+    sortGallery(college.gallery || [])
+  );
 
   const {
     _id: id,
@@ -80,7 +91,7 @@ const CollegeCard = ({ college, teamCount = 0, discussClubs = [] }) => {
         headers: { "Content-Type": "multipart/form-data" },
       });
       if (response.data?.gallery) {
-        setGalleryImages(response.data.gallery);
+        setGalleryImages(sortGallery(response.data.gallery));
         notifyAppAction({
           title: "Gallery Updated",
           message: `Successfully uploaded ${stagedItems.length} photos to ${name}.`,
@@ -182,18 +193,15 @@ const CollegeCard = ({ college, teamCount = 0, discussClubs = [] }) => {
         {/* Top Badges Area */}
         <div className="absolute right-3 top-3 z-10 flex flex-wrap justify-end gap-1.5 sm:gap-2">
           {/* Photos Badge (Clickable) */}
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              toggleGallery(true);
-            }}
+          <Link
+            to={`/college/${encodeURIComponent(name)}/gallery`}
+            onClick={(e) => e.stopPropagation()}
             className="flex items-center gap-1.5 rounded-full border border-white/20 bg-slate-900/40 px-2.5 py-1.5 text-[10px] font-bold text-white backdrop-blur-md shadow-lg transition-all hover:bg-slate-900/60 hover:scale-110 active:scale-95 sm:px-3 sm:text-[11px]"
             title="View Gallery"
           >
             <Images className="h-3.5 w-3.5" />
             {galleryImages.length}
-          </button>
+          </Link>
 
           {/* Clubs Badge */}
           <div className="flex items-center gap-1.5 rounded-full border border-white/20 bg-emerald-900/40 px-2.5 py-1.5 text-[10px] font-bold text-white backdrop-blur-md shadow-lg sm:px-3 sm:text-[11px]" title="Registered Clubs">
@@ -247,7 +255,7 @@ const CollegeCard = ({ college, teamCount = 0, discussClubs = [] }) => {
                   className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 hover:text-slate-900"
                   onClick={() => {
                     setShowMenu(false);
-                    toggleGallery(true);
+                    window.location.href = `/college/${encodeURIComponent(name)}/gallery`;
                   }}
                 >
                   <Images className="h-4 w-4 text-indigo-600" />
@@ -348,9 +356,12 @@ const CollegeCard = ({ college, teamCount = 0, discussClubs = [] }) => {
                   >
                     {club.name}
                     {club.isAuthorized && (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-emerald-700">
+                      <span
+                        title={club.badgeLabel || "Verified"}
+                        aria-label={club.badgeLabel || "Verified"}
+                        className="inline-flex items-center justify-center rounded-full bg-emerald-50 p-1.5 text-emerald-700 ring-1 ring-emerald-100"
+                      >
                         <ShieldCheck size={12} />
-                        {club.badgeLabel}
                       </span>
                     )}
                   </span>
@@ -362,13 +373,13 @@ const CollegeCard = ({ college, teamCount = 0, discussClubs = [] }) => {
 
         <div className="mt-auto pt-4 border-t border-slate-100">
           <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-            <button
-               onClick={() => toggleGallery(true)}
+            <Link
+               to={`/college/${encodeURIComponent(name)}/gallery`}
                className="inline-flex items-center gap-1.5 whitespace-nowrap leading-none rounded-full bg-slate-900 px-3.5 py-2 text-[10px] font-bold uppercase tracking-wider text-white transition hover:bg-slate-800 sm:px-4.5 sm:py-2.5 sm:text-[11px]"
             >
               <Images size={14} />
               View Gallery
-            </button>
+            </Link>
             <Link
               to={`/legacy?iiit=${encodeURIComponent(name)}`}
               className="inline-flex items-center gap-1 whitespace-nowrap leading-none rounded-full bg-emerald-600 px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-white transition hover:bg-emerald-700 sm:px-4.5 sm:py-2.5 sm:text-[11px]"

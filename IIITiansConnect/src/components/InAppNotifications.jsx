@@ -6,7 +6,6 @@ import { APP_NOTIFICATION_EVENT } from "../utils/appNotifications";
 
 const POLL_INTERVAL_MS = 90000;
 const VIEW_MILESTONE_STORAGE_KEY = "iiitians-network-last-view-milestone";
-const VIEW_STORAGE_KEY = "iiitians-network-total-views";
 const ENTRY_NOTIFICATION_STORAGE_KEY = "iiitians-network-last-entry-notification";
 
 function buildInitialSnapshot() {
@@ -41,8 +40,8 @@ export default function InAppNotifications() {
       }, 7000);
     };
 
-    const maybeCelebrateViews = () => {
-      const views = Number(localStorage.getItem(VIEW_STORAGE_KEY) || 0);
+    const maybeCelebrateViews = (views) => {
+      if (!views) return;
       const currentMilestone = Math.floor(views / 1000) * 1000;
       if (currentMilestone < 1000) return;
 
@@ -105,12 +104,13 @@ export default function InAppNotifications() {
     };
 
     const loadSnapshot = async () => {
-      const [postsRes, eventsRes, legacyRes, teamRes, clubsRes] = await Promise.allSettled([
+      const [postsRes, eventsRes, legacyRes, teamRes, clubsRes, statsRes] = await Promise.allSettled([
         api.get("/discuss"),
         api.get("/events"),
         api.get("/alumni"),
         api.get("/team"),
         api.get("/discuss-accounts/public/stats"),
+        api.get("/site-stats"),
       ]);
 
       return {
@@ -119,6 +119,7 @@ export default function InAppNotifications() {
         legacy: legacyRes.status === "fulfilled" ? legacyRes.value.data?.length || 0 : snapshotRef.current.legacy,
         team: teamRes.status === "fulfilled" ? teamRes.value.data?.length || 0 : snapshotRef.current.team,
         clubs: clubsRes.status === "fulfilled" ? clubsRes.value.data?.registeredClubs || 0 : snapshotRef.current.clubs,
+        views: statsRes.status === "fulfilled" ? statsRes.value.data?.totalViews || 0 : 0,
       };
     };
 
@@ -130,7 +131,7 @@ export default function InAppNotifications() {
         if (!initializedRef.current) {
           snapshotRef.current = nextSnapshot;
           initializedRef.current = true;
-          maybeCelebrateViews();
+          maybeCelebrateViews(nextSnapshot.views);
           maybeShowCustomEntryNotification();
           return;
         }
@@ -178,7 +179,7 @@ export default function InAppNotifications() {
         }
 
         snapshotRef.current = nextSnapshot;
-        maybeCelebrateViews();
+        maybeCelebrateViews(nextSnapshot.views);
       } catch {
         // Silent error
       }

@@ -1,9 +1,15 @@
 import { useState, useEffect, useMemo } from "react";
-import { Building2, Images, Trash2, Search, ExternalLink, Sparkles, AlertCircle, LayoutGrid, Filter, Plus, ImagePlus, Upload, ArrowLeft } from "lucide-react";
+import { Building2, Images, Trash2, Sparkles, AlertCircle, LayoutGrid, Filter, ImagePlus, ArrowLeft, Save } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import api from "../../api/axios";
 
-const COLLEGE_PLACEHOLDER = "/placeholder.svg";
+const categoryOptions = [
+  { value: "", label: "Uncategorized" },
+  { value: "infrastructure", label: "Infrastructure" },
+  { value: "clubs", label: "Clubs" },
+  { value: "events", label: "Events" },
+  { value: "others", label: "Others" },
+];
 
 export default function AdminGallery() {
   const navigate = useNavigate();
@@ -17,7 +23,9 @@ export default function AdminGallery() {
   const [uploadTargetId, setUploadTargetId] = useState("");
   const [uploadPhotoFile, setUploadPhotoFile] = useState(null);
   const [uploadCaption, setUploadCaption] = useState("");
+  const [uploadCategory, setUploadCategory] = useState("others");
   const [uploadInProgress, setUploadInProgress] = useState(false);
+  const [savingImageUrl, setSavingImageUrl] = useState("");
 
   const loadColleges = async () => {
     try {
@@ -40,6 +48,7 @@ export default function AdminGallery() {
       return colleges.flatMap((c) =>
         (c.gallery || []).map((img) => ({
           ...img,
+          category: img.category || "",
           collegeName: c.name,
           collegeId: c._id,
         }))
@@ -48,6 +57,7 @@ export default function AdminGallery() {
     const college = colleges.find((c) => c._id === selectedId);
     return (college?.gallery || []).map((img) => ({
       ...img,
+      category: img.category || "",
       collegeName: college.name,
       collegeId: college._id,
     }));
@@ -66,6 +76,7 @@ export default function AdminGallery() {
     const formData = new FormData();
     formData.append("images", uploadPhotoFile);
     formData.append("caption", uploadCaption);
+    formData.append("category", uploadCategory);
 
     try {
       await api.patch(`/colleges/${uploadTargetId}/gallery`, formData, {
@@ -102,48 +113,82 @@ export default function AdminGallery() {
     }
   };
 
+  const handleGalleryFieldChange = (collegeId, imageUrl, field, value) => {
+    setColleges((prev) =>
+      prev.map((college) =>
+        college._id !== collegeId
+          ? college
+          : {
+              ...college,
+              gallery: (college.gallery || []).map((img) =>
+                img.url !== imageUrl ? img : { ...img, [field]: value }
+              ),
+            }
+      )
+    );
+  };
+
+  const handleSaveImageMeta = async (collegeId, image) => {
+    setSavingImageUrl(image.url);
+    setError("");
+    setSuccess("");
+
+    try {
+      await api.patch(`/colleges/${collegeId}/gallery/meta`, {
+        imageUrl: image.url,
+        caption: image.caption || "",
+        category: image.category || "",
+      });
+      setSuccess("Gallery image details updated.");
+      setTimeout(() => setSuccess(""), 3000);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to update gallery image.");
+    } finally {
+      setSavingImageUrl("");
+    }
+  };
+
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
-      {/* Compact Elite Header */}
-      <section className="relative overflow-hidden rounded-2xl border border-white bg-white/70 p-6 shadow-sm backdrop-blur-3xl sm:p-8">
-        <div className="absolute top-0 right-0 -m-20 h-80 w-80 rounded-full bg-indigo-50/40 blur-[80px]" />
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
+      <section className="relative overflow-hidden rounded-[2rem] border border-slate-200 bg-[radial-gradient(circle_at_top_left,_rgba(99,102,241,0.14),_transparent_30%),linear-gradient(180deg,_#f8fbff_0%,_#ffffff_100%)] p-6 shadow-[0_24px_70px_-40px_rgba(79,70,229,0.35)] sm:p-8">
+        <div className="absolute inset-y-0 right-0 w-1/3 bg-[radial-gradient(circle_at_center,_rgba(129,140,248,0.12),_transparent_60%)]" />
         
         <div className="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="space-y-4">
             <div className="flex items-center gap-3">
               <button
                 onClick={() => navigate(-1)}
-                className="group flex h-9 w-9 items-center justify-center rounded-full border border-indigo-100 bg-white/80 text-indigo-600 shadow-sm backdrop-blur-sm transition-all hover:bg-white hover:text-indigo-700 hover:shadow-md active:scale-95"
+                className="group flex h-11 w-11 items-center justify-center rounded-full border border-indigo-100 bg-white text-indigo-600 shadow-sm transition-all hover:-translate-x-0.5 hover:text-indigo-700 hover:shadow-md active:scale-95"
               >
                 <ArrowLeft size={18} className="transition-transform group-hover:-translate-x-0.5" />
               </button>
-              <div className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-indigo-600 ring-1 ring-indigo-100">
+              <div className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-indigo-700 ring-1 ring-indigo-100 shadow-sm">
                 Central Gallery Hub
               </div>
             </div>
             <div className="space-y-2">
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
-              Audit & <span className="text-indigo-600">Expand</span>
-            </h1>
-            <p className="max-w-xl text-[13px] font-medium text-slate-500">
-              Manage the network's visual memory. Audit contributions or publish official photos.
-            </p>
+              <h1 className="text-3xl font-semibold tracking-tight text-slate-900 sm:text-5xl">
+                Manage <span className="text-indigo-600">Gallery</span>
+              </h1>
+              <p className="max-w-2xl text-sm leading-7 text-slate-600 sm:text-base">
+                Review community uploads, organize categories, and publish official visuals in the same design language as the public website.
+              </p>
             </div>
           </div>
 
-          <div className="w-full max-w-[300px] space-y-2">
-             <div className="flex items-center justify-between px-1">
-               <label className="text-[12px] font-bold text-slate-900">Viewmode</label>
-               <span className="text-[10px] font-bold text-indigo-500">{galleryData.length} Items</span>
+          <div className="w-full max-w-md rounded-[1.75rem] border border-white/80 bg-white/85 p-4 shadow-sm backdrop-blur">
+             <div className="mb-2 flex items-center justify-between px-1">
+               <label className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">View Mode</label>
+               <span className="text-[11px] font-semibold text-indigo-600">{galleryData.length} items</span>
              </div>
              <div className="group relative">
-                <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-indigo-600">
-                   {selectedId === "all" ? <LayoutGrid size={16} /> : <Building2 size={16} />}
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-indigo-600">
+                   {selectedId === "all" ? <LayoutGrid size={18} /> : <Building2 size={18} />}
                 </div>
                 <select
                   value={selectedId}
                   onChange={(e) => setSelectedId(e.target.value)}
-                  className="w-full appearance-none rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-10 text-[13px] font-semibold text-slate-900 outline-none transition-all hover:border-indigo-300 focus:ring-2 focus:ring-indigo-600/10"
+                  className="w-full appearance-none rounded-2xl border border-slate-200 bg-white py-4 pl-12 pr-12 text-sm font-semibold text-slate-900 outline-none transition-all hover:border-indigo-300 focus:ring-2 focus:ring-indigo-600/10"
                 >
                   <option value="all">Entire Network</option>
                   <optgroup label="Institutes" className="bg-white text-indigo-600 font-bold">
@@ -154,8 +199,8 @@ export default function AdminGallery() {
                     ))}
                   </optgroup>
                 </select>
-                <div className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400">
-                   <Filter size={14} />
+                <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">
+                   <Filter size={16} />
                 </div>
              </div>
           </div>
@@ -181,20 +226,25 @@ export default function AdminGallery() {
       )}
 
       {/* Compact Gallery Contributor */}
-      <section className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-         <div className="space-y-4 rounded-2xl border border-white bg-white/70 p-5 shadow-sm backdrop-blur-xl">
-            <div className="flex items-center gap-2 mb-2">
-               <ImagePlus size={18} className="text-indigo-600" />
-               <h2 className="text-sm font-bold text-slate-900">Push to Gallery</h2>
+      <section className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
+         <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-[0_20px_60px_-45px_rgba(15,23,42,0.35)]">
+            <div className="mb-5 flex items-center gap-3">
+               <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
+                 <ImagePlus size={20} />
+               </div>
+               <div>
+                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-indigo-600">Official Upload</p>
+                 <h2 className="text-xl font-semibold text-slate-900">Push To Gallery</h2>
+               </div>
             </div>
             
             <div className="grid gap-4 sm:grid-cols-2">
                <div className="space-y-1.5">
-                  <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider">Institute</label>
+                  <label className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Institute</label>
                   <select
                     value={uploadTargetId}
                     onChange={(e) => setUploadTargetId(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-[13px] font-medium text-slate-900 outline-none transition focus:ring-2 focus:ring-indigo-600/10"
+                    className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-900 outline-none transition focus:border-indigo-300 focus:bg-white focus:ring-2 focus:ring-indigo-600/10"
                   >
                     <option value="">-- Select --</option>
                     {colleges.map((c) => (
@@ -204,14 +254,28 @@ export default function AdminGallery() {
                </div>
                
                <div className="space-y-1.5">
-                  <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider">Caption</label>
+                  <label className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Caption</label>
                   <input 
                     type="text" 
                     placeholder="Brief description..."
                     value={uploadCaption}
                     onChange={(e) => setUploadCaption(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-[13px] font-medium text-slate-900 outline-none transition focus:ring-2 focus:ring-indigo-600/10"
+                    className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-900 outline-none transition focus:border-indigo-300 focus:bg-white focus:ring-2 focus:ring-indigo-600/10"
                   />
+               </div>
+
+               <div className="space-y-1.5 sm:col-span-2">
+                  <label className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Category</label>
+                  <select
+                    value={uploadCategory}
+                    onChange={(e) => setUploadCategory(e.target.value)}
+                    className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-900 outline-none transition focus:border-indigo-300 focus:bg-white focus:ring-2 focus:ring-indigo-600/10"
+                  >
+                    <option value="infrastructure">Infrastructure</option>
+                    <option value="clubs">Clubs</option>
+                    <option value="events">Events</option>
+                    <option value="others">Others</option>
+                  </select>
                </div>
             </div>
 
@@ -224,21 +288,34 @@ export default function AdminGallery() {
             <button 
               onClick={handleUpload}
               disabled={uploadInProgress}
-              className="w-full rounded-xl bg-slate-900 py-3 text-[13px] font-bold text-white transition hover:bg-slate-800 disabled:opacity-50"
+              className="w-full rounded-2xl bg-[linear-gradient(135deg,_#4f46e5,_#4338ca)] py-3.5 text-sm font-semibold text-white shadow-[0_20px_40px_-20px_rgba(79,70,229,0.9)] transition hover:translate-y-[-1px] disabled:opacity-50"
             >
               {uploadInProgress ? "Publishing..." : "Publish Asset"}
             </button>
          </div>
 
-         <div className="hidden flex-col justify-center rounded-2xl bg-slate-50/50 p-6 lg:flex border border-slate-100">
-            <div className="space-y-3">
-               <div className="h-8 w-8 rounded-lg bg-white shadow-sm flex items-center justify-center text-indigo-600 border border-slate-100">
+         <div className="hidden rounded-[2rem] border border-slate-200 bg-[linear-gradient(180deg,_#ffffff_0%,_#f8fbff_100%)] p-7 shadow-[0_20px_60px_-45px_rgba(15,23,42,0.25)] lg:flex lg:flex-col lg:justify-between">
+            <div className="space-y-4">
+               <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 shadow-sm">
                   <Sparkles size={16} />
                </div>
-               <h3 className="text-sm font-bold text-slate-900 uppercase tracking-tight">Official Push</h3>
-               <p className="text-[12px] leading-relaxed text-slate-500 font-medium">
-                  Official uploads are marked as verified and appear first in public galleries. Use high-resolution shots.
+               <div>
+                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-indigo-600">Publishing Note</p>
+                 <h3 className="mt-2 text-2xl font-semibold text-slate-900">Official push appears first</h3>
+               </div>
+               <p className="text-sm leading-7 text-slate-600">
+                  Official uploads are treated as curated visuals for the network. Use clean, high-quality images and add captions that will still read well on the public site.
                </p>
+            </div>
+            <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+              <div className="rounded-2xl border border-slate-200 bg-white px-4 py-4">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Visible Items</div>
+                <div className="mt-2 text-2xl font-semibold text-slate-900">{galleryData.length}</div>
+              </div>
+              <div className="rounded-2xl border border-slate-200 bg-white px-4 py-4">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Institutes</div>
+                <div className="mt-2 text-2xl font-semibold text-slate-900">{colleges.length}</div>
+              </div>
             </div>
          </div>
       </section>
@@ -246,8 +323,8 @@ export default function AdminGallery() {
       {/* Grid View */}
       <section className="space-y-4">
         <div className="flex items-center justify-between px-1">
-           <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Manage Library</h2>
-           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em]">
+           <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Manage Library</h2>
+           <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
               Showing {selectedId === 'all' ? 'Entire Network' : 'Target Institute'}
            </p>
         </div>
@@ -257,37 +334,74 @@ export default function AdminGallery() {
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent" />
           </div>
         ) : galleryData.length > 0 ? (
-          <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {galleryData.map((img, idx) => (
               <div 
                 key={img.url + idx}
-                className="group relative overflow-hidden rounded-xl border border-slate-200 bg-white p-1.5 transition-all hover:border-indigo-500 hover:shadow-lg"
+                className="group relative overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white p-2 shadow-[0_18px_45px_-35px_rgba(15,23,42,0.35)] transition-all hover:-translate-y-1 hover:border-indigo-300 hover:shadow-[0_28px_60px_-38px_rgba(79,70,229,0.35)]"
               >
-                <div className="relative aspect-video overflow-hidden rounded-lg bg-slate-100">
+                <div className="relative aspect-[4/3] overflow-hidden rounded-[1.2rem] bg-slate-100">
                    <img 
                     src={img.url} 
                     alt={img.caption || "Gallery photo"} 
                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                    />
-                   <div className="absolute left-2 top-2">
-                      <div className="rounded-md bg-white/90 px-2 py-1 text-[9px] font-bold text-slate-900 shadow-sm backdrop-blur-sm">
+                  <div className="absolute left-3 top-3">
+                      <div className="rounded-full bg-white/95 px-3 py-1 text-[10px] font-semibold text-slate-900 shadow-sm">
                         {img.collegeName}
                       </div>
                    </div>
                 </div>
                 
-                <div className="flex items-center justify-between gap-2 p-2.5">
-                   <div className="flex-1 overflow-hidden">
-                      <p className="truncate text-[12px] font-semibold text-slate-900">
-                         {img.caption || "Untitled Memory"}
-                      </p>
-                   </div>
-                   <button 
-                      onClick={() => handleDelete(img.collegeId, img.url)}
-                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-rose-50 text-rose-600 transition hover:bg-rose-600 hover:text-white"
+                <div className="space-y-3 p-3">
+                   <input
+                      type="text"
+                      value={img.caption || ""}
+                      onChange={(event) =>
+                        handleGalleryFieldChange(
+                          img.collegeId,
+                          img.url,
+                          "caption",
+                          event.target.value
+                        )
+                      }
+                      placeholder="Caption"
+                      className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3.5 py-3 text-sm font-medium text-slate-900 outline-none transition focus:border-indigo-300 focus:bg-white focus:ring-2 focus:ring-indigo-600/10"
+                   />
+                   <select
+                      value={img.category || ""}
+                      onChange={(event) =>
+                        handleGalleryFieldChange(
+                          img.collegeId,
+                          img.url,
+                          "category",
+                          event.target.value
+                        )
+                      }
+                      className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3.5 py-3 text-sm font-medium text-slate-900 outline-none transition focus:border-indigo-300 focus:bg-white focus:ring-2 focus:ring-indigo-600/10"
                    >
-                      <Trash2 size={14} />
-                   </button>
+                      {categoryOptions.map((option) => (
+                        <option key={option.value || "uncategorized"} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                   </select>
+                   <div className="flex items-center gap-2">
+                     <button
+                        onClick={() => handleSaveImageMeta(img.collegeId, img)}
+                        disabled={savingImageUrl === img.url}
+                        className="flex flex-1 items-center justify-center gap-1.5 rounded-2xl bg-[linear-gradient(135deg,_#4f46e5,_#4338ca)] px-3 py-3 text-sm font-semibold text-white transition hover:translate-y-[-1px] disabled:opacity-50"
+                     >
+                        <Save size={13} />
+                        {savingImageUrl === img.url ? "Saving..." : "Save"}
+                     </button>
+                     <button 
+                        onClick={() => handleDelete(img.collegeId, img.url)}
+                        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-rose-50 text-rose-600 transition hover:bg-rose-600 hover:text-white"
+                     >
+                        <Trash2 size={14} />
+                     </button>
+                   </div>
                 </div>
               </div>
             ))}
@@ -306,18 +420,18 @@ export default function AdminGallery() {
 
 function CompactAssetPicker({ title, file, onPick }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 transition-all hover:bg-white hover:border-indigo-100">
+    <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50/70 p-4 transition-all hover:border-indigo-100 hover:bg-white">
       <div className="flex items-center gap-4">
-        <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-white shadow-sm border border-slate-200">
+        <div className="h-14 w-14 shrink-0 overflow-hidden rounded-2xl bg-white shadow-sm border border-slate-200">
           <img 
             src={file ? URL.createObjectURL(file) : '/placeholder.svg'} 
             className="h-full w-full object-cover" 
           />
         </div>
         <div className="flex-1">
-          <div className="text-[12px] font-bold text-slate-900">{title} Asset</div>
+          <div className="text-sm font-semibold text-slate-900">{title} Asset</div>
           <div className="mt-1 flex items-center gap-2">
-             <label className="cursor-pointer text-[11px] font-bold text-indigo-600 hover:underline">
+             <label className="cursor-pointer text-xs font-semibold uppercase tracking-[0.16em] text-indigo-600 hover:underline">
                {file ? "Change photo" : "Select photo"}
                 <input
                   type="file"
@@ -330,7 +444,7 @@ function CompactAssetPicker({ title, file, onPick }) {
                   }}
                 />
              </label>
-             {file && <span className="text-[10px] text-slate-400 capitalize">{file.name.slice(0, 15)}...</span>}
+             {file && <span className="text-[11px] text-slate-400 capitalize">{file.name.slice(0, 18)}...</span>}
           </div>
         </div>
       </div>

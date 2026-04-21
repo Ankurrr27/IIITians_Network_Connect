@@ -31,6 +31,7 @@ const DiscussAdminPage = lazy(() => import("./pages/Discuss/DiscussAdminPage.jsx
 const GuidePage = lazy(() => import("./pages/Guide/GuidePage.jsx"));
 const AdminGuide = lazy(() => import("./pages/Guide/AdminGuide.jsx"));
 const AdminNotificationsPage = lazy(() => import("./pages/AdminNotificationsPage.jsx"));
+const GalleryPage = lazy(() => import("./pages/Gallery/Gallery.jsx"));
 
 function LegacyAdminRedirect() {
   const { status } = useParams();
@@ -96,6 +97,8 @@ function App() {
           <Route path="/team/join" element={<TeamJoinPage />} />
           <Route path="/discuss" element={<DiscussPage />} />
           <Route path="/guide" element={<GuidePage />} />
+          <Route path="/college/:collegeName/gallery" element={<GalleryPage />} />
+          <Route path="/gallery" element={<Navigate to="/colleges" replace />} />
           <Route path="/contact" element={<ContactPage />} />
 
           {/* ADMIN LOGIN (public) */}

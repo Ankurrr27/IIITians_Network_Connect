@@ -16,7 +16,6 @@ import {
 import api from "../api/axios";
 
 const BASE_VIEW_COUNT = 24810;
-const VIEW_STORAGE_KEY = "iiitians-network-total-views";
 
 const Footer = () => {
   const [stats, setStats] = useState({
@@ -28,17 +27,19 @@ const Footer = () => {
 
   const loadStats = async () => {
     try {
-      const [teamRes, collegesRes, clubsStatsRes, clubsRes] = await Promise.allSettled([
+      const [teamRes, collegesRes, clubsStatsRes, clubsRes, siteStatsRes] = await Promise.allSettled([
         api.get("/team"),
         api.get("/colleges"),
         api.get("/discuss-accounts/public/stats"),
         api.get("/discuss-accounts/public"),
+        api.get("/site-stats"),
       ]);
 
       setStats((prev) => ({
         ...prev,
         members: teamRes.status === "fulfilled" ? teamRes.value.data?.length || 0 : 0,
         colleges: collegesRes.status === "fulfilled" ? collegesRes.value.data?.length || 0 : 0,
+        views: siteStatsRes.status === "fulfilled" ? siteStatsRes.value.data?.totalViews || prev.views : prev.views,
         clubs:
           clubsStatsRes.status === "fulfilled"
             ? clubsStatsRes.value.data?.registeredClubs || 0
@@ -54,19 +55,21 @@ const Footer = () => {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    // Increment on every mount (visit)
-    const storedCount = Number(localStorage.getItem(VIEW_STORAGE_KEY));
-    let nextCount =
-      Number.isFinite(storedCount) && storedCount >= BASE_VIEW_COUNT
-        ? storedCount + 1
-        : BASE_VIEW_COUNT + 1;
+    // Universal Site Statistics Increment
+    const trackView = async () => {
+      try {
+        const res = await api.post("/site-stats/increment");
+        if (res.data?.totalViews) {
+          setStats(prev => ({ ...prev, views: res.data.totalViews }));
+        }
+      } catch (err) {
+        console.error("VIEW TRACK ERROR:", err);
+        // Fallback to initial stats if increment fails
+        loadStats();
+      }
+    };
 
-    localStorage.setItem(VIEW_STORAGE_KEY, String(nextCount));
-    
-    // Immediate UI update for the view count
-    setStats(prev => ({ ...prev, views: nextCount }));
-
-    // Async fetch for other stats
+    trackView();
     loadStats();
   }, []);
 
