@@ -137,6 +137,11 @@ const CollegeCard = ({ college, teamCount = 0, discussClubs = [] }) => {
     setLogoSrc(logoImage);
   }, [logoImage]);
 
+  const formatExternalLink = (url) => {
+    if (!url) return "";
+    return url.startsWith("http") ? url : `https://${url}`;
+  };
+
   const visibleClubLinks = clubLinks.filter((item) => item?.name && item?.url);
   const displayClubLinks =
     visibleClubLinks.length > 0
@@ -144,11 +149,12 @@ const CollegeCard = ({ college, teamCount = 0, discussClubs = [] }) => {
         : clubLink
         ? [{ name: "Club / Community", url: clubLink }]
         : [];
+
   const mergedClubs = [
     ...displayClubLinks.map((item, index) => ({
       id: `college-${item.name}-${index}`,
       name: item.name,
-      url: item.url,
+      url: formatExternalLink(item.url),
       source: "college",
       isAuthorized: false,
       badgeLabel: "",
@@ -156,7 +162,7 @@ const CollegeCard = ({ college, teamCount = 0, discussClubs = [] }) => {
     ...discussClubs.map((club, index) => ({
       id: club.id || `discuss-${club.clubName}-${index}`,
       name: club.clubName,
-      url: club.website || "",
+      url: formatExternalLink(club.website),
       source: "discuss",
       isAuthorized: Boolean(club.isAuthorized),
       badgeLabel: club.badgeLabel || "Verified by network",

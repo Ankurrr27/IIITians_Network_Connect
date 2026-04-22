@@ -149,7 +149,7 @@ export const getDiscussAccounts = async (req, res) => {
 export const getPublicDiscussAccounts = async (req, res) => {
   try {
     const accounts = await DiscussAccount.find({ isAuthorized: true })
-      .select("collegeName clubName contactName contactPhone email role badgeLabel createdAt lastLogin isAuthorized")
+      .select("collegeName clubName contactName contactPhone website email role badgeLabel createdAt lastLogin isAuthorized")
       .sort({ clubName: 1 });
 
     res.json(accounts.map(sanitizeDiscussAccount));
