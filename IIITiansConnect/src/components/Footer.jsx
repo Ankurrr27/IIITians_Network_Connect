@@ -158,10 +158,11 @@ const Footer = () => {
           <div className="flex flex-wrap gap-1.5">
             <span>Created by</span>
             <a href="https://www.linkedin.com/in/ankurrr27/" target="_blank" rel="noreferrer" className="text-slate-300 hover:text-white">Ankur</a>
+            <span>•</span>
             <a href="https://linkedin.com/in/srishti-singh19/" target="_blank" rel="noreferrer" className="text-slate-300 hover:text-white">Srishti</a>
             <span>•</span>
             <a href="https://linkedin.com/in/utkarsh-pratap-460502251/" target="_blank" rel="noreferrer" className="text-slate-300 hover:text-white">Utkarsh</a>
-            <span>•</span>
+            
             
           </div>
 
