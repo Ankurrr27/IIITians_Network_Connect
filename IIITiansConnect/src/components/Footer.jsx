@@ -157,11 +157,12 @@ const Footer = () => {
         <div className="mt-8 flex flex-col items-center justify-between gap-4 text-[11px] font-medium uppercase tracking-wider text-slate-500 sm:flex-row">
           <div className="flex flex-wrap gap-1.5">
             <span>Created by</span>
+            <a href="https://www.linkedin.com/in/ankurrr27/" target="_blank" rel="noreferrer" className="text-slate-300 hover:text-white">Ankur</a>
             <a href="https://linkedin.com/in/srishti-singh19/" target="_blank" rel="noreferrer" className="text-slate-300 hover:text-white">Srishti</a>
             <span>•</span>
             <a href="https://linkedin.com/in/utkarsh-pratap-460502251/" target="_blank" rel="noreferrer" className="text-slate-300 hover:text-white">Utkarsh</a>
             <span>•</span>
-            <a href="https://linkedin.com/in/ankur-singh-03ba44380/" target="_blank" rel="noreferrer" className="text-slate-300 hover:text-white">Ankur</a>
+            
           </div>
 
           <div className="flex gap-4">
