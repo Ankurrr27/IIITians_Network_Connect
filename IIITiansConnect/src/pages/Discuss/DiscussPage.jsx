@@ -17,6 +17,7 @@ import {
   Mail,
   BadgeCheck,
   Clock,
+  Users,
 } from "lucide-react";
 import api from "../../api/axios";
 import ImageCropModal from "../../components/ImageCropModal";
@@ -58,6 +59,9 @@ export default function DiscussPage() {
     [posts]
   );
 
+  const [existingClubs, setExistingClubs] = useState([]);
+  const [duplicateClubFound, setDuplicateClubFound] = useState(false);
+
   const loadPosts = async () => {
     setLoading(true);
     try {
@@ -67,6 +71,15 @@ export default function DiscussPage() {
       setPosts([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadPublicAccounts = async () => {
+    try {
+      const response = await api.get("/discuss-accounts/public");
+      setExistingClubs(response.data || []);
+    } catch {
+      setExistingClubs([]);
     }
   };
 
@@ -115,6 +128,7 @@ export default function DiscussPage() {
     loadPosts();
     loadAccount();
     loadColleges();
+    loadPublicAccounts();
   }, []);
 
   useEffect(() => {
@@ -223,6 +237,27 @@ export default function DiscussPage() {
       });
     }
   };
+
+  useEffect(() => {
+    if (authMode === "register" && registerForm.clubName && registerForm.collegeName) {
+      const exists = existingClubs.some(
+        (c) =>
+          c.clubName.trim().toLowerCase() === registerForm.clubName.trim().toLowerCase() &&
+          c.collegeName.trim().toLowerCase() === registerForm.collegeName.trim().toLowerCase()
+      );
+      setDuplicateClubFound(exists);
+    } else {
+      setDuplicateClubFound(false);
+    }
+  }, [registerForm.clubName, registerForm.collegeName, existingClubs, authMode]);
+
+  const clubSuggestions = useMemo(() => {
+    if (!registerForm.collegeName) return [];
+    const clubsAtCollege = existingClubs.filter(
+      (c) => c.collegeName.trim().toLowerCase() === registerForm.collegeName.trim().toLowerCase()
+    );
+    return Array.from(new Set(clubsAtCollege.map((c) => c.clubName)));
+  }, [registerForm.collegeName, existingClubs]);
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -674,7 +709,19 @@ export default function DiscussPage() {
                         </datalist>
                       </LabeledField>
                       <LabeledField label="Club / society name">
-                        <TextInput name="clubName" value={registerForm.clubName} onChange={(e) => setRegisterForm((p) => ({ ...p, clubName: e.target.value }))} placeholder="e.g. E-Cell" required />
+                        <TextInput 
+                          name="clubName" 
+                          list="discuss-club-suggestions"
+                          value={registerForm.clubName} 
+                          onChange={(e) => setRegisterForm((p) => ({ ...p, clubName: e.target.value }))} 
+                          placeholder="e.g. E-Cell" 
+                          required 
+                        />
+                        <datalist id="discuss-club-suggestions">
+                          {clubSuggestions.map((name) => (
+                            <option key={name} value={name} />
+                          ))}
+                        </datalist>
                       </LabeledField>
                       <LabeledField label="Point of contact name">
                         <TextInput name="contactName" value={registerForm.contactName} onChange={(e) => setRegisterForm((p) => ({ ...p, contactName: e.target.value }))} placeholder="e.g. Priyanshu Sharma" required />
@@ -683,6 +730,19 @@ export default function DiscussPage() {
                         <TextInput name="contactPhone" value={registerForm.contactPhone} onChange={(e) => setRegisterForm((p) => ({ ...p, contactPhone: e.target.value }))} placeholder="e.g. 9876543210" />
                       </LabeledField>
                     </div>
+
+                    {duplicateClubFound && (
+                      <div className="rounded-2xl border border-indigo-200 bg-indigo-50 p-4 shadow-sm">
+                        <p className="flex items-center gap-2 text-xs font-bold text-indigo-700 uppercase tracking-widest">
+                          <Users className="h-4 w-4" />
+                          Club already registered
+                        </p>
+                        <p className="mt-1 text-sm text-indigo-600 leading-relaxed">
+                          This club is already active on the network. Continue below to register as an additional member or coordinator for this club.
+                        </p>
+                      </div>
+                    )}
+
                     <LabeledField label="Club website / Social Media">
                       <TextInput name="website" value={registerForm.website} onChange={(e) => setRegisterForm((p) => ({ ...p, website: e.target.value }))} placeholder="e.g. https://linktr.ee/ecelliiitkota" />
                     </LabeledField>
@@ -694,7 +754,7 @@ export default function DiscussPage() {
                     </LabeledField>
                     <button type="submit" disabled={authState.loading} className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-60">
                       <UserPlus className="h-4 w-4" />
-                      {authState.loading ? "Creating..." : "Create club account"}
+                      {authState.loading ? "Creating..." : duplicateClubFound ? "Join this club" : "Create club account"}
                     </button>
                   </form>
                 )}
