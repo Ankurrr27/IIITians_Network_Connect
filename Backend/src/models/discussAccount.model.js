@@ -21,6 +21,12 @@ const discussAccountSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    clubEmail: {
+      type: String,
+      trim: true,
+      lowercase: true,
+      default: "",
+    },
     website: {
       type: String,
       trim: true,

@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { ArrowLeft, Calendar } from "lucide-react";
+import { ArrowLeft, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import api from "../../api/axios";
 
@@ -16,8 +16,10 @@ export default function EventsPage() {
   const [showForm, setShowForm] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
 
-  const [search, setSearch] = useState("");
+   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("newest");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
 
   useEffect(() => {
     api
@@ -68,6 +70,18 @@ export default function EventsPage() {
       });
   }, [events, search, sortBy]);
 
+  // 📄 PAGINATION LOGIC
+  const totalItems = processedEvents.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const paginatedEvents = processedEvents.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, sortBy]);
+
   return (
     <section className="min-h-screen bg-[linear-gradient(180deg,_#eef7ff_0%,_#f7fbff_36%,_#f9fcff_100%)] pb-10 pt-10">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
@@ -117,10 +131,32 @@ export default function EventsPage() {
 
         <EventsGrid
           loading={loading}
-          events={processedEvents}
+          events={paginatedEvents}
           onEdit={handleEdit}
           onDelete={handleDelete}
         />
+
+        {totalPages > 1 && (
+          <div className="mt-12 flex items-center justify-center gap-6">
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+              className="rounded-full border border-slate-200 bg-white px-6 py-2 text-sm font-medium text-slate-600 transition-all hover:bg-indigo-50 hover:text-indigo-600 disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-slate-600"
+            >
+              Previous
+            </button>
+            <div className="text-sm font-medium text-slate-400">
+              Page <span className="text-slate-900 font-bold">{currentPage}</span> of {totalPages}
+            </div>
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages}
+              className="rounded-full border border-slate-200 bg-white px-6 py-2 text-sm font-medium text-slate-600 transition-all hover:bg-indigo-50 hover:text-indigo-600 disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-slate-600"
+            >
+              Next
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );

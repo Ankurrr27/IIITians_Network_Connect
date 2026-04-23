@@ -4,6 +4,10 @@ import DiscussAccount from "../models/discussAccount.model.js";
 import cloudinary from "../config/cloudinary.js";
 import { backfillApprovedDiscussEvents } from "../services/discussEventSync.service.js";
 
+const escapeRegex = (string) => {
+  return string.replace(/[/\-\\^$*+?.()|[\]{}]/g, "\\$&");
+};
+
 /* =========================
    HELPERS
 ========================= */
@@ -13,15 +17,15 @@ const ensureClubRegistered = async (collegeName, clubName, clubLink) => {
   try {
     // 1. Check if club already has a Discuss account
     const discussAccount = await DiscussAccount.findOne({
-      collegeName: { $regex: new RegExp(`^${collegeName.trim()}$`, "i") },
-      clubName: { $regex: new RegExp(`^${clubName.trim()}$`, "i") },
+      collegeName: { $regex: new RegExp(`^${escapeRegex(collegeName.trim())}$`, "i") },
+      clubName: { $regex: new RegExp(`^${escapeRegex(clubName.trim())}$`, "i") },
       isAuthorized: true,
     });
     if (discussAccount) return;
 
     // 2. Check if already in College.clubLinks
     const college = await College.findOne({
-      name: { $regex: new RegExp(`^${collegeName.trim()}$`, "i") },
+      name: { $regex: new RegExp(`^${escapeRegex(collegeName.trim())}$`, "i") },
     });
     if (!college) return;
 

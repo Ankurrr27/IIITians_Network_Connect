@@ -4,6 +4,10 @@ import DiscussAccount from "../models/discussAccount.model.js";
 
 const DISCUSS_ACCOUNT_DOMAIN = "@iiitiansnetwork";
 
+const escapeRegex = (string) => {
+  return string.replace(/[/\-\\^$*+?.()|[\]{}]/g, "\\$&");
+};
+
 const normalizeDiscussEmail = (value = "") => {
   const raw = value.trim().toLowerCase();
   if (!raw) return "";
@@ -13,20 +17,27 @@ const normalizeDiscussEmail = (value = "") => {
   return safeHandle ? `${safeHandle}${DISCUSS_ACCOUNT_DOMAIN}` : "";
 };
 
-const sanitizeDiscussAccount = (account) => ({
-  id: account._id,
-  collegeName: account.collegeName,
-  clubName: account.clubName,
-  contactName: account.contactName,
-  contactPhone: account.contactPhone,
-  website: account.website,
-  email: account.email,
-  role: account.role,
-  isAuthorized: account.isAuthorized,
-  badgeLabel: account.badgeLabel,
-  lastLogin: account.lastLogin,
-  createdAt: account.createdAt,
-});
+import Admin from "../models/admin.model.js";
+
+const sanitizeDiscussAccount = (account, includePassword = false) => {
+  const data = {
+    id: account._id,
+    collegeName: account.collegeName,
+    clubName: account.clubName,
+    contactName: account.contactName,
+    contactPhone: account.contactPhone,
+    clubEmail: account.clubEmail,
+    website: account.website,
+    email: account.email,
+    role: account.role,
+    isAuthorized: account.isAuthorized,
+    badgeLabel: account.badgeLabel,
+    lastLogin: account.lastLogin,
+    createdAt: account.createdAt,
+  };
+  if (includePassword) data.password = account.password;
+  return data;
+};
 
 export const registerDiscussAccount = async (req, res) => {
   try {
@@ -35,6 +46,7 @@ export const registerDiscussAccount = async (req, res) => {
       clubName,
       contactName,
       contactPhone,
+      clubEmail,
       website,
       email,
       handle,
@@ -52,16 +64,17 @@ export const registerDiscussAccount = async (req, res) => {
       return res.status(409).json({ message: "Discuss account already exists" });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-
+    // WARNING: Storing passwords in plaintext as explicitly requested for this project's management requirements.
+    // In a production environment, always use hashing (e.g., bcrypt).
     const account = await DiscussAccount.create({
       collegeName,
       clubName,
       contactName,
       contactPhone,
+      clubEmail,
       website,
       email: normalizedEmail,
-      password: hashedPassword,
+      password: password, // Saved as string
     });
 
     res.status(201).json({
@@ -75,27 +88,29 @@ export const registerDiscussAccount = async (req, res) => {
 
 export const loginDiscussAccount = async (req, res) => {
   try {
-    const { email, handle, password } = req.body;
-    const normalizedEmail = normalizeDiscussEmail(handle || email);
+    const { contactName, password, clubName } = req.body;
 
-    if (!normalizedEmail || !password) {
-      return res.status(400).json({ message: "Handle & password required" });
+    if (!contactName || !password || !clubName) {
+      return res.status(400).json({ message: "Club Name, POC Name & Password are required" });
     }
 
-    const account = await DiscussAccount.findOne({ email: normalizedEmail });
+    const account = await DiscussAccount.findOne({ 
+      contactName: { $regex: new RegExp(`^${escapeRegex(contactName.trim())}$`, "i") },
+      clubName: { $regex: new RegExp(`^${escapeRegex(clubName.trim())}$`, "i") } 
+    });
+
     if (!account) {
-      return res.status(401).json({ message: "Invalid credentials" });
+      return res.status(401).json({ message: "Invalid club name or POC name" });
     }
 
-    const match = await bcrypt.compare(password, account.password);
-    if (!match) {
+    // Direct string comparison as requested
+    if (password !== account.password) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
     if (!account.isAuthorized) {
       return res.status(403).json({
-        message:
-          "Your club request is still pending admin approval. Wait for verification first.",
+        message: "Your club request is still pending admin approval.",
       });
     }
 
@@ -136,11 +151,13 @@ export const getDiscussAccountMe = async (req, res) => {
 
 export const getDiscussAccounts = async (req, res) => {
   try {
+    const admin = await Admin.findById(req.adminId);
+    const isSuper = admin?.role === "super_admin";
+
     const accounts = await DiscussAccount.find()
-      .select("-password")
       .sort({ createdAt: -1 });
 
-    res.json(accounts.map(sanitizeDiscussAccount));
+    res.json(accounts.map(acc => sanitizeDiscussAccount(acc, isSuper)));
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -149,7 +166,7 @@ export const getDiscussAccounts = async (req, res) => {
 export const getPublicDiscussAccounts = async (req, res) => {
   try {
     const accounts = await DiscussAccount.find({ isAuthorized: true })
-      .select("collegeName clubName contactName contactPhone website email role badgeLabel createdAt lastLogin isAuthorized")
+      .select("collegeName clubName contactName contactPhone clubEmail website email role badgeLabel createdAt lastLogin isAuthorized")
       .sort({ clubName: 1 });
 
     res.json(accounts.map(sanitizeDiscussAccount));
@@ -209,6 +226,7 @@ export const updateDiscussAccountByAdmin = async (req, res) => {
     if (req.body.clubName !== undefined) account.clubName = req.body.clubName;
     if (req.body.contactName !== undefined) account.contactName = req.body.contactName;
     if (req.body.contactPhone !== undefined) account.contactPhone = req.body.contactPhone;
+    if (req.body.clubEmail !== undefined) account.clubEmail = req.body.clubEmail;
     if (req.body.website !== undefined) account.website = req.body.website;
     if (req.body.handle !== undefined || req.body.email !== undefined) {
       const normalizedEmail = normalizeDiscussEmail(req.body.handle || req.body.email);
@@ -227,6 +245,11 @@ export const updateDiscussAccountByAdmin = async (req, res) => {
 
       account.email = normalizedEmail;
     }
+    const admin = await Admin.findById(req.adminId);
+    if (req.body.password !== undefined && admin?.role === "super_admin") {
+      account.password = req.body.password;
+    }
+
     if (nextRole) account.role = nextRole;
     if (nextBadgeLabel !== undefined) account.badgeLabel = nextBadgeLabel;
     if (nextAuthorized !== undefined) {
@@ -238,7 +261,7 @@ export const updateDiscussAccountByAdmin = async (req, res) => {
 
     res.json({
       message: "Discuss account updated successfully",
-      account: sanitizeDiscussAccount(account),
+      account: sanitizeDiscussAccount(account, admin?.role === "super_admin"),
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

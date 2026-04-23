@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import api from "../../api/axios";
 import { notifyPageEntry } from "../../utils/appNotifications";
 
@@ -12,6 +13,8 @@ export default function PublicEvents() {
 
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("newest");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
 
   useEffect(() => {
     notifyPageEntry(
@@ -46,6 +49,18 @@ export default function PublicEvents() {
       });
   }, [events, search, sortBy]);
 
+  // 📄 PAGINATION LOGIC
+  const totalItems = processedEvents.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const paginatedEvents = processedEvents.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, sortBy]);
+
   return (
     <section className="relative min-h-screen bg-[linear-gradient(180deg,_#eff6ff_0%,_#f8faff_40%,_#ffffff_100%)] pb-14 pt-20 sm:pb-16 sm:pt-24">
       {/* Radial Gradient Overlay */}
@@ -64,9 +79,31 @@ export default function PublicEvents() {
 
         <EventsGrid
           loading={loading}
-          events={processedEvents}
+          events={paginatedEvents}
           isPublic // 👈 important
         />
+
+        {totalPages > 1 && (
+          <div className="mt-12 flex items-center justify-center gap-6">
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+              className="rounded-full border border-slate-200 bg-white px-6 py-2 text-sm font-medium text-slate-600 transition-all hover:bg-slate-50 disabled:opacity-30 disabled:hover:bg-white"
+            >
+              Previous
+            </button>
+            <div className="text-sm font-medium text-slate-400">
+              Page <span className="text-slate-900 font-bold">{currentPage}</span> of {totalPages}
+            </div>
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages}
+              className="rounded-full border border-slate-200 bg-white px-6 py-2 text-sm font-medium text-slate-600 transition-all hover:bg-slate-50 disabled:opacity-30 disabled:hover:bg-white"
+            >
+              Next
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );

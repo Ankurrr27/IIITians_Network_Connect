@@ -168,47 +168,45 @@ export default function CollegeClubs() {
   return (
     <div className="relative min-h-screen bg-[#fcfdfe] pb-16 pt-24 sm:pb-24 sm:pt-32">
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="mb-8 sm:mb-12">
-            <Link 
-              to="/colleges" 
-              className="group inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/80 px-4 py-2 text-sm font-bold text-slate-600 transition-all hover:bg-white hover:text-indigo-600"
-            >
-              <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
-              Colleges Directory
-            </Link>
+        <div className="mb-8">
+          <Link 
+            to="/colleges" 
+            className="group inline-flex items-center gap-2 rounded-full border border-slate-200 bg-indigo-50/50 px-4 py-2 text-sm font-semibold text-indigo-700 transition-all hover:bg-indigo-50 hover:ring-2 hover:ring-indigo-100 shadow-sm"
+          >
+            <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
+            Colleges Directory
+          </Link>
 
-          <div className="mt-8 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-            <div className="max-w-2xl">
-              <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-5xl">
-                {decodeURIComponent(collegeName)} <span className="text-indigo-600">Network</span>
-              </h1>
-              <p className="mt-3 text-sm font-semibold text-slate-500 sm:text-lg">
-                Verified student communities and institutional archives.
-              </p>
-            </div>
-            
-            <div className="w-full lg:max-w-sm">
-               <div className="relative overflow-hidden rounded-2xl bg-white p-1 shadow-sm ring-1 ring-slate-200">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                  <input 
-                   type="text" 
-                   placeholder="Search club or leader..."
-                   value={searchQuery}
-                   onChange={(e) => setSearchQuery(e.target.value)}
-                   className="w-full border-none bg-slate-50 py-3.5 pl-11 pr-4 text-sm font-bold outline-none transition focus:bg-white"
-                 />
-               </div>
-            </div>
+          <div className="mt-8 max-w-3xl">
+            <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-5xl">
+              {decodeURIComponent(collegeName)} <span className="font-semibold text-indigo-600">Network</span>
+            </h1>
+            <p className="mt-3 text-sm font-semibold text-slate-500 sm:text-lg">
+              Verified student communities and institutional archives.
+            </p>
           </div>
         </div>
 
         <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] xl:grid-cols-[1.2fr_0.8fr]">
           <div className="space-y-4">
-             <div className="flex items-center justify-between px-2">
-                <h3 className="text-xs font-bold uppercase tracking-[0.15em] text-slate-400 flex items-center gap-2">
+             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-2 mb-2">
+                <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400 flex items-center gap-2">
                    <LayoutGrid size={16} />
                    Active Communities ({filteredClubs.length})
                 </h3>
+
+                <div className="w-full sm:max-w-xs">
+                  <div className="relative overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-slate-200 transition-all focus-within:ring-2 focus-within:ring-indigo-500/20">
+                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                    <input 
+                      type="text" 
+                      placeholder="Search club or leader..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full border-none bg-slate-50/50 py-2.5 pl-10 pr-4 text-sm font-semibold outline-none transition focus:bg-white"
+                    />
+                  </div>
+                </div>
              </div>
 
              <div className="grid gap-3">
@@ -512,12 +510,17 @@ function ClubInfoPanel({ club, onClose, isMobile = false, events = [] }) {
 
 function IntroductionCard({ name }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-[2.5rem] border border-slate-200 bg-white p-16 text-center shadow-sm">
-       <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 mb-8 border border-indigo-100 shadow-lg">
-          <Zap size={40} />
-       </div>
-       <h3 className="text-2xl font-bold text-slate-900">Institute Ecosystem</h3>
-       <p className="mt-4 text-sm font-semibold leading-relaxed text-slate-400 max-w-[280px]">
+    <div className="flex flex-col items-center justify-center rounded-[2.5rem] border border-dashed border-slate-200 bg-white p-16 text-center shadow-sm">
+       <motion.div 
+         animate={{ scale: [1, 1.05, 1], rotate: [0, 2, 0] }}
+         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+         className="flex h-20 w-20 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 mb-8 border border-indigo-100 shadow-sm relative overflow-hidden"
+       >
+          <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-transparent" />
+          <Users size={36} className="relative z-10" />
+       </motion.div>
+       <h3 className="text-2xl font-semibold tracking-tight text-slate-900">Institute Ecosystem</h3>
+       <p className="mt-4 text-sm font-medium leading-relaxed text-slate-500 max-w-[280px]">
           Select an entity from {name} to view its verified community records and historical milestones.
        </p>
     </div>

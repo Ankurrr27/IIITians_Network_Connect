@@ -19,13 +19,15 @@ export const initialRegisterForm = {
   clubName: "",
   contactName: "",
   contactPhone: "",
+  clubEmail: "",
   website: "",
   handle: "",
   password: "",
 };
 
 export const initialLoginForm = {
-  handle: "",
+  clubName: "",
+  contactName: "",
   password: "",
 };
 

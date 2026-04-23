@@ -603,6 +603,18 @@ export default function DiscussPage() {
                         <div className="truncate text-sm font-medium text-slate-800">{account.email}</div>
                       </div>
                     </div>
+
+                    {account.clubEmail && (
+                      <div className="col-span-full flex items-center gap-3 rounded-[1.2rem] bg-indigo-50/50 p-3 ring-1 ring-indigo-50">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100 text-indigo-600">
+                           <ShieldCheck className="h-4 w-4" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                           <div className="text-[10px] font-bold uppercase tracking-wider text-indigo-400">Official Club Email</div>
+                           <div className="truncate text-sm font-semibold text-indigo-900">{account.clubEmail}</div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -686,8 +698,24 @@ export default function DiscussPage() {
                 </div>
                 {authMode === "login" ? (
                   <form onSubmit={handleLogin} className="mt-5 space-y-4">
-                    <LabeledField label="Club handle">
-                      <HandleInput value={loginForm.handle} onChange={(e) => setLoginForm((p) => ({ ...p, handle: e.target.value }))} />
+                    <LabeledField label="Club Name">
+                      <TextInput 
+                        name="clubName" 
+                        list="discuss-club-suggestions"
+                        value={loginForm.clubName} 
+                        onChange={(e) => setLoginForm((p) => ({ ...p, clubName: e.target.value }))} 
+                        placeholder="e.g. E-Cell" 
+                        required 
+                      />
+                    </LabeledField>
+                    <LabeledField label="Point of contact name">
+                      <TextInput 
+                        name="contactName" 
+                        value={loginForm.contactName} 
+                        onChange={(e) => setLoginForm((p) => ({ ...p, contactName: e.target.value }))} 
+                        placeholder="e.g. Priyanshu Sharma" 
+                        required 
+                      />
                     </LabeledField>
                     <LabeledField label="Password">
                       <TextInput name="password" type="password" value={loginForm.password} onChange={(e) => setLoginForm((p) => ({ ...p, password: e.target.value }))} placeholder="Enter your club password" required />
@@ -728,6 +756,9 @@ export default function DiscussPage() {
                       </LabeledField>
                       <LabeledField label="Point of contact phone">
                         <TextInput name="contactPhone" value={registerForm.contactPhone} onChange={(e) => setRegisterForm((p) => ({ ...p, contactPhone: e.target.value }))} placeholder="e.g. 9876543210" />
+                      </LabeledField>
+                      <LabeledField label="Club Official Email">
+                        <TextInput name="clubEmail" type="email" value={registerForm.clubEmail} onChange={(e) => setRegisterForm((p) => ({ ...p, clubEmail: e.target.value }))} placeholder="e.g. ecell@iiitk.ac.in" />
                       </LabeledField>
                     </div>
 

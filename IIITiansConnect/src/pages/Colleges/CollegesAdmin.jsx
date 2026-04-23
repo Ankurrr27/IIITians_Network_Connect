@@ -11,6 +11,8 @@ import {
   Upload,
   Users,
   ArrowLeft,
+  CheckCircle2,
+  Clock3,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import api from "../../api/axios";
@@ -384,114 +386,148 @@ export default function CollegesAdmin() {
           <h2 className="text-xl font-semibold text-slate-900">Add college</h2>
         </div>
 
-        <form onSubmit={handleCreateCollege} className="grid gap-3 lg:grid-cols-[1.05fr_1.05fr_1fr_1fr_1fr_1.2fr_auto] lg:items-start">
-          <input
-            type="text"
-            name="name"
-            placeholder="e.g. IIIT Kota"
-            value={createCollegeForm.name}
-            onChange={handleCreateCollegeChange}
-            required
-            className="w-full rounded-2xl border border-stone-200 bg-[#fffaf2] px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100"
-          />
-          <input
-            type="text"
-            name="website"
-            placeholder="e.g. https://iiitkota.ac.in"
-            value={createCollegeForm.website}
-            onChange={handleCreateCollegeChange}
-            className="w-full rounded-2xl border border-stone-200 bg-[#fffaf2] px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100"
-          />
-          <input
-            type="text"
-            name="clubLink"
-            placeholder="e.g. https://students.iiitkota.ac.in"
-            value={createCollegeForm.clubLink}
-            onChange={handleCreateCollegeChange}
-            className="w-full rounded-2xl border border-stone-200 bg-[#fffaf2] px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100"
-          />
-          <AssetInlinePicker
-            title="Main college photo"
-            file={createPhotoFile}
-            onPick={(file) => openCropper(file, "create-photo")}
-          />
-          <MultiAssetInlinePicker
-            title="College photos"
-            files={createGalleryFiles}
-            onPick={(files) =>
-              setCreateGalleryFiles((prev) => [...prev, ...files])
-            }
-          />
-          <AssetInlinePicker
-            title="College logo"
-            file={createLogoFile}
-            onPick={(file) => openCropper(file, "create-logo")}
-          />
-          <button
-            type="submit"
-            disabled={collegeState.loading}
-            className="rounded-2xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60 lg:min-w-[140px]"
-          >
-            {collegeState.loading ? "Saving..." : "Add"}
-          </button>
-        </form>
+        <form onSubmit={handleCreateCollege} className="space-y-6">
+          <div className="grid gap-4 sm:grid-cols-3">
+            <FormItem label="College Name">
+              <input
+                type="text"
+                name="name"
+                placeholder="e.g. IIIT Kota"
+                value={createCollegeForm.name}
+                onChange={handleCreateCollegeChange}
+                required
+                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3.5 text-sm font-semibold text-slate-900 outline-none transition focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100"
+              />
+            </FormItem>
+            <FormItem label="Official Website">
+              <input
+                type="text"
+                name="website"
+                placeholder="e.g. https://iiitkota.ac.in"
+                value={createCollegeForm.website}
+                onChange={handleCreateCollegeChange}
+                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3.5 text-sm font-medium text-slate-600 outline-none transition focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100"
+              />
+            </FormItem>
+            <FormItem label="Student Portal / Login">
+              <input
+                type="text"
+                name="clubLink"
+                placeholder="e.g. https://students.iiit.ac.in"
+                value={createCollegeForm.clubLink}
+                onChange={handleCreateCollegeChange}
+                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3.5 text-sm font-medium text-slate-600 outline-none transition focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100"
+              />
+            </FormItem>
+          </div>
 
-        <textarea
-          name="description"
-          rows={4}
-          placeholder="e.g. A fast-growing IIIT known for strong coding culture, active communities, and national-level student events."
-          value={createCollegeForm.description}
-          onChange={handleCreateCollegeChange}
-          className="mt-3 w-full rounded-2xl border border-stone-200 bg-[#fffaf2] px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100"
-        />
+          <div className="grid gap-4 sm:grid-cols-3">
+            <FormItem label="Main Cover Photo">
+              <AssetInlinePicker
+                title="Choose Cover"
+                file={createPhotoFile}
+                onPick={(file) => openCropper(file, "create-photo")}
+              />
+            </FormItem>
+            <FormItem label="Experience Gallery">
+              <MultiAssetInlinePicker
+                title="Add Photos"
+                files={createGalleryFiles}
+                onPick={(files) =>
+                  setCreateGalleryFiles((prev) => [...prev, ...files])
+                }
+              />
+            </FormItem>
+            <FormItem label="Official Logo">
+              <AssetInlinePicker
+                title="Choose Logo"
+                file={createLogoFile}
+                onPick={(file) => openCropper(file, "create-logo")}
+              />
+            </FormItem>
+          </div>
 
-        <div className="mt-3 rounded-[1.4rem] bg-slate-50/90 p-4 ring-1 ring-slate-200/80">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <div className="text-sm font-semibold text-slate-900">Clubs and societies</div>
-              <div className="text-xs text-slate-500">Add named links so each society appears directly on the college card.</div>
+          <FormItem label="Short Description">
+            <textarea
+              name="description"
+              rows={3}
+              placeholder="e.g. A fast-growing IIIT known for strong coding culture and active communities..."
+              value={createCollegeForm.description}
+              onChange={handleCreateCollegeChange}
+              className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3.5 text-sm leading-relaxed text-slate-700 outline-none transition focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100"
+            />
+          </FormItem>
+
+          <div className="rounded-[1.4rem] bg-indigo-50/30 p-5 ring-1 ring-indigo-100/50">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <div className="text-sm font-bold text-slate-900">Featured Clubs & Societies</div>
+                <div className="text-[11px] font-medium text-slate-500">Add named links that will appear directly on the college card.</div>
+              </div>
+              <button
+                type="button"
+                onClick={addCreateClubLinkRow}
+                className="inline-flex items-center gap-1.5 rounded-full bg-slate-900 px-4 py-2 text-xs font-bold text-white transition hover:bg-slate-800"
+              >
+                <Plus size={14} />
+                Add Society
+              </button>
             </div>
+
+            <div className="mt-4 space-y-3">
+              {createCollegeForm.clubLinks.map((item, index) => (
+                <div key={`create-club-link-${index}`} className="flex flex-col gap-3 sm:flex-row">
+                  <div className="flex-1">
+                    <input
+                      type="text"
+                      placeholder="e.g. GDSC IIIT Kota"
+                      value={item.name}
+                      onChange={(event) =>
+                        handleCreateClubLinkChange(index, "name", event.target.value)
+                      }
+                      className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 outline-none transition focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100"
+                    />
+                  </div>
+                  <div className="flex-[1.5]">
+                    <input
+                      type="text"
+                      placeholder="e.g. https://linktr.ee/gdsciiitkota"
+                      value={item.url}
+                      onChange={(event) =>
+                        handleCreateClubLinkChange(index, "url", event.target.value)
+                      }
+                      className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-600 outline-none transition focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => removeCreateClubLinkRow(index)}
+                    className="inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 bg-white px-5 text-sm font-bold text-rose-600 transition hover:bg-rose-50"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex justify-end">
             <button
-              type="button"
-              onClick={addCreateClubLinkRow}
-              className="rounded-full bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-slate-800"
+              type="submit"
+              disabled={collegeState.loading}
+              className="group inline-flex items-center gap-2 rounded-2xl bg-indigo-600 px-10 py-4 text-sm font-black uppercase tracking-widest text-white shadow-xl shadow-indigo-100 transition-all hover:bg-indigo-700 hover:shadow-indigo-200 active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Add link
+              {collegeState.loading ? (
+                "Publishing..."
+              ) : (
+                <>
+                  <CheckCircle2 className="h-5 w-5" />
+                  Add College to Network
+                </>
+              )}
             </button>
           </div>
-
-          <div className="mt-3 space-y-3">
-            {createCollegeForm.clubLinks.map((item, index) => (
-              <div key={`create-club-link-${index}`} className="grid gap-3 md:grid-cols-[0.8fr_1.2fr_auto]">
-                <input
-                  type="text"
-                  placeholder="e.g. GDSC IIIT Kota"
-                  value={item.name}
-                  onChange={(event) =>
-                    handleCreateClubLinkChange(index, "name", event.target.value)
-                  }
-                  className="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100"
-                />
-                <input
-                  type="text"
-                  placeholder="e.g. https://instagram.com/gdsciiitkota"
-                  value={item.url}
-                  onChange={(event) =>
-                    handleCreateClubLinkChange(index, "url", event.target.value)
-                  }
-                  className="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100"
-                />
-                <button
-                  type="button"
-                  onClick={() => removeCreateClubLinkRow(index)}
-                  className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
-                >
-                  Remove
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
+        </form>
       </section>
 
       <section className="rounded-[1.8rem] border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
@@ -914,6 +950,17 @@ function MultiAssetPicker({ title, helper, files = [], existingUrls = [], onPick
           />
         </label>
       </div>
+    </div>
+  );
+}
+
+function FormItem({ label, children }) {
+  return (
+    <div className="space-y-2">
+      <label className="ml-1 block text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">
+        {label}
+      </label>
+      {children}
     </div>
   );
 }

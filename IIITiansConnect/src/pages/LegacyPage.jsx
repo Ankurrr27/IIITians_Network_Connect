@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import api from "../api/axios";
 import useThemeMode from "../hooks/useThemeMode.jsx";
 import { useSearchParams } from "react-router-dom";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import ImageCropModal from "../components/ImageCropModal";
 import { notifyAppAction, notifyPageEntry } from "../utils/appNotifications";
 import { cardShell, initialForm } from "./legacy/constants.js";
@@ -44,6 +45,8 @@ export default function LegacyPage() {
   const [photo, setPhoto] = useState(null);
   const [rawPhoto, setRawPhoto] = useState(null);
   const [useTeamPhoto, setUseTeamPhoto] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 12;
 
   const filteredEntries = useMemo(() => {
     const queryIiit = searchParams.get("iiit");
@@ -252,6 +255,24 @@ export default function LegacyPage() {
     }
   };
 
+  const paginatedEntries = filteredEntries.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const totalPages = Math.ceil(filteredEntries.length / itemsPerPage);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [
+    search,
+    generationFilter,
+    iiitFilter,
+    professionalStatusFilter,
+    legacyTypeFilter,
+    networkPostFilter,
+  ]);
+
   return (
     <div
       className={`relative min-h-screen ${
@@ -340,8 +361,30 @@ export default function LegacyPage() {
           <LegacyEntriesSection
             isDarkMode={isDarkMode}
             loading={loading}
-            entries={filteredEntries}
+            entries={paginatedEntries}
           />
+
+          {totalPages > 1 && (
+            <div className="mt-12 flex items-center justify-center gap-6">
+              <button
+                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+                className="rounded-full border border-slate-200 bg-white px-6 py-2.5 text-sm font-medium text-slate-600 transition-all hover:bg-indigo-50 hover:text-indigo-600 disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-indigo-400"
+              >
+                Previous
+              </button>
+              <div className="text-sm font-medium text-slate-400 dark:text-slate-500">
+                Page <span className="text-slate-900 font-bold dark:text-slate-200">{currentPage}</span> of {totalPages}
+              </div>
+              <button
+                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                disabled={currentPage === totalPages}
+                className="rounded-full border border-slate-200 bg-white px-6 py-2.5 text-sm font-medium text-slate-600 transition-all hover:bg-indigo-50 hover:text-indigo-600 disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-indigo-400"
+              >
+                Next
+              </button>
+            </div>
+          )}
         </div>
       </section>
 

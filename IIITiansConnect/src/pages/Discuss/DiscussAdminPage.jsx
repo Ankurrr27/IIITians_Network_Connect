@@ -15,6 +15,11 @@ import {
   Users,
   ChevronDown,
   ChevronUp,
+  Download,
+  Copy,
+  FileJson,
+  FileSpreadsheet,
+  Key,
 } from "lucide-react";
 import api from "../../api/axios";
 
@@ -566,29 +571,33 @@ function ClubsTab({ accounts, posts, loading, savingId, updateAccount, deleteAcc
             <option value="single">Single Registrant</option>
           </select>
         </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Registered since</span>
-            <input
-              type="date"
-              value={regDateFilter}
-              onChange={(e) => setRegDateFilter(e.target.value)}
-              className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs outline-none focus:border-indigo-600 focus:bg-white"
-            />
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Registered since</span>
+              <input
+                type="date"
+                value={regDateFilter}
+                onChange={(e) => setRegDateFilter(e.target.value)}
+                className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs outline-none focus:border-indigo-600 focus:bg-white"
+              />
+            </div>
+            {(regDateFilter || collegeFilter !== "all" || membersFilter !== "all" || searchInput) && (
+              <button
+                onClick={() => {
+                  setSearchInput("");
+                  setCollegeFilter("all");
+                  setMembersFilter("all");
+                  setRegDateFilter("");
+                }}
+                className="text-xs font-bold text-indigo-600 hover:text-indigo-800"
+              >
+                Clear filters
+              </button>
+            )}
           </div>
-          {(regDateFilter || collegeFilter !== "all" || membersFilter !== "all" || searchInput) && (
-            <button
-              onClick={() => {
-                setSearchInput("");
-                setCollegeFilter("all");
-                setMembersFilter("all");
-                setRegDateFilter("");
-              }}
-              className="text-xs font-bold text-indigo-600 hover:text-indigo-800"
-            >
-              Clear filters
-            </button>
-          )}
+
+           <ExportMenu accounts={accounts} />
         </div>
       </div>
 
@@ -663,145 +672,291 @@ function ClubCard({ club, postCount, savingId, updateAccount, deleteAccount }) {
 
         <div className="space-y-4">
           {(expanded ? club.registrants : [primaryAccount]).map((account, index) => (
-            <div key={account.id} className="relative rounded-2xl bg-slate-50/80 p-5 ring-1 ring-slate-200">
-              {index === 0 && expanded && club.registrants.length > 1 && (
-                <div className="absolute -top-2.5 right-4 rounded-full bg-indigo-600 px-2 py-0.5 text-[10px] font-bold text-white shadow-sm shadow-indigo-200">
-                  PRIMARY CONTACT
-                </div>
-              )}
-              
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                <div>
-                  <p className="text-base font-bold text-slate-900">{account.contactName}</p>
-                  <div className="mt-1 flex flex-col gap-1">
-                    {account.email && (
-                      <span className="inline-flex items-center gap-2 text-sm text-indigo-600 font-bold">
-                        <Mail className="h-4 w-4 text-slate-400" /> {account.email.split('@')[0]}
-                        <span className="text-[10px] text-slate-400 font-normal">@iiitiansnetwork</span>
-                      </span>
-                    )}
-                    {account.contactPhone && (
-                      <span className="inline-flex items-center gap-2 text-sm text-slate-600">
-                        <Phone className="h-4 w-4 text-slate-400" /> {account.contactPhone}
-                      </span>
-                    )}
-                    <span className="inline-flex items-center gap-2 text-xs text-slate-500 mt-1">
-                      <Clock3 className="h-3.5 w-3.5 text-slate-400" />
-                      Registered {new Date(account.createdAt).toLocaleDateString()}
+            <div key={account.id} className="relative overflow-hidden rounded-[1.8rem] border border-slate-200 bg-white p-0 shadow-sm">
+              {/* Card Header (Contact Info) */}
+              <div className="bg-slate-50/50 p-6 border-b border-slate-100">
+                <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="flex items-start gap-4">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-indigo-600 font-bold text-white shadow-lg shadow-indigo-100">
+                       {account.contactName.charAt(0)}
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h4 className="text-lg font-bold text-slate-900">{account.contactName}</h4>
+                        {index === 0 && expanded && (
+                           <span className="rounded-full bg-indigo-600 px-2.5 py-0.5 text-[8px] font-black uppercase tracking-tighter text-white">
+                             Primary
+                           </span>
+                        )}
+                      </div>
+                      
+                      <div className="mt-2 flex flex-wrap gap-x-4 gap-y-2">
+                        <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-600">
+                           <Mail className="h-3.5 w-3.5" />
+                           {account.email.split('@')[0]}@iiitiansnetwork
+                        </span>
+                        {account.contactPhone && (
+                          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-600">
+                             <Phone className="h-3.5 w-3.5 text-slate-400" />
+                             {account.contactPhone}
+                          </span>
+                        )}
+                        <span className="inline-flex items-center gap-1.5 text-xs text-slate-400">
+                           <Clock3 className="h-3.5 w-3.5" />
+                           {new Date(account.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col items-start gap-2 sm:items-end">
+                    <span className={`rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-widest ${account.isAuthorized ? "bg-emerald-100 text-emerald-700 ring-1 ring-emerald-200" : "bg-amber-100 text-amber-700 ring-1 ring-amber-200"}`}>
+                      {account.isAuthorized ? account.badgeLabel || "Verified" : "Pending Approval"}
+                    </span>
+                    <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-[9px] font-bold uppercase tracking-widest text-slate-500">
+                      {account.role.replace("_", " ")}
                     </span>
                   </div>
                 </div>
-
-                <div className="flex flex-col items-start gap-2 sm:items-end">
-                  <span className={`rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-widest ${account.isAuthorized ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800"}`}>
-                    {account.isAuthorized ? account.badgeLabel || "Verified" : "Pending Verif."}
-                  </span>
-                  <span className="rounded-full bg-white px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-slate-600 ring-1 ring-slate-200 shadow-sm">
-                    {account.role.replace("_", " ")}
-                  </span>
-                </div>
               </div>
 
-              <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <div className="relative">
-                  <span className="absolute -top-2 left-2 bg-slate-50 px-1 text-[9px] font-bold text-slate-400">Club Name</span>
-                  <input
-                    defaultValue={account.clubName || ""}
-                    onBlur={(event) => {
-                       if (event.target.value !== account.clubName) {
-                         updateAccount(account.id, { clubName: event.target.value });
-                       }
-                    }}
-                    placeholder="Club display name"
-                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold outline-none transition focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100"
-                  />
-                </div>
-                <div className="relative">
-                  <span className="absolute -top-2 left-2 bg-slate-50 px-1 text-[9px] font-bold text-slate-400 uppercase tracking-widest">Unique ID (Handle)</span>
-                  <input
-                    defaultValue={account.email?.split('@')[0] || ""}
-                    onBlur={(event) => {
-                       const nextHandle = event.target.value.trim();
-                       if (nextHandle && nextHandle !== account.email?.split('@')[0]) {
-                         updateAccount(account.id, { handle: nextHandle });
-                       }
-                    }}
-                    placeholder="Unique club handle"
-                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 pl-9 text-sm font-bold text-indigo-600 outline-none transition focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100"
-                  />
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                </div>
-                <div className="relative">
-                  <span className="absolute -top-2 left-2 bg-slate-50 px-1 text-[9px] font-bold text-slate-400">Direct Website</span>
-                  <input
-                    defaultValue={account.website || ""}
-                    onBlur={(event) => {
-                       if (event.target.value !== account.website) {
-                         updateAccount(account.id, { website: event.target.value });
-                       }
-                    }}
-                    placeholder="Official URL"
-                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 pl-9 text-sm outline-none transition focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100"
-                  />
-                  <ExternalLink className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                </div>
-                <select
-                  value={account.role}
-                  onChange={(event) => updateAccount(account.id, { role: event.target.value })}
-                  disabled={savingId === account.id}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100"
-                >
-                  {roleOptions.map((role) => (
-                    <option key={role} value={role}>{role.replace("_", " ")}</option>
-                  ))}
-                </select>
-                <div className="sm:col-span-2 relative">
-                   <span className="absolute -top-2 left-2 bg-slate-50 px-1 text-[9px] font-bold text-slate-400">Moderation Badge / Verification Title</span>
-                  <input
-                    defaultValue={account.badgeLabel || ""}
-                    onBlur={(event) => {
-                       if (event.target.value !== account.badgeLabel) {
-                         updateAccount(account.id, { badgeLabel: event.target.value });
-                       }
-                    }}
-                    placeholder="e.g. Verified Society"
-                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none transition focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100"
-                  />
-                </div>
-              </div>
+              {/* Card Body (Admin Fields) */}
+              <div className="p-6">
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                  <AdminField label="Club Display Name">
+                    <input
+                      defaultValue={account.clubName || ""}
+                      onBlur={(e) => e.target.value !== account.clubName && updateAccount(account.id, { clubName: e.target.value })}
+                      className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 outline-none transition focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100"
+                    />
+                  </AdminField>
 
-              <div className="mt-4 flex flex-wrap gap-2 pt-4 border-t border-slate-200">
-                <button
-                  type="button"
-                  disabled={savingId === account.id}
-                  onClick={() =>
-                    updateAccount(account.id, {
-                      isAuthorized: !account.isAuthorized,
-                      badgeLabel: !account.isAuthorized
-                        ? account.badgeLabel || "Verified by network"
-                        : "Pending verification",
-                    })
-                  }
-                  className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:opacity-50 sm:flex-none"
-                >
-                  <UserCog className="h-4 w-4" />
-                  {account.isAuthorized ? "Retract Verification" : "Verify Account"}
-                </button>
-                <button
-                  type="button"
-                  disabled={savingId === account.id}
-                  onClick={() => deleteAccount(account.id)}
-                  className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-rose-50 px-4 py-2.5 text-sm font-semibold text-rose-700 transition hover:bg-rose-100 disabled:opacity-50 sm:flex-none"
-                >
-                  <Trash2 className="h-4 w-4" />
-                  Delete
-                </button>
+                  <AdminField label="Network Handle (@)">
+                    <div className="relative">
+                      <input
+                        defaultValue={account.email?.split('@')[0] || ""}
+                        onBlur={(e) => {
+                          const val = e.target.value.trim();
+                          if (val && val !== account.email?.split('@')[0]) updateAccount(account.id, { handle: val });
+                        }}
+                        className="w-full rounded-xl border border-slate-200 bg-white pl-4 pr-10 py-2.5 text-sm font-bold text-indigo-600 outline-none transition focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100"
+                      />
+                      <Mail className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-300" />
+                    </div>
+                  </AdminField>
+
+                  <AdminField label="Direct Website URL">
+                    <div className="relative">
+                      <input
+                        defaultValue={account.website || ""}
+                        onBlur={(e) => e.target.value !== account.website && updateAccount(account.id, { website: e.target.value })}
+                        className="w-full rounded-xl border border-slate-200 bg-white pl-4 pr-10 py-2.5 text-sm font-medium text-slate-600 outline-none transition focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100"
+                      />
+                      <ExternalLink className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-300" />
+                    </div>
+                  </AdminField>
+
+                  <AdminField label="Official Club Email">
+                    <div className="relative">
+                      <input
+                        defaultValue={account.clubEmail || ""}
+                        onBlur={(e) => e.target.value !== account.clubEmail && updateAccount(account.id, { clubEmail: e.target.value })}
+                        className="w-full rounded-xl border border-slate-200 bg-white pl-4 pr-10 py-2.5 text-sm font-medium text-slate-600 outline-none transition focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100"
+                      />
+                      <Mail className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-300" />
+                    </div>
+                  </AdminField>
+
+                  <AdminField label="System Access Role">
+                    <select
+                      value={account.role}
+                      onChange={(e) => updateAccount(account.id, { role: e.target.value })}
+                      disabled={savingId === account.id}
+                      className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 outline-none transition focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100"
+                    >
+                      {roleOptions.map((role) => (
+                        <option key={role} value={role}>{role.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}</option>
+                      ))}
+                    </select>
+                  </AdminField>
+
+                  <AdminField label="Moderation / Badge Label">
+                    <input
+                      defaultValue={account.badgeLabel || ""}
+                      onBlur={(e) => e.target.value !== account.badgeLabel && updateAccount(account.id, { badgeLabel: e.target.value })}
+                      placeholder="e.g. Core Committee"
+                      className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 outline-none transition focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100"
+                    />
+                  </AdminField>
+
+                  {account.password && (
+                    <AdminField label="Account Password (Plaintext)">
+                      <div className="relative">
+                        <input
+                          defaultValue={account.password || ""}
+                          onBlur={(e) => e.target.value !== account.password && updateAccount(account.id, { password: e.target.value })}
+                          className="w-full rounded-xl border border-rose-100 bg-rose-50/30 pl-4 pr-10 py-2.5 text-sm font-mono font-bold text-rose-700 outline-none transition focus:border-rose-600 focus:bg-white focus:ring-4 focus:ring-rose-100"
+                        />
+                        <Key className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-rose-300" />
+                      </div>
+                    </AdminField>
+                  )}
+                </div>
+
+                <div className="mt-8 flex flex-wrap items-center gap-3 border-t border-slate-100 pt-6">
+                  <button
+                    type="button"
+                    disabled={savingId === account.id}
+                    onClick={() =>
+                      updateAccount(account.id, {
+                        isAuthorized: !account.isAuthorized,
+                        badgeLabel: !account.isAuthorized ? account.badgeLabel || "Verified by network" : "Pending verification",
+                      })
+                    }
+                    className={`inline-flex flex-1 items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-bold transition sm:flex-none ${
+                        account.isAuthorized 
+                        ? "bg-slate-100 text-slate-700 hover:bg-slate-200" 
+                        : "bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-100"
+                    }`}
+                  >
+                    <ShieldCheck className="h-4 w-4" />
+                    {account.isAuthorized ? "Retract Verification" : "Verify Account"}
+                  </button>
+                  <button
+                    type="button"
+                    disabled={savingId === account.id}
+                    onClick={() => deleteAccount(account.id)}
+                    className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-rose-50 px-5 py-3 text-sm font-bold text-rose-600 transition hover:bg-rose-100 sm:flex-none"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Delete Account
+                  </button>
+                </div>
               </div>
             </div>
           ))}
         </div>
       </div>
     </article>
+  );
+}
+
+function AdminField({ label, children }) {
+  return (
+    <div className="space-y-2">
+      <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
+        {label}
+      </label>
+      {children}
+    </div>
+  );
+}
+
+function ExportMenu({ accounts }) {
+  const [show, setShow] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const exportCSV = () => {
+    const headers = ["College", "Club Name", "POC Name", "POC Phone", "Club Email", "Website", "Handle", "Password", "Role", "Verified", "Created At"];
+    const rows = accounts.map(a => [
+      a.collegeName,
+      a.clubName,
+      a.contactName,
+      a.contactPhone || "",
+      a.clubEmail || "",
+      a.website || "",
+      a.email?.split('@')[0] || "",
+      a.password || "",
+      a.role,
+      a.isAuthorized ? "YES" : "NO",
+      new Date(a.createdAt).toLocaleDateString()
+    ]);
+    const csvContent = "data:text/csv;charset=utf-8," 
+      + headers.join(",") + "\n"
+      + rows.map(e => e.map(cell => `"${(cell || '').toString().replace(/"/g, '""')}"`).join(",")).join("\n");
+    const link = document.createElement("a");
+    link.setAttribute("href", encodeURI(csvContent));
+    link.setAttribute("download", `iiitians-clubs-${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setShow(false);
+  };
+
+  const exportJSON = () => {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(accounts, null, 2));
+    const link = document.createElement("a");
+    link.setAttribute("href", dataStr);
+    link.setAttribute("download", `iiitians-clubs-${new Date().toISOString().split('T')[0]}.json`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setShow(false);
+  };
+
+  const copyToClipboard = () => {
+    const headers = ["College", "Club Name", "POC Name", "POC Phone", "Club Email", "Website", "Handle", "Password"];
+    const rows = accounts.map(a => [
+      a.collegeName,
+      a.clubName,
+      a.contactName,
+      a.contactPhone || "",
+      a.clubEmail || "",
+      a.website || "",
+      a.email?.split('@')[0] || "",
+      a.password || ""
+    ]);
+    const tsvContent = headers.join("\t") + "\n" + rows.map(r => r.join("\t")).join("\n");
+    navigator.clipboard.writeText(tsvContent);
+    setCopied(true);
+    setTimeout(() => {
+      setCopied(false);
+      setShow(false);
+    }, 2000);
+  };
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setShow(!show)}
+        className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-indigo-600/20 transition hover:bg-indigo-700 active:scale-95"
+      >
+        <Download className="h-4 w-4" />
+        Export Data
+        <ChevronDown className={`h-4 w-4 transition-transform ${show ? "rotate-180" : ""}`} />
+      </button>
+
+      {show && (
+        <>
+          <div className="fixed inset-0 z-20" onClick={() => setShow(false)} />
+          <div className="absolute right-0 top-full z-30 mt-2 w-64 overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-2xl animate-in fade-in slide-in-from-top-2">
+            <button
+              onClick={exportCSV}
+              className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-semibold text-slate-700 transition hover:bg-slate-50 hover:text-indigo-600"
+            >
+              <FileSpreadsheet className="h-4 w-4 text-emerald-500" />
+              Download CSV (Excel)
+            </button>
+            <button
+              onClick={exportJSON}
+              className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-semibold text-slate-700 transition hover:bg-slate-50 hover:text-indigo-600"
+            >
+              <FileJson className="h-4 w-4 text-amber-500" />
+              Download JSON (Backup)
+            </button>
+            <button
+              onClick={copyToClipboard}
+              className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-semibold transition ${
+                copied ? "bg-emerald-50 text-emerald-600" : "text-slate-700 hover:bg-slate-50 hover:text-indigo-600"
+              }`}
+            >
+              <Copy className={`h-4 w-4 ${copied ? "text-emerald-500" : "text-indigo-500"}`} />
+              {copied ? "Copied to Clipboard!" : "Copy for Sheets (Paste)"}
+            </button>
+          </div>
+        </>
+      )}
+    </div>
   );
 }
 

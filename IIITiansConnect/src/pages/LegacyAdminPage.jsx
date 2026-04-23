@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
   Clock3,
   Pencil,
   PlusCircle,
@@ -56,6 +58,8 @@ export default function LegacyAdminPage() {
   const [busyId, setBusyId] = useState("");
   const [editEntryId, setEditEntryId] = useState("");
   const [teamEntryId, setTeamEntryId] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 12;
   const [editForm, setEditForm] = useState({
     name: "",
     email: "",
@@ -155,6 +159,16 @@ export default function LegacyAdminPage() {
 
     return () => clearTimeout(timer);
   }, [status, query]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [status, query]);
+
+  const totalPages = Math.ceil(entries.length / itemsPerPage);
+  const paginatedEntries = entries.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   const stats = useMemo(() => {
     const pending = entries.filter(
@@ -448,7 +462,7 @@ export default function LegacyAdminPage() {
         </div>
       ) : (
         <div className="grid gap-4 xl:grid-cols-2">
-          {entries.map((entry) => {
+          {paginatedEntries.map((entry) => {
             const effectiveStatus = getEffectiveStatus(entry);
             const isEditing = editEntryId === entry._id;
             const isAddingToTeam = teamEntryId === entry._id;
@@ -787,6 +801,28 @@ export default function LegacyAdminPage() {
               </article>
             );
           })}
+        </div>
+      )}
+
+      {totalPages > 1 && (
+        <div className="mt-12 flex items-center justify-center gap-6">
+          <button
+            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+            disabled={currentPage === 1}
+            className="rounded-full border border-slate-200 bg-white px-6 py-2.5 text-sm font-medium text-slate-600 transition-all hover:bg-slate-50 disabled:opacity-30 disabled:hover:bg-white"
+          >
+            Previous
+          </button>
+          <div className="text-sm font-medium text-slate-400">
+            Page <span className="text-slate-900 font-bold">{currentPage}</span> of {totalPages}
+          </div>
+          <button
+            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+            disabled={currentPage === totalPages}
+            className="rounded-full border border-slate-200 bg-white px-6 py-2.5 text-sm font-medium text-slate-600 transition-all hover:bg-slate-50 disabled:opacity-30 disabled:hover:bg-white"
+          >
+            Next
+          </button>
         </div>
       )}
     </div>
