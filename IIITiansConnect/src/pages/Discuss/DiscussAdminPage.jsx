@@ -675,8 +675,9 @@ function ClubCard({ club, postCount, savingId, updateAccount, deleteAccount }) {
                   <p className="text-base font-bold text-slate-900">{account.contactName}</p>
                   <div className="mt-1 flex flex-col gap-1">
                     {account.email && (
-                      <span className="inline-flex items-center gap-2 text-sm text-slate-600">
-                        <Mail className="h-4 w-4 text-slate-400" /> {account.email}
+                      <span className="inline-flex items-center gap-2 text-sm text-indigo-600 font-bold">
+                        <Mail className="h-4 w-4 text-slate-400" /> {account.email.split('@')[0]}
+                        <span className="text-[10px] text-slate-400 font-normal">@iiitiansnetwork</span>
                       </span>
                     )}
                     {account.contactPhone && (
@@ -703,6 +704,35 @@ function ClubCard({ club, postCount, savingId, updateAccount, deleteAccount }) {
 
               <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div className="relative">
+                  <span className="absolute -top-2 left-2 bg-slate-50 px-1 text-[9px] font-bold text-slate-400">Club Name</span>
+                  <input
+                    defaultValue={account.clubName || ""}
+                    onBlur={(event) => {
+                       if (event.target.value !== account.clubName) {
+                         updateAccount(account.id, { clubName: event.target.value });
+                       }
+                    }}
+                    placeholder="Club display name"
+                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold outline-none transition focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100"
+                  />
+                </div>
+                <div className="relative">
+                  <span className="absolute -top-2 left-2 bg-slate-50 px-1 text-[9px] font-bold text-slate-400 uppercase tracking-widest">Unique ID (Handle)</span>
+                  <input
+                    defaultValue={account.email?.split('@')[0] || ""}
+                    onBlur={(event) => {
+                       const nextHandle = event.target.value.trim();
+                       if (nextHandle && nextHandle !== account.email?.split('@')[0]) {
+                         updateAccount(account.id, { handle: nextHandle });
+                       }
+                    }}
+                    placeholder="Unique club handle"
+                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 pl-9 text-sm font-bold text-indigo-600 outline-none transition focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100"
+                  />
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                </div>
+                <div className="relative">
+                  <span className="absolute -top-2 left-2 bg-slate-50 px-1 text-[9px] font-bold text-slate-400">Direct Website</span>
                   <input
                     defaultValue={account.website || ""}
                     onBlur={(event) => {
@@ -710,7 +740,7 @@ function ClubCard({ club, postCount, savingId, updateAccount, deleteAccount }) {
                          updateAccount(account.id, { website: event.target.value });
                        }
                     }}
-                    placeholder="Club website URL"
+                    placeholder="Official URL"
                     className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 pl-9 text-sm outline-none transition focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100"
                   />
                   <ExternalLink className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -725,7 +755,8 @@ function ClubCard({ club, postCount, savingId, updateAccount, deleteAccount }) {
                     <option key={role} value={role}>{role.replace("_", " ")}</option>
                   ))}
                 </select>
-                <div className="sm:col-span-2">
+                <div className="sm:col-span-2 relative">
+                   <span className="absolute -top-2 left-2 bg-slate-50 px-1 text-[9px] font-bold text-slate-400">Moderation Badge / Verification Title</span>
                   <input
                     defaultValue={account.badgeLabel || ""}
                     onBlur={(event) => {
@@ -733,7 +764,7 @@ function ClubCard({ club, postCount, savingId, updateAccount, deleteAccount }) {
                          updateAccount(account.id, { badgeLabel: event.target.value });
                        }
                     }}
-                    placeholder="Custom badge label (e.g. Verified by network)"
+                    placeholder="e.g. Verified Society"
                     className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none transition focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100"
                   />
                 </div>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import {
   ExternalLink,
@@ -15,8 +15,9 @@ import {
   Upload,
   Trash2,
   Building2,
+  Globe,
 } from "lucide-react";
-import { Link, useSearchParams, useNavigate } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import api from "../../../api/axios";
 
 const COLLEGE_PLACEHOLDER = "/placeholder.svg";
@@ -28,7 +29,6 @@ const CollegeCard = ({ college, teamCount = 0, discussClubs = [] }) => {
   const [uploading, setUploading] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   
-  // Sort latest-first — fall back to MongoDB _id timestamp for old photos
   const sortGallery = (imgs) => {
     const getTime = (img) => {
       if (img.createdAt) return new Date(img.createdAt).getTime();
@@ -38,6 +38,7 @@ const CollegeCard = ({ college, teamCount = 0, discussClubs = [] }) => {
     };
     return [...imgs].sort((a, b) => getTime(b) - getTime(a));
   };
+
   const [galleryImages, setGalleryImages] = useState(
     sortGallery(college.gallery || [])
   );
@@ -150,24 +151,39 @@ const CollegeCard = ({ college, teamCount = 0, discussClubs = [] }) => {
         ? [{ name: "Club / Community", url: clubLink }]
         : [];
 
-  const mergedClubs = [
-    ...displayClubLinks.map((item, index) => ({
-      id: `college-${item.name}-${index}`,
-      name: item.name,
-      url: formatExternalLink(item.url),
-      source: "college",
-      isAuthorized: false,
-      badgeLabel: "",
-    })),
-    ...discussClubs.map((club, index) => ({
-      id: club.id || `discuss-${club.clubName}-${index}`,
-      name: club.clubName,
-      url: formatExternalLink(club.website),
-      source: "discuss",
-      isAuthorized: Boolean(club.isAuthorized),
-      badgeLabel: club.badgeLabel || "Verified by network",
-    })),
-  ];
+  const mergedClubs = useMemo(() => {
+    const clubsMap = new Map();
+
+    displayClubLinks.forEach((item, index) => {
+      const nameKey = item.name.trim().toLowerCase();
+      if (!clubsMap.has(nameKey)) {
+        clubsMap.set(nameKey, {
+          id: `college-${item.name}-${index}`,
+          name: item.name,
+          url: formatExternalLink(item.url),
+          source: "college",
+          isAuthorized: false,
+          badgeLabel: "",
+        });
+      }
+    });
+
+    discussClubs.forEach((club, index) => {
+      const nameKey = club.clubName.trim().toLowerCase();
+      if (!clubsMap.has(nameKey) || !clubsMap.get(nameKey).isAuthorized) {
+        clubsMap.set(nameKey, {
+          id: club.id || `discuss-${club.clubName}-${index}`,
+          name: club.clubName,
+          url: formatExternalLink(club.website),
+          source: "discuss",
+          isAuthorized: Boolean(club.isAuthorized),
+          badgeLabel: club.badgeLabel || "Verified by network",
+        });
+      }
+    });
+
+    return Array.from(clubsMap.values());
+  }, [displayClubLinks, discussClubs]);
 
   const hasExpandableDetails =
     (description && description.length > 140) ||
@@ -196,12 +212,9 @@ const CollegeCard = ({ college, teamCount = 0, discussClubs = [] }) => {
 
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(255,255,255,0.1),_transparent_60%),_linear-gradient(to_top,_rgba(0,0,0,0.2)_0%,_transparent_50%)]" />
 
-        {/* Top Badges Area */}
         <div className="absolute right-3 top-3 z-10 flex flex-wrap justify-end gap-1.5 sm:gap-2">
-          {/* Photos Badge (Clickable) */}
           <Link
             to={`/college/${encodeURIComponent(name)}/gallery`}
-            onClick={(e) => e.stopPropagation()}
             className="flex items-center gap-1.5 rounded-full border border-white/20 bg-slate-900/40 px-2.5 py-1.5 text-[10px] font-bold text-white backdrop-blur-md shadow-lg transition-all hover:bg-slate-900/60 hover:scale-110 active:scale-95 sm:px-3 sm:text-[11px]"
             title="View Gallery"
           >
@@ -209,17 +222,23 @@ const CollegeCard = ({ college, teamCount = 0, discussClubs = [] }) => {
             {galleryImages.length}
           </Link>
 
-          {/* Clubs Badge */}
-          <div className="flex items-center gap-1.5 rounded-full border border-white/20 bg-emerald-900/40 px-2.5 py-1.5 text-[10px] font-bold text-white backdrop-blur-md shadow-lg sm:px-3 sm:text-[11px]" title="Registered Clubs">
+          <Link
+            to={`/college/${encodeURIComponent(name)}/clubs`}
+            className="flex items-center gap-1.5 rounded-full border border-white/20 bg-emerald-900/40 px-2.5 py-1.5 text-[10px] font-bold text-white backdrop-blur-md shadow-lg transition-all hover:bg-emerald-900/70 hover:scale-110 active:scale-95 sm:px-3 sm:text-[11px]" 
+            title="Registered Clubs"
+          >
             <Link2 className="h-3.5 w-3.5" />
             {mergedClubs.length}
-          </div>
+          </Link>
 
-          {/* Team Badge */}
-          <div className="flex items-center gap-1.5 rounded-full border border-white/20 bg-indigo-900/40 px-2.5 py-1.5 text-[10px] font-bold text-white backdrop-blur-md shadow-lg sm:px-3 sm:text-[11px]" title="Community Team">
+          <Link
+            to={`/team?iiit=${encodeURIComponent(name)}`}
+            className="flex items-center gap-1.5 rounded-full border border-white/20 bg-indigo-900/40 px-2.5 py-1.5 text-[10px] font-bold text-white backdrop-blur-md shadow-lg transition-all hover:bg-indigo-900/60 hover:scale-110 active:scale-95 sm:px-3 sm:text-[11px]" 
+            title="Community Team"
+          >
             <Users className="h-3.5 w-3.5" />
             {teamCount}
-          </div>
+          </Link>
         </div>
       </div>
 
@@ -239,9 +258,23 @@ const CollegeCard = ({ college, teamCount = 0, discussClubs = [] }) => {
               onError={() => setLogoSrc(COLLEGE_PLACEHOLDER)}
             />
           </div>
-          <h3 className="text-sm font-semibold text-gray-900 sm:text-lg">
-            {name}
-          </h3>
+          <div className="flex flex-col">
+            <h3 className="text-sm font-bold text-gray-900 sm:text-lg">
+              {name}
+            </h3>
+            {website && (
+              <a 
+                href={website} 
+                target="_blank" 
+                rel="noreferrer"
+                className="group/link flex items-center gap-1 text-[10px] font-bold text-indigo-600 hover:text-indigo-700 sm:text-[11px]"
+              >
+                <Globe size={12} className="shrink-0" />
+                <span className="truncate max-w-[120px] sm:max-w-[200px]">{website.replace(/^https?:\/\//, "").replace(/\/$/, "")}</span>
+                <ExternalLink size={10} className="opacity-0 transition-opacity group-hover/link:opacity-100" />
+              </a>
+            )}
+          </div>
           </div>
 
           <div className="relative shrink-0">
@@ -265,7 +298,18 @@ const CollegeCard = ({ college, teamCount = 0, discussClubs = [] }) => {
                   }}
                 >
                   <Images className="h-4 w-4 text-indigo-600" />
-                  View College Gallery
+                  View Gallery
+                </button>
+                <button
+                  type="button"
+                  className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 hover:text-slate-900"
+                  onClick={() => {
+                    setShowMenu(false);
+                    window.location.href = `/college/${encodeURIComponent(name)}/clubs`;
+                  }}
+                >
+                  <Link2 className="h-4 w-4 text-emerald-600" />
+                  Explore Clubs
                 </button>
                 <div className="my-1 h-px bg-slate-100" />
                 <Link
@@ -274,7 +318,7 @@ const CollegeCard = ({ college, teamCount = 0, discussClubs = [] }) => {
                   onClick={() => setShowMenu(false)}
                 >
                   <Users className="h-4 w-4" />
-                  Register your club
+                  Register club
                 </Link>
                 <button
                   type="button"
@@ -285,7 +329,7 @@ const CollegeCard = ({ college, teamCount = 0, discussClubs = [] }) => {
                   }}
                 >
                   <ImagePlus className="h-4 w-4" />
-                  Add College Photos
+                  Add Photos
                 </button>
                 <div className="my-1 h-px bg-slate-100" />
                 <Link
@@ -304,7 +348,7 @@ const CollegeCard = ({ college, teamCount = 0, discussClubs = [] }) => {
         {description && (
           <div className="mb-3">
             <p
-              className={`text-sm text-gray-600 ${
+              className={`text-sm font-medium text-gray-600 ${
                 showFullDescription ? "" : "line-clamp-4"
               }`}
             >
@@ -317,62 +361,38 @@ const CollegeCard = ({ college, teamCount = 0, discussClubs = [] }) => {
           <button
             type="button"
             onClick={() => setShowFullDescription((prev) => !prev)}
-            className="mb-3 w-fit text-sm font-medium text-indigo-600 transition hover:text-indigo-700"
+            className="mb-3 w-fit text-sm font-bold text-indigo-600 transition hover:text-indigo-700"
           >
             {showFullDescription ? "See less" : "See more"}
           </button>
         )}
 
           {showFullDescription && mergedClubs.length > 0 && (
-          <div className="mb-4 rounded-2xl bg-slate-50 p-3 ring-1 ring-slate-200/80">
-            <div className="mb-2 flex items-center justify-between">
-              <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-                Clubs & Societies
+          <div className="mb-4 rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-200/80">
+            <div className="mb-3 flex items-center justify-between">
+              <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                Community Societies
               </div>
-              <div className="rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-bold text-indigo-700">
-                {mergedClubs.length} Active
-              </div>
+              <Link to={`/college/${encodeURIComponent(name)}/clubs`} className="text-[10px] font-bold text-indigo-600 hover:underline uppercase tracking-tight">
+                View All
+              </Link>
             </div>
             <div className="flex flex-wrap gap-2">
-              {mergedClubs.map((club) =>
-                club.url ? (
-                  <a
-                    key={club.id}
-                    href={club.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className={`inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-sm transition ${
+              {mergedClubs.map((club) => (
+                <Link
+                  key={club.id}
+                  to={`/college/${encodeURIComponent(name)}/clubs/${encodeURIComponent(club.name)}`}
+                    className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold transition-all shadow-sm ${
                       club.source === "discuss"
-                        ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100 hover:bg-emerald-100"
-                        : "bg-white text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"
+                        ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100 hover:bg-emerald-100 shadow-emerald-700/5"
+                        : "bg-white text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50 hover:border-slate-300"
                     }`}
                   >
                     {club.name}
-                    <Link2 size={14} />
-                  </a>
-                ) : (
-                  <span
-                    key={club.id}
-                    title="No link provided"
-                    className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm cursor-help ${
-                      club.source === "discuss"
-                        ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100"
-                        : "bg-white text-slate-600 ring-1 ring-slate-200"
-                    }`}
-                  >
-                    {club.name}
-                    {club.isAuthorized && (
-                      <span
-                        title={club.badgeLabel || "Verified"}
-                        aria-label={club.badgeLabel || "Verified"}
-                        className="inline-flex items-center justify-center rounded-full bg-emerald-50 p-1.5 text-emerald-700 ring-1 ring-emerald-100"
-                      >
-                        <ShieldCheck size={12} />
-                      </span>
-                    )}
-                  </span>
-                )
-              )}
+                    {club.isAuthorized && <ShieldCheck size={12} className="text-emerald-500" />}
+                    <ChevronRight size={12} className="opacity-40" />
+                </Link>
+              ))}
             </div>
           </div>
         )}
@@ -381,27 +401,24 @@ const CollegeCard = ({ college, teamCount = 0, discussClubs = [] }) => {
           <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
             <Link
                to={`/college/${encodeURIComponent(name)}/gallery`}
-               className="inline-flex items-center gap-1.5 whitespace-nowrap leading-none rounded-full bg-slate-900 px-3.5 py-2 text-[10px] font-bold uppercase tracking-wider text-white transition hover:bg-slate-800 sm:px-4.5 sm:py-2.5 sm:text-[11px]"
+               className="inline-flex items-center gap-1.5 whitespace-nowrap leading-none rounded-full bg-slate-900 px-4 py-2.5 text-[10px] font-bold uppercase tracking-wider text-white transition hover:bg-slate-800 sm:text-[11px]"
             >
               <Images size={14} />
-              View Gallery
+              Gallery
             </Link>
             <Link
-              to={`/legacy?iiit=${encodeURIComponent(name)}`}
-              className="inline-flex items-center gap-1 whitespace-nowrap leading-none rounded-full bg-emerald-600 px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-white transition hover:bg-emerald-700 sm:px-4.5 sm:py-2.5 sm:text-[11px]"
+               to={`/college/${encodeURIComponent(name)}/clubs`}
+               className="inline-flex items-center gap-1.5 whitespace-nowrap leading-none rounded-full bg-indigo-600 px-4 py-2.5 text-[10px] font-bold uppercase tracking-wider text-white transition hover:bg-indigo-700 sm:text-[11px]"
             >
-              View Legacy
+              <Users size={14} />
+              Clubs
             </Link>
-            {website && (
-              <a
-                href={website}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1 whitespace-nowrap leading-none rounded-full border border-slate-200 bg-white px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-700 transition hover:bg-slate-50 sm:px-4.5 sm:py-2.5 sm:text-[11px]"
-              >
-                Website <ExternalLink size={10} className="sm:size-3" />
-              </a>
-            )}
+             <Link
+              to={`/legacy?iiit=${encodeURIComponent(name)}`}
+              className="inline-flex items-center gap-1.5 whitespace-nowrap leading-none rounded-full border border-slate-200 bg-white px-4 py-2.5 text-[10px] font-bold uppercase tracking-wider text-slate-700 transition hover:bg-slate-50 sm:text-[11px]"
+            >
+              Legacy
+            </Link>
           </div>
         </div>
 
@@ -426,7 +443,7 @@ const CollegeCard = ({ college, teamCount = 0, discussClubs = [] }) => {
 function GalleryModal({ name, images = [], onClose, onUpload, uploading, isAdmin, onDelete }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [stagedItems, setStagedItems] = useState([]);
-  const [viewMode, setViewMode] = useState("BROWSE"); // BROWSE or STAGING
+  const [viewMode, setViewMode] = useState("BROWSE");
 
   const handleFileSelection = (e) => {
     const files = Array.from(e.target.files || []);
@@ -482,11 +499,11 @@ function GalleryModal({ name, images = [], onClose, onUpload, uploading, isAdmin
             </h2>
             <div className="flex items-center gap-2">
               <p className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                {images.length} Moments Shared
+                {images.length} Moments
               </p>
               {viewMode === "STAGING" && (
                 <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-bold text-indigo-700 animate-pulse">
-                  Staging {stagedItems.length} New
+                   {stagedItems.length} New captures
                 </span>
               )}
             </div>
@@ -510,7 +527,7 @@ function GalleryModal({ name, images = [], onClose, onUpload, uploading, isAdmin
                   className="flex h-10 items-center gap-2 rounded-xl bg-indigo-600 px-5 text-[13px] font-bold text-white transition hover:bg-indigo-700 disabled:opacity-50"
                 >
                   <Upload size={16} />
-                  {uploading ? "Uploading..." : `Confirm ${stagedItems.length} Uploads`}
+                  {uploading ? "Uploading..." : `Upload ${stagedItems.length}`}
                 </button>
               </>
             ) : (
@@ -549,23 +566,10 @@ function GalleryModal({ name, images = [], onClose, onUpload, uploading, isAdmin
                      placeholder="Add a context / caption..."
                      value={item.caption}
                      onChange={(e) => updateStagedCaption(idx, e.target.value)}
-                     className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-[13px] font-medium outline-none transition focus:bg-white focus:ring-2 focus:ring-indigo-600/10"
+                     className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-[13px] font-bold outline-none transition focus:bg-white focus:ring-2 focus:ring-indigo-600/10"
                    />
                 </div>
               ))}
-              <label className="flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-slate-300 bg-white/50 p-6 transition hover:bg-white hover:border-indigo-400 cursor-pointer text-slate-400 hover:text-indigo-600">
-                <div className="rounded-full bg-slate-100 p-3">
-                  <Plus size={24} />
-                </div>
-                <span className="text-xs font-bold uppercase tracking-widest">Add more</span>
-                <input 
-                  type="file" 
-                  multiple 
-                  accept="image/*" 
-                  className="hidden" 
-                  onChange={handleFileSelection}
-                />
-              </label>
             </div>
           </div>
         ) : (
@@ -586,8 +590,7 @@ function GalleryModal({ name, images = [], onClose, onUpload, uploading, isAdmin
                   {isAdmin && (
                     <button
                       onClick={() => onDelete(images[activeIndex].url)}
-                      className="absolute left-5 top-5 z-50 flex h-10 w-10 items-center justify-center rounded-xl bg-white/40 text-rose-600 backdrop-blur-md transition-all hover:bg-rose-600 hover:text-white shadow-lg ring-1 ring-white/20"
-                      title="Remove Photo"
+                      className="absolute left-5 top-5 z-50 flex h-10 w-10 items-center justify-center rounded-xl bg-white/40 text-rose-600 backdrop-blur-md transition-all hover:bg-rose-600 shadow-lg ring-1 ring-white/20"
                     >
                       <Trash2 size={18} />
                     </button>
@@ -610,24 +613,6 @@ function GalleryModal({ name, images = [], onClose, onUpload, uploading, isAdmin
                 <p className="text-sm font-bold uppercase tracking-widest">No captures yet</p>
               </div>
             )}
-          </div>
-        )}
-
-        {viewMode !== "STAGING" && images.length > 0 && (
-          <div className="flex gap-2 overflow-x-auto px-1 pb-2 custom-scrollbar">
-            {images.map((img, idx) => (
-              <button
-                key={idx}
-                onClick={() => setActiveIndex(idx)}
-                className={`relative h-14 w-20 shrink-0 overflow-hidden rounded-xl bg-slate-100 transition-all ${
-                  idx === activeIndex
-                    ? "ring-2 ring-indigo-600 ring-offset-2 scale-105"
-                    : "opacity-40 hover:opacity-100 shadow-sm"
-                }`}
-              >
-                <img src={img.url} className="h-full w-full object-cover" />
-              </button>
-            ))}
           </div>
         )}
       </div>

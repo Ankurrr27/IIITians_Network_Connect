@@ -35,9 +35,11 @@ export default function InAppNotifications() {
       const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
       setItems((prev) => [{ id, ...notification }, ...prev].slice(0, 3));
 
+      // Shorter timeout on mobile (4s) vs desktop (7s)
+      const timeout = window.innerWidth < 640 ? 4000 : 7000;
       window.setTimeout(() => {
         setItems((prev) => prev.filter((item) => item.id !== id));
-      }, 7000);
+      }, timeout);
     };
 
     const maybeCelebrateViews = (views) => {
@@ -201,7 +203,7 @@ export default function InAppNotifications() {
   }, []);
 
   return (
-    <div className="pointer-events-none fixed bottom-6 left-1/2 z-[70] flex w-full max-w-[min(20rem,calc(100vw-2rem))] -translate-x-1/2 flex-col gap-2.5 sm:bottom-auto sm:top-24 sm:right-6 sm:left-auto sm:translate-x-0">
+    <div className="pointer-events-none fixed bottom-6 right-4 z-[70] flex w-full max-w-[min(16rem,calc(100vw-2rem))] flex-col gap-2 sm:bottom-auto sm:top-24 sm:right-6 sm:max-w-xs">
       <AnimatePresence mode="popLayout">
         {items.map((item) => (
           <NotificationCard
@@ -222,25 +224,24 @@ const NotificationCard = React.forwardRef(({ item, onClose }, ref) => {
     <motion.div
       ref={ref}
       layout
-      initial={{ opacity: 0, y: 30, scale: 0.95 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
-      className="pointer-events-auto relative overflow-hidden rounded-xl border border-white/60 bg-white/70 p-4 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.12)] backdrop-blur-3xl ring-1 ring-white/30"
+      initial={{ opacity: 0, x: 20, scale: 0.95 }}
+      animate={{ opacity: 1, x: 0, scale: 1 }}
+      exit={{ opacity: 0, x: 20, scale: 0.9, transition: { duration: 0.2 } }}
+      className="pointer-events-auto relative overflow-hidden rounded-xl border border-white/60 bg-white/70 p-3 sm:p-4 shadow-xl backdrop-blur-3xl ring-1 ring-white/30"
     >
-      {/* Sidebar Accent Indicator */}
       <div className={`absolute left-0 top-0 h-full w-1 ${accentColor} opacity-90`} />
       
-      <div className="flex items-start justify-between gap-4 pl-1">
+      <div className="flex items-start justify-between gap-3 pl-1 sm:gap-4">
         <div className="flex-1 min-w-0">
-          <div className="mb-1">
-            <span className="text-[9px] font-black uppercase tracking-[0.2em] text-indigo-600/80">
+          <div className="mb-0.5 sm:mb-1">
+            <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.2em] text-indigo-600/80">
               {item.type || "Update"}
             </span>
           </div>
-          <h4 className="text-[13px] font-bold text-slate-900 leading-tight">
+          <h4 className="text-xs sm:text-[13px] font-bold text-slate-900 leading-tight">
             {item.title}
           </h4>
-          <p className="mt-1 text-[11px] text-slate-600 font-medium leading-relaxed line-clamp-2">
+          <p className="mt-0.5 sm:mt-1 text-[10px] sm:text-[11px] text-slate-600 font-medium leading-relaxed line-clamp-2">
             {item.message}
           </p>
         </div>
@@ -249,7 +250,7 @@ const NotificationCard = React.forwardRef(({ item, onClose }, ref) => {
           className="shrink-0 -mt-1 p-1 text-slate-300 transition-colors hover:bg-black/5 hover:text-slate-900 rounded-lg"
           aria-label="Dismiss"
         >
-          <X className="h-3.5 w-3.5" />
+          <X className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
         </button>
       </div>
     </motion.div>

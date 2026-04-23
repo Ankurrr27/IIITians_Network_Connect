@@ -32,6 +32,7 @@ const GuidePage = lazy(() => import("./pages/Guide/GuidePage.jsx"));
 const AdminGuide = lazy(() => import("./pages/Guide/AdminGuide.jsx"));
 const AdminNotificationsPage = lazy(() => import("./pages/AdminNotificationsPage.jsx"));
 const GalleryPage = lazy(() => import("./pages/Gallery/Gallery.jsx"));
+const CollegeClubs = lazy(() => import("./pages/Colleges/CollegeClubs.jsx"));
 
 function LegacyAdminRedirect() {
   const { status } = useParams();
@@ -98,6 +99,7 @@ function App() {
           <Route path="/discuss" element={<DiscussPage />} />
           <Route path="/guide" element={<GuidePage />} />
           <Route path="/college/:collegeName/gallery" element={<GalleryPage />} />
+          <Route path="/college/:collegeName/clubs/:clubName?" element={<CollegeClubs />} />
           <Route path="/gallery" element={<Navigate to="/colleges" replace />} />
           <Route path="/contact" element={<ContactPage />} />
 
