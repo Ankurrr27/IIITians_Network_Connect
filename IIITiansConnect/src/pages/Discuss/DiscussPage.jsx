@@ -683,7 +683,7 @@ export default function DiscussPage() {
                         <TextInput name="contactPhone" value={registerForm.contactPhone} onChange={(e) => setRegisterForm((p) => ({ ...p, contactPhone: e.target.value }))} placeholder="e.g. 9876543210" />
                       </LabeledField>
                     </div>
-                    <LabeledField label="Club website / Linktree">
+                    <LabeledField label="Club website / Social Media">
                       <TextInput name="website" value={registerForm.website} onChange={(e) => setRegisterForm((p) => ({ ...p, website: e.target.value }))} placeholder="e.g. https://linktr.ee/ecelliiitkota" />
                     </LabeledField>
                     <LabeledField label="Club handle">
