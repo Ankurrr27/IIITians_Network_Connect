@@ -115,10 +115,12 @@ export default function LegacyAdminPage() {
         }),
       ]);
 
-      const adminEntries =
-        adminResult.status === "fulfilled" ? adminResult.value.data : [];
-      const publicEntries =
-        publicResult.status === "fulfilled" ? publicResult.value.data : [];
+      const adminEntries = adminResult.status === "fulfilled"
+        ? (adminResult.value.data?.alumni ?? adminResult.value.data ?? [])
+        : [];
+      const publicEntries = publicResult.status === "fulfilled"
+        ? (publicResult.value.data?.alumni ?? publicResult.value.data ?? [])
+        : [];
 
       const merged = mergeEntries(adminEntries, publicEntries);
       const filtered =

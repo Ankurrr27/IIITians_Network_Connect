@@ -61,7 +61,9 @@ export default function CollegesPage() {
           teamResult.status === "fulfilled" ? teamResult.value.data || [] : []
         );
         setLegacyMembers(
-          legacyResult.status === "fulfilled" ? legacyResult.value.data || [] : []
+          legacyResult.status === "fulfilled"
+            ? legacyResult.value.data?.alumni || legacyResult.value.data || []
+            : []
         );
         setDiscussClubs(
           discussAccountsResult.status === "fulfilled"

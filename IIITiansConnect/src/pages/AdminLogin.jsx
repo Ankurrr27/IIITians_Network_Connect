@@ -121,7 +121,8 @@ export default function AdminLogin() {
       // Fetch pending notifications for the red alert
       try {
         const alumniRes = await api.get("/alumni/admin/requests", { params: { status: "pending" } });
-        setPendingCount(alumniRes.data?.length || 0);
+        const d = alumniRes.data;
+        setPendingCount(d?.pagination?.total ?? d?.alumni?.length ?? d?.length ?? 0);
       } catch (e) {
         console.warn("Could not fetch pending counts for dashboard.");
       }

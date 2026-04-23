@@ -137,13 +137,20 @@ const alumniSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// 🔍 PERFORMANCE INDEXES
+alumniSchema.index({ iiit: 1 });
+alumniSchema.index({ generation: 1 });
+alumniSchema.index({ status: 1 });
+alumniSchema.index({ legacyType: 1 });
+alumniSchema.index({ graduationYear: -1 });
+
 alumniSchema.index({
   name: "text",
   iiit: "text",
   branch: "text",
   currentRole: "text",
   currentCompany: "text",
-  generation: "text",
+  networkPost: "text",
 });
 
 export default mongoose.model("Alumni", alumniSchema);

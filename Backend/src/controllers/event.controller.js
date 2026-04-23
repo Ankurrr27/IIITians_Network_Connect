@@ -15,7 +15,6 @@ const ensureClubRegistered = async (collegeName, clubName, clubLink) => {
   if (!collegeName || !clubName) return;
 
   try {
-    // 1. Check if club already has a Discuss account
     const discussAccount = await DiscussAccount.findOne({
       collegeName: { $regex: new RegExp(`^${escapeRegex(collegeName.trim())}$`, "i") },
       clubName: { $regex: new RegExp(`^${escapeRegex(clubName.trim())}$`, "i") },
@@ -23,7 +22,6 @@ const ensureClubRegistered = async (collegeName, clubName, clubLink) => {
     });
     if (discussAccount) return;
 
-    // 2. Check if already in College.clubLinks
     const college = await College.findOne({
       name: { $regex: new RegExp(`^${escapeRegex(collegeName.trim())}$`, "i") },
     });
@@ -62,7 +60,6 @@ export const createEvent = async (req, res) => {
     }
 
     let banner = null;
-
     if (req.file) {
       banner = {
         public_id: req.file.filename,
@@ -89,13 +86,48 @@ export const createEvent = async (req, res) => {
 };
 
 /* =========================
-   GET ALL EVENTS
+   GET ALL EVENTS (PAGINATED)
 ========================= */
 export const getEvents = async (req, res) => {
   try {
     await backfillApprovedDiscussEvents();
-    const events = await Event.find().sort({ date: -1 });
-    res.json(events);
+
+    const { page = 1, limit = 10, search = "", sortBy = "newest" } = req.query;
+    const pageNum = parseInt(page) || 1;
+    const limitNum = parseInt(limit) || 10;
+    const skip = (pageNum - 1) * limitNum;
+
+    // 🔍 BUILD QUERY
+    const query = {};
+    if (search.trim()) {
+      const regex = new RegExp(escapeRegex(search.trim()), "i");
+      query.$or = [
+        { title: regex },
+        { collegeName: regex },
+        { clubName: regex }
+      ];
+    }
+
+    // 📊 SORTING
+    let sortOptions = { date: -1 }; // default newest
+    if (sortBy === "oldest") sortOptions = { date: 1 };
+    if (sortBy === "az") sortOptions = { title: 1 };
+    if (sortBy === "za") sortOptions = { title: -1 };
+
+    const [events, total] = await Promise.all([
+      Event.find(query).sort(sortOptions).skip(skip).limit(limitNum),
+      Event.countDocuments(query),
+    ]);
+
+    res.json({
+      events,
+      pagination: {
+        total,
+        page: pageNum,
+        limit: limitNum,
+        totalPages: Math.ceil(total / limitNum),
+      },
+    });
   } catch (err) {
     console.error("GET EVENTS ERROR:", err);
     res.status(500).json({ message: err.message });
@@ -108,11 +140,9 @@ export const getEvents = async (req, res) => {
 export const getEventById = async (req, res) => {
   try {
     const event = await Event.findById(req.params.id);
-
     if (!event) {
       return res.status(404).json({ message: "Event not found" });
     }
-
     res.json(event);
   } catch (err) {
     console.error("GET EVENT BY ID ERROR:", err);
@@ -126,15 +156,7 @@ export const getEventById = async (req, res) => {
 export const updateEvent = async (req, res) => {
   try {
     const updateData = {};
-
-    const allowedFields = [
-      "title",
-      "description",
-      "date",
-      "collegeName",
-      "clubName",
-      "link",
-    ];
+    const allowedFields = ["title", "description", "date", "collegeName", "clubName", "link"];
 
     allowedFields.forEach((field) => {
       if (req.body[field] !== undefined) {
@@ -149,11 +171,7 @@ export const updateEvent = async (req, res) => {
       };
     }
 
-    const event = await Event.findByIdAndUpdate(
-      req.params.id,
-      updateData,
-      { new: true }
-    );
+    const event = await Event.findByIdAndUpdate(req.params.id, updateData, { new: true });
 
     if (!event) {
       return res.status(404).json({ message: "Event not found" });
@@ -176,7 +194,6 @@ export const updateEvent = async (req, res) => {
 export const deleteEvent = async (req, res) => {
   try {
     const event = await Event.findById(req.params.id);
-
     if (!event) {
       return res.status(404).json({ message: "Event not found" });
     }

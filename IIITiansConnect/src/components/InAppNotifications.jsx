@@ -115,10 +115,12 @@ export default function InAppNotifications() {
         api.get("/site-stats"),
       ]);
 
+      const eventsData = eventsRes.value?.data;
+      const legacyData = legacyRes.value?.data;
       return {
         posts: postsRes.status === "fulfilled" ? postsRes.value.data?.length || 0 : snapshotRef.current.posts,
-        events: eventsRes.status === "fulfilled" ? eventsRes.value.data?.length || 0 : snapshotRef.current.events,
-        legacy: legacyRes.status === "fulfilled" ? legacyRes.value.data?.length || 0 : snapshotRef.current.legacy,
+        events: eventsRes.status === "fulfilled" ? (eventsData?.pagination?.total ?? eventsData?.length ?? 0) : snapshotRef.current.events,
+        legacy: legacyRes.status === "fulfilled" ? (legacyData?.pagination?.total ?? legacyData?.length ?? 0) : snapshotRef.current.legacy,
         team: teamRes.status === "fulfilled" ? teamRes.value.data?.length || 0 : snapshotRef.current.team,
         clubs: clubsRes.status === "fulfilled" ? clubsRes.value.data?.registeredClubs || 0 : snapshotRef.current.clubs,
         views: statsRes.status === "fulfilled" ? statsRes.value.data?.totalViews || 0 : 0,

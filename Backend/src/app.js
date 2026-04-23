@@ -1,5 +1,8 @@
 import express from "express";
 import cors from "cors";
+import compression from "compression";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 import placementRoutes from "./routes/placement.routes.js";
 import collegeRoutes from "./routes/college.routes.js";
 import clubRoutes from "./routes/club.routes.js";
@@ -14,6 +17,16 @@ import siteStatsRoutes from "./routes/siteStats.routes.js";
 
 const app = express();
 
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 200, // limit each IP to 200 requests per windowMs
+  message: "Too many requests from this IP, please try again after 15 minutes",
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+app.use("/api/", limiter);
+
 const allowedOrigins = [
   "https://iiitiansnetwork.in",
   "https://www.iiitiansnetwork.in",
@@ -26,6 +39,7 @@ const allowedOrigins = [
   "http://localhost:3000",
 ];
 
+// ✅ CORS must run FIRST — before helmet, so preflight OPTIONS pass through
 app.use(
   cors({
     origin: function (origin, callback) {
@@ -50,7 +64,16 @@ app.use(
   })
 );
 
-app.use(express.json());
+// 🚀 PERFORMANCE & SECURITY MIDDLEWARE (after CORS)
+app.use(
+  helmet({
+    crossOriginResourcePolicy: false, // Allow cross-origin resource sharing (CORS handles this)
+  })
+);
+app.use(compression()); // Gzip/Brotli payload compression
+
+app.use(express.json({ limit: "10kb" })); // Prevent large JSON payload attacks
+app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 
 app.get("/", (req, res) => {
   res.send("Backend running");

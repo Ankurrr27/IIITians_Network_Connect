@@ -10,6 +10,7 @@ import EventsFilters from "./Sections/EventsFilters";
 export default function PublicEvents() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [pagination, setPagination] = useState({ totalPages: 1 });
 
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("newest");
@@ -17,45 +18,34 @@ export default function PublicEvents() {
   const itemsPerPage = 8;
 
   useEffect(() => {
+    setLoading(true);
+    api
+      .get("/events", {
+        params: {
+          page: currentPage,
+          limit: itemsPerPage,
+          search: search,
+          sortBy: sortBy
+        }
+      })
+      .then((res) => {
+        setEvents(res.data.events);
+        setPagination(res.data.pagination);
+      })
+      .catch((err) => console.error("PUBLIC EVENTS ERROR:", err))
+      .finally(() => setLoading(false));
+  }, [currentPage, search, sortBy]);
+
+  useEffect(() => {
     notifyPageEntry(
       "Congratulations, events page loaded",
       "Fresh events are ready to browse.",
       "page-events-loaded"
     );
-
-    api
-      .get("/events")
-      .then((res) => setEvents(res.data))
-      .catch((err) => console.error("PUBLIC EVENTS ERROR:", err))
-      .finally(() => setLoading(false));
   }, []);
 
-  // 🔍 FILTER + SORT
-  const processedEvents = useMemo(() => {
-    return [...events]
-      .filter((e) => {
-        const q = search.toLowerCase();
-        return (
-          e.title?.toLowerCase().includes(q) ||
-          e.collegeName?.toLowerCase().includes(q) ||
-          e.clubName?.toLowerCase().includes(q)
-        );
-      })
-      .sort((a, b) => {
-        if (sortBy === "az") return a.title.localeCompare(b.title);
-        if (sortBy === "za") return b.title.localeCompare(a.title);
-        if (sortBy === "oldest") return new Date(a.date) - new Date(b.date);
-        return new Date(b.date) - new Date(a.date);
-      });
-  }, [events, search, sortBy]);
-
   // 📄 PAGINATION LOGIC
-  const totalItems = processedEvents.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const paginatedEvents = processedEvents.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  const totalPages = pagination.totalPages;
 
   useEffect(() => {
     setCurrentPage(1);
@@ -79,7 +69,7 @@ export default function PublicEvents() {
 
         <EventsGrid
           loading={loading}
-          events={paginatedEvents}
+          events={events}
           isPublic // 👈 important
         />
 

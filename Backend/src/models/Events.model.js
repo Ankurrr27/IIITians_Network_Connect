@@ -53,4 +53,10 @@ const eventSchema = new mongoose.Schema(
   }
 );
 
+// 🔍 PERFORMANCE INDEXES
+eventSchema.index({ date: -1 });
+eventSchema.index({ collegeName: 1 });
+eventSchema.index({ clubName: 1 });
+eventSchema.index({ title: "text" }); // Optional: Text index for search
+
 export default mongoose.model("Event", eventSchema);

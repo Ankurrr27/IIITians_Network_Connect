@@ -46,6 +46,7 @@ export default function LegacyPage() {
   const [rawPhoto, setRawPhoto] = useState(null);
   const [useTeamPhoto, setUseTeamPhoto] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const [pagination, setPagination] = useState({ totalPages: 1 });
   const itemsPerPage = 12;
 
   const filteredEntries = useMemo(() => {
@@ -60,7 +61,7 @@ export default function LegacyPage() {
     });
   }, [entries, searchParams]);
 
-  const fetchEntries = async (filters = {}) => {
+  const fetchEntries = async (filters = {}, page = currentPage) => {
     setLoading(true);
 
     try {
@@ -73,10 +74,14 @@ export default function LegacyPage() {
             filters.professionalStatus ?? professionalStatusFilter,
           legacyType: filters.legacyType ?? legacyTypeFilter,
           networkPost: filters.networkPost ?? networkPostFilter,
+          page,
+          limit: itemsPerPage,
         },
       });
 
-      setEntries(response.data);
+      const data = response.data;
+      setEntries(data?.alumni ?? data ?? []);
+      if (data?.pagination) setPagination(data.pagination);
       setApiUnavailable(false);
     } catch (error) {
       if (error.response?.status === 404) {
@@ -129,7 +134,8 @@ export default function LegacyPage() {
 
   useEffect(() => {
     const timeout = setTimeout(() => {
-      fetchEntries({ search, generation: generationFilter });
+      setCurrentPage(1);
+      fetchEntries({}, 1);
     }, 250);
 
     return () => clearTimeout(timeout);
@@ -141,6 +147,10 @@ export default function LegacyPage() {
     legacyTypeFilter,
     networkPostFilter,
   ]);
+
+  useEffect(() => {
+    fetchEntries({}, currentPage);
+  }, [currentPage]);
 
   const generationOptions = useMemo(() => {
     const values = entries.map((entry) => entry.generation).filter(Boolean);
@@ -255,23 +265,9 @@ export default function LegacyPage() {
     }
   };
 
-  const paginatedEntries = filteredEntries.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-
-  const totalPages = Math.ceil(filteredEntries.length / itemsPerPage);
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [
-    search,
-    generationFilter,
-    iiitFilter,
-    professionalStatusFilter,
-    legacyTypeFilter,
-    networkPostFilter,
-  ]);
+  // Backend handles pagination — entries is already the current page's slice
+  const paginatedEntries = entries;
+  const totalPages = pagination.totalPages ?? 1;
 
   return (
     <div
@@ -369,17 +365,17 @@ export default function LegacyPage() {
               <button
                 onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                 disabled={currentPage === 1}
-                className="rounded-full border border-slate-200 bg-white px-6 py-2.5 text-sm font-medium text-slate-600 transition-all hover:bg-indigo-50 hover:text-indigo-600 disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-indigo-400"
+                className="rounded-full border border-slate-200 bg-white px-6 py-2 text-sm font-medium text-slate-600 transition-all hover:bg-slate-50 disabled:opacity-30 disabled:hover:bg-white dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
               >
                 Previous
               </button>
               <div className="text-sm font-medium text-slate-400 dark:text-slate-500">
-                Page <span className="text-slate-900 font-bold dark:text-slate-200">{currentPage}</span> of {totalPages}
+                Page <span className="font-bold text-slate-900 dark:text-slate-200">{currentPage}</span> of {totalPages}
               </div>
               <button
                 onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                 disabled={currentPage === totalPages}
-                className="rounded-full border border-slate-200 bg-white px-6 py-2.5 text-sm font-medium text-slate-600 transition-all hover:bg-indigo-50 hover:text-indigo-600 disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-indigo-400"
+                className="rounded-full border border-slate-200 bg-white px-6 py-2 text-sm font-medium text-slate-600 transition-all hover:bg-slate-50 disabled:opacity-30 disabled:hover:bg-white dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
               >
                 Next
               </button>
