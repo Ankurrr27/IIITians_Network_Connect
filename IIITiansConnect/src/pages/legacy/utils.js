@@ -40,21 +40,21 @@ const dedupeRoleHistory = (roleHistory = []) =>
     );
   });
 
-export const getLegacyStats = (entries) => [
-  { label: "Legacy profiles", value: entries.length, icon: Users },
+export const getLegacyStats = (statsData) => [
+  { label: "Legacy profiles", value: statsData.totalProfiles || 0, icon: Users },
   {
     label: "Network posts",
-    value: new Set(entries.map((entry) => entry.networkPost).filter(Boolean)).size,
+    value: statsData.networkPosts || 0,
     icon: ShieldCheck,
   },
   {
     label: "Companies listed",
-    value: new Set(entries.map(getEntryCompanyValue).filter(Boolean)).size,
+    value: statsData.companies || 0,
     icon: Building2,
   },
   {
     label: "Batches visible",
-    value: new Set(entries.map((entry) => entry.generation).filter(Boolean)).size,
+    value: statsData.batches || 0,
     icon: GraduationCap,
   },
 ];
@@ -80,5 +80,8 @@ export const getLegacyEntryViewModel = (entry) => {
       normalizedLocation !== normalizedIiit &&
       normalizedLocation !== normalizedCurrentCompany,
     dedupedRoleHistory: dedupeRoleHistory(entry.roleHistory || []),
+    totalTerms: (entry.roleHistory || []).filter((h, i, a) => 
+      a.findIndex(x => x.year === h.year && x.team === h.team && x.role === h.role) === i
+    ).length,
   };
 };

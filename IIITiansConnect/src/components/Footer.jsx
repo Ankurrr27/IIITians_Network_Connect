@@ -12,6 +12,11 @@ import {
   ChevronRight,
   Sparkles,
   Command,
+  Camera,
+  BookOpen,
+  FileText,
+  Map,
+  GraduationCap,
 } from "lucide-react";
 import api from "../api/axios";
 
@@ -23,23 +28,28 @@ const Footer = () => {
     members: 0,
     colleges: 0,
     clubs: 0,
+    events: 0,
+    photos: 0,
+    alumni: 0,
   });
 
   const loadStats = async () => {
     try {
-      const [teamRes, collegesRes, clubsStatsRes, clubsRes, siteStatsRes] = await Promise.allSettled([
+      const [siteStatsRes, teamRes, clubsStatsRes, clubsRes] = await Promise.allSettled([
+        api.get("/site-stats"),
         api.get("/team"),
-        api.get("/colleges"),
         api.get("/discuss-accounts/public/stats"),
         api.get("/discuss-accounts/public"),
-        api.get("/site-stats"),
       ]);
 
       setStats((prev) => ({
         ...prev,
-        members: teamRes.status === "fulfilled" ? teamRes.value.data?.length || 0 : 0,
-        colleges: collegesRes.status === "fulfilled" ? collegesRes.value.data?.length || 0 : 0,
         views: siteStatsRes.status === "fulfilled" ? siteStatsRes.value.data?.totalViews || prev.views : prev.views,
+        events: siteStatsRes.status === "fulfilled" ? siteStatsRes.value.data?.totalEvents || 0 : 0,
+        photos: siteStatsRes.status === "fulfilled" ? siteStatsRes.value.data?.totalPhotos || 0 : 0,
+        colleges: siteStatsRes.status === "fulfilled" ? siteStatsRes.value.data?.totalColleges || 0 : 0,
+        alumni: siteStatsRes.status === "fulfilled" ? siteStatsRes.value.data?.totalAlumni || 0 : 0,
+        members: teamRes.status === "fulfilled" ? teamRes.value.data?.length || 0 : 0,
         clubs:
           clubsStatsRes.status === "fulfilled"
             ? clubsStatsRes.value.data?.registeredClubs || 0
@@ -93,13 +103,16 @@ const Footer = () => {
 
             <div className="flex flex-wrap items-center gap-3">
               <StatChip icon={Users2} value={stats.members} label="Team" />
+              <StatChip icon={GraduationCap} value={stats.alumni} label="Alumni" />
               <StatChip icon={Building2} value={stats.colleges} label="IIITs" />
               <StatChip icon={ShieldCheck} value={stats.clubs} label="Clubs" />
+              <StatChip icon={Sparkles} value={stats.events} label="Events" />
+              <StatChip icon={Camera} value={stats.photos} label="Photos" />
             </div>
           </div>
         </div>
 
-        <div className="grid gap-10 border-b border-slate-700 pb-10 md:grid-cols-4">
+        <div className="grid gap-10 border-b border-slate-700 pb-10 lg:grid-cols-5 md:grid-cols-3">
           <div className="space-y-4">
             <h3 className="text-xl font-bold text-white tracking-tight">
               IIITians Network
@@ -143,13 +156,26 @@ const Footer = () => {
 
           <div>
             <h4 className="mb-4 text-xs font-bold uppercase tracking-widest text-white">
-              Support
+              Resources
             </h4>
             <ul className="space-y-2.5 text-sm">
+              <li><Link to="/gallery" className="transition hover:text-white">Gallery</Link></li>
+              <li><Link to="/guide" className="transition hover:text-white">Documentation</Link></li>
+              <li><Link to="/branding" className="transition hover:text-white">Branding Kit</Link></li>
+              <li><Link to="/" className="transition hover:text-white">Sitemap</Link></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="mb-4 text-xs font-bold uppercase tracking-widest text-white">
+              Legal
+            </h4>
+            <ul className="space-y-2.5 text-sm">
+              <li><Link to="/privacy" className="transition hover:text-white">Privacy Policy</Link></li>
+              <li><Link to="/terms" className="transition hover:text-white">Terms of Use</Link></li>
+              <li><Link to="/guidelines" className="transition hover:text-white">Community Guidelines</Link></li>
               <li><Link to="/contact" className="transition hover:text-white">Contact Us</Link></li>
               <li><Link to="/admin" className="transition hover:text-white">Admin Portal</Link></li>
-              <li><Link to="/guide?flow=member" className="transition hover:text-white">How it works</Link></li>
-              <li><Link to="/" className="transition hover:text-white">Privacy Policy</Link></li>
             </ul>
           </div>
         </div>

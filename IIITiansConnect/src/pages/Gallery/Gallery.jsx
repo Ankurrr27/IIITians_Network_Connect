@@ -17,7 +17,7 @@ import {
 import { useParams, useSearchParams } from "react-router-dom";
 import api from "../../api/axios";
 import useThemeMode from "../../hooks/useThemeMode.jsx";
-import { notifyPageEntry } from "../../utils/appNotifications";
+import { notifyPromise } from "../../utils/appNotifications";
 
 const categories = [
   { id: "all", label: "All Photos", icon: <Images size={16} /> },
@@ -80,15 +80,16 @@ export default function GalleryPage() {
   };
 
   useEffect(() => {
-    notifyPageEntry(
-      collegeName ? `${collegeName} Gallery Loaded` : "Gallery Loaded",
-      collegeName ? `Explore the visual journey of ${collegeName}.` : "Explore the visual journey of IIITs.",
-      "gallery-page-loaded"
-    );
-
     const fetchGallery = async () => {
+      const promise = api.get("/colleges");
+
+      notifyPromise(promise, {
+        loading: collegeName ? `Fetching ${collegeName} gallery...` : "Loading campus gallery...",
+        success: "Photos loaded",
+      });
+
       try {
-        const res = await api.get("/colleges");
+        const res = await promise;
         setColleges(res.data || []);
       } catch (err) {
         console.error("Failed to fetch gallery:", err);

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import api from "../../api/axios";
-import { notifyPageEntry } from "../../utils/appNotifications";
+import { notifyPromise } from "../../utils/appNotifications";
 
 import EventsGrid from "./Sections/EventsGrid";
 import EventsHeader from "./Sections/EventsHeader";
@@ -19,15 +19,21 @@ export default function PublicEvents() {
 
   useEffect(() => {
     setLoading(true);
-    api
-      .get("/events", {
-        params: {
-          page: currentPage,
-          limit: itemsPerPage,
-          search: search,
-          sortBy: sortBy
-        }
-      })
+    const promise = api.get("/events", {
+      params: {
+        page: currentPage,
+        limit: itemsPerPage,
+        search: search,
+        sortBy: sortBy,
+      },
+    });
+
+    notifyPromise(promise, {
+      loading: "Updating events...",
+      success: "Events refreshed",
+    });
+
+    promise
       .then((res) => {
         setEvents(res.data.events);
         setPagination(res.data.pagination);
@@ -35,14 +41,6 @@ export default function PublicEvents() {
       .catch((err) => console.error("PUBLIC EVENTS ERROR:", err))
       .finally(() => setLoading(false));
   }, [currentPage, search, sortBy]);
-
-  useEffect(() => {
-    notifyPageEntry(
-      "Congratulations, events page loaded",
-      "Fresh events are ready to browse.",
-      "page-events-loaded"
-    );
-  }, []);
 
   // 📄 PAGINATION LOGIC
   const totalPages = pagination.totalPages;

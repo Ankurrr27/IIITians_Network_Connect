@@ -3,7 +3,7 @@ import {
   getAllPlacements,
   getPlacementByCollegeName,
 } from "../../api/placementApi";
-import { notifyAppAction, notifyPageEntry } from "../../utils/appNotifications";
+import { notifyPromise } from "../../utils/appNotifications";
 
 import PlacementSearchBar from "./sections/PlacementSearchBar";
 import PlacementPreview from "./sections/PlacementPreview";
@@ -19,13 +19,14 @@ export default function Placement() {
   const [collegeOptions, setCollegeOptions] = useState([]);
 
   useEffect(() => {
-    notifyPageEntry(
-      "Congratulations, placement page loaded",
-      "Placement insights are ready for search.",
-      "page-placement-loaded"
-    );
+    const promise = getAllPlacements();
+    
+    notifyPromise(promise, {
+      loading: "Fetching placement options...",
+      success: "Directory ready",
+    });
 
-    getAllPlacements()
+    promise
       .then((response) => {
         const names = (response.data || [])
           .map((item) => item?.college?.name)
@@ -34,12 +35,6 @@ export default function Placement() {
         setCollegeOptions(
           [...new Set(names)].sort((a, b) => a.localeCompare(b))
         );
-        notifyAppAction({
-          title: "Congratulations, placement data fetched",
-          message: "Placement directory options have been loaded.",
-          type: "milestone",
-          dedupeKey: "placement-options-fetched",
-        });
       })
       .catch(() => {
         setCollegeOptions([]);
@@ -52,19 +47,19 @@ export default function Placement() {
     setLoading(true);
     setSearched(true);
 
+    const promise = getPlacementByCollegeName(name);
+
+    notifyPromise(promise, {
+      loading: `Fetching stats for ${name.trim()}...`,
+      success: "Data loaded",
+    });
+
     try {
-      const res = await getPlacementByCollegeName(name);
+      const res = await promise;
       setData(res.data);
 
       const years = (res.data.yearlyPlacements || []).map((entry) => entry.year);
       setYear(years.length ? Math.max(...years) : null);
-      notifyAppAction({
-        title: "Congratulations, placement data fetched",
-        message: `${name.trim()} placement stats are now on screen.`,
-        type: "milestone",
-        dedupeKey: `placement-search-${name.trim().toLowerCase()}`,
-        dedupeWindowMs: 120000,
-      });
     } catch (err) {
       console.error("Placement fetch failed:", err);
       setData(null);

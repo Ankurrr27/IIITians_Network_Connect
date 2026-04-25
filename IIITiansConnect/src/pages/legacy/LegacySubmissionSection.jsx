@@ -1,6 +1,6 @@
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { Link } from "react-router-dom";
-import { cardShell, legacyFormFields } from "./constants.js";
+import { legacyFormFields } from "./constants.js";
 
 export default function LegacySubmissionSection({
   isDarkMode,
@@ -18,13 +18,7 @@ export default function LegacySubmissionSection({
   setUseTeamPhoto,
 }) {
   return (
-    <div
-      className={`overflow-hidden rounded-[1.75rem] border p-5 shadow-[0_22px_60px_rgba(99,102,241,0.08)] sm:rounded-[2rem] sm:p-6 lg:p-7 ${
-        isDarkMode
-          ? cardShell.dark
-          : "border-indigo-100 bg-[linear-gradient(135deg,rgba(239,246,255,0.9),rgba(255,255,255,0.95))]"
-      }`}
-    >
+    <div className="space-y-6">
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center lg:gap-8">
         <div className="max-w-2xl">
           <h2
@@ -243,13 +237,6 @@ export default function LegacySubmissionSection({
         </form>
       )}
 
-      <div
-        className={`my-6 h-px ${
-          isDarkMode
-            ? "bg-gradient-to-r from-transparent via-slate-700 to-transparent"
-            : "bg-gradient-to-r from-transparent via-indigo-100 to-transparent"
-        }`}
-      />
     </div>
   );
 }

@@ -17,16 +17,6 @@ import siteStatsRoutes from "./routes/siteStats.routes.js";
 
 const app = express();
 
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 200, // limit each IP to 200 requests per windowMs
-  message: "Too many requests from this IP, please try again after 15 minutes",
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-
-app.use("/api/", limiter);
-
 const allowedOrigins = [
   "https://iiitiansnetwork.in",
   "https://www.iiitiansnetwork.in",
@@ -39,14 +29,16 @@ const allowedOrigins = [
   "http://localhost:3000",
 ];
 
-// ✅ CORS must run FIRST — before helmet, so preflight OPTIONS pass through
+// ✅ CORS must run FIRST — so all responses (including 429/404/500) have correct headers
 app.use(
   cors({
     origin: function (origin, callback) {
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
-        callback(null, false);
+        // Log CORS failure for debugging
+        console.warn("CORS blocked origin:", origin);
+        callback(new Error("Not allowed by CORS"));
       }
     },
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
@@ -63,6 +55,17 @@ app.use(
     optionsSuccessStatus: 200,
   })
 );
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: process.env.NODE_ENV === "production" ? 1000 : 5000, // limit each IP (much higher in dev)
+  message: "Too many requests from this IP, please try again after 15 minutes",
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+app.use("/api/", limiter);
+
 
 // 🚀 PERFORMANCE & SECURITY MIDDLEWARE (after CORS)
 app.use(

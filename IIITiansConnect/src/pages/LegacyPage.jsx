@@ -4,7 +4,7 @@ import useThemeMode from "../hooks/useThemeMode.jsx";
 import { useSearchParams } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import ImageCropModal from "../components/ImageCropModal";
-import { notifyAppAction, notifyPageEntry } from "../utils/appNotifications";
+import { notifyPromise } from "../utils/appNotifications";
 import { cardShell, initialForm } from "./legacy/constants.js";
 import LegacyEntriesSection from "./legacy/LegacyEntriesSection.jsx";
 import LegacyFiltersSection from "./legacy/LegacyFiltersSection.jsx";
@@ -47,6 +47,12 @@ export default function LegacyPage() {
   const [useTeamPhoto, setUseTeamPhoto] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [pagination, setPagination] = useState({ totalPages: 1 });
+  const [statsData, setStatsData] = useState({
+    totalProfiles: 0,
+    networkPosts: 0,
+    companies: 0,
+    batches: 0,
+  });
   const itemsPerPage = 12;
 
   const filteredEntries = useMemo(() => {
@@ -64,24 +70,31 @@ export default function LegacyPage() {
   const fetchEntries = async (filters = {}, page = currentPage) => {
     setLoading(true);
 
-    try {
-      const response = await api.get("/alumni", {
-        params: {
-          search: filters.search ?? search,
-          generation: filters.generation ?? generationFilter,
-          iiit: filters.iiit ?? iiitFilter,
-          professionalStatus:
-            filters.professionalStatus ?? professionalStatusFilter,
-          legacyType: filters.legacyType ?? legacyTypeFilter,
-          networkPost: filters.networkPost ?? networkPostFilter,
-          page,
-          limit: itemsPerPage,
-        },
-      });
+    const promise = api.get("/alumni", {
+      params: {
+        search: filters.search ?? search,
+        generation: filters.generation ?? generationFilter,
+        iiit: filters.iiit ?? iiitFilter,
+        professionalStatus:
+          filters.professionalStatus ?? professionalStatusFilter,
+        legacyType: filters.legacyType ?? legacyTypeFilter,
+        networkPost: filters.networkPost ?? networkPostFilter,
+        page,
+        limit: itemsPerPage,
+      },
+    });
 
+    notifyPromise(promise, {
+      loading: "Updating network legacy directory...",
+      success: "Directory updated",
+    });
+
+    try {
+      const response = await promise;
       const data = response.data;
       setEntries(data?.alumni ?? data ?? []);
       if (data?.pagination) setPagination(data.pagination);
+      if (data?.stats) setStatsData(data.stats);
       setApiUnavailable(false);
     } catch (error) {
       if (error.response?.status === 404) {
@@ -116,11 +129,6 @@ export default function LegacyPage() {
   useEffect(() => {
     fetchTeamMembers();
     fetchColleges();
-    notifyPageEntry(
-      "Congratulations, legacy page loaded",
-      "Network Legacy is ready to explore.",
-      "page-legacy-loaded"
-    );
   }, []);
 
   useEffect(() => {
@@ -187,7 +195,7 @@ export default function LegacyPage() {
     return [...new Set(values)].sort((a, b) => a.localeCompare(b));
   }, [entries]);
 
-  const stats = useMemo(() => getLegacyStats(entries), [entries]);
+  const stats = useMemo(() => getLegacyStats(statsData), [statsData]);
 
   const filterSelectClass = `w-full appearance-none rounded-2xl border px-4 py-3 pr-12 text-sm outline-none transition duration-300 truncate sm:text-base ${
     isDarkMode
@@ -224,9 +232,16 @@ export default function LegacyPage() {
         formData.append("photoSourceMemberId", matchedTeamMember._id);
       }
 
-      await api.post("/alumni", formData, {
+      const promise = api.post("/alumni", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
+
+      notifyPromise(promise, {
+        loading: "Submitting your legacy profile request...",
+        success: "Request submitted successfully!",
+      });
+
+      await promise;
 
       setForm(initialForm);
       setPhoto(null);
@@ -238,12 +253,6 @@ export default function LegacyPage() {
         error: "",
         success:
           "Your Network Legacy request has been submitted. It will appear after admin approval.",
-      });
-      notifyAppAction({
-        title: "Congratulations, form submitted successfully",
-        message: "Your Network Legacy profile request has been sent.",
-        type: "legacy",
-        dedupeKey: "legacy-form-submit",
       });
       setApiUnavailable(false);
       fetchEntries();
@@ -275,14 +284,14 @@ export default function LegacyPage() {
         isDarkMode
           ? "bg-slate-950"
           : "bg-[linear-gradient(180deg,_#eff6ff_0%,_#f8faff_40%,_#ffffff_100%)]"
-      } pb-16 pt-14 text-slate-900 sm:pb-24 sm:pt-16`}
+      } pb-16 pt-20 text-slate-900 sm:pb-24 sm:pt-24`}
     >
       <div className="pointer-events-none absolute inset-0 opacity-60 [background-image:radial-gradient(circle_at_20%_20%,rgba(59,130,246,0.16),transparent_0_22%),radial-gradient(circle_at_80%_18%,rgba(125,211,252,0.18),transparent_0_20%),radial-gradient(circle_at_72%_72%,rgba(96,165,250,0.12),transparent_0_24%)]" />
 
-      <LegacyHeroSection isDarkMode={isDarkMode} stats={stats} />
+      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6">
+        <LegacyHeroSection isDarkMode={isDarkMode} stats={stats} />
 
-      <section className="px-4 pb-14 sm:px-6 sm:pb-20">
-        <div className="mx-auto max-w-7xl space-y-4 sm:space-y-6">
+        <div className="space-y-3 pb-10 sm:space-y-4 sm:pb-16">
           {apiUnavailable && (
             <div
               className={`rounded-[1.5rem] border px-4 py-3 text-sm leading-7 sm:px-5 sm:py-4 ${
@@ -308,29 +317,37 @@ export default function LegacyPage() {
             </div>
           )}
 
-          <LegacySubmissionSection
-            isDarkMode={isDarkMode}
-            isFormOpen={isFormOpen}
-            setIsFormOpen={setIsFormOpen}
-            handleSubmit={handleSubmit}
-            submitState={submitState}
-            form={form}
-            handleChange={handleChange}
-            iiitOptions={iiitOptions}
-            matchedTeamMember={matchedTeamMember}
-            photo={photo}
-            setRawPhoto={setRawPhoto}
-            useTeamPhoto={useTeamPhoto}
-            setUseTeamPhoto={setUseTeamPhoto}
-          />
-
           <div
-            className={`overflow-hidden rounded-[1.75rem] border p-5 shadow-[0_22px_60px_rgba(99,102,241,0.08)] sm:rounded-[2rem] sm:p-6 lg:p-7 ${
+            className={`overflow-hidden rounded-[1.75rem] border p-4 shadow-[0_22px_60px_rgba(99,102,241,0.08)] sm:rounded-[2rem] sm:p-5 lg:p-6 ${
               isDarkMode
                 ? cardShell.dark
                 : "border-indigo-100 bg-[linear-gradient(135deg,rgba(239,246,255,0.9),rgba(255,255,255,0.95))]"
             }`}
           >
+            <LegacySubmissionSection
+              isDarkMode={isDarkMode}
+              isFormOpen={isFormOpen}
+              setIsFormOpen={setIsFormOpen}
+              handleSubmit={handleSubmit}
+              submitState={submitState}
+              form={form}
+              handleChange={handleChange}
+              iiitOptions={iiitOptions}
+              matchedTeamMember={matchedTeamMember}
+              photo={photo}
+              setRawPhoto={setRawPhoto}
+              useTeamPhoto={useTeamPhoto}
+              setUseTeamPhoto={setUseTeamPhoto}
+            />
+
+            <div
+              className={`my-8 h-px ${
+                isDarkMode
+                  ? "bg-gradient-to-r from-transparent via-slate-700 to-transparent"
+                  : "bg-gradient-to-r from-transparent via-indigo-200/50 to-transparent"
+              }`}
+            />
+
             <LegacyFiltersSection
               isDarkMode={isDarkMode}
               search={search}
@@ -365,25 +382,24 @@ export default function LegacyPage() {
               <button
                 onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                 disabled={currentPage === 1}
-                className="rounded-full border border-slate-200 bg-white px-6 py-2 text-sm font-medium text-slate-600 transition-all hover:bg-slate-50 disabled:opacity-30 disabled:hover:bg-white dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+                className="rounded-full border border-slate-200 bg-white px-6 py-2 text-sm font-medium text-slate-600 transition-all hover:bg-slate-50 disabled:opacity-30 disabled:hover:bg-white"
               >
                 Previous
               </button>
-              <div className="text-sm font-medium text-slate-400 dark:text-slate-500">
-                Page <span className="font-bold text-slate-900 dark:text-slate-200">{currentPage}</span> of {totalPages}
+              <div className="text-sm font-medium text-slate-400">
+                Page <span className="font-bold text-slate-900">{currentPage}</span> of {totalPages}
               </div>
               <button
                 onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                 disabled={currentPage === totalPages}
-                className="rounded-full border border-slate-200 bg-white px-6 py-2 text-sm font-medium text-slate-600 transition-all hover:bg-slate-50 disabled:opacity-30 disabled:hover:bg-white dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+                className="rounded-full border border-slate-200 bg-white px-6 py-2 text-sm font-medium text-slate-600 transition-all hover:bg-slate-50 disabled:opacity-30 disabled:hover:bg-white"
               >
                 Next
               </button>
             </div>
           )}
         </div>
-      </section>
-
+      </div>
       {rawPhoto && (
         <ImageCropModal
           file={rawPhoto}

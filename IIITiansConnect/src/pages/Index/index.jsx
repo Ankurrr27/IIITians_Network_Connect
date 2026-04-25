@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import Index1 from "./Sections/First-Home-index1";
 import Index2 from "./Sections/About-Links-index2.0";
 import Index2_2 from "./Sections/Events-index3";
+import DiscussPreview from "./Sections/Discuss-index4";
 import Index3 from "./Sections/Founder";
 import Index4 from "./Sections/Jossa-Csab-index5";
 
@@ -16,6 +17,7 @@ const Index = () => {
       {/* CONTENT SECTIONS */}
       <Index2 />
       <Index2_2 />
+      <DiscussPreview />
 
       {/* FOUNDER PREVIEW */}
 

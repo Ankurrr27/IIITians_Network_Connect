@@ -23,7 +23,7 @@ export default function LegacyFiltersSection({
 }) {
   return (
     <div>
-      <div className="max-w-2xl px-1 pb-4 sm:px-0 sm:pb-5">
+      <div className="max-w-2xl px-1 pb-2 sm:px-0 sm:pb-3">
         <h2
           className={`text-xl font-semibold sm:text-2xl ${
             isDarkMode ? "text-slate-100" : "text-slate-900"
@@ -31,7 +31,7 @@ export default function LegacyFiltersSection({
         >
           Search Network Legacy
         </h2>
-        <p className={`mt-1 text-sm ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
+        <p className={`mt-0.5 text-sm ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
           Filter by name, batch, network post, professional role, company, or
           institute.
         </p>

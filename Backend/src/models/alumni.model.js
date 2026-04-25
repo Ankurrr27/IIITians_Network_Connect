@@ -111,7 +111,6 @@ const alumniSchema = new mongoose.Schema(
       type: String,
       enum: ["pending", "approved", "rejected"],
       default: "pending",
-      index: true,
     },
     reviewedAt: {
       type: Date,
@@ -121,7 +120,6 @@ const alumniSchema = new mongoose.Schema(
       type: String,
       enum: ["alumni", "team_member"],
       default: "alumni",
-      index: true,
     },
     sourceTeamMemberId: {
       type: mongoose.Schema.Types.ObjectId,

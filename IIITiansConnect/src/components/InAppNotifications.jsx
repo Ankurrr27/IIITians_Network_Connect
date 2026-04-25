@@ -18,9 +18,37 @@ function buildInitialSnapshot() {
   };
 }
 
-function getAccentColor(type) {
-  // Use a consistent brand blue/indigo shade for the entire app as requested
-  return "bg-indigo-500";
+function getAccentColor(item) {
+  if (item?.colorTone) {
+    const colorMap = {
+      indigo: "bg-indigo-500",
+      emerald: "bg-emerald-500",
+      sky: "bg-sky-500",
+      amber: "bg-amber-500",
+      rose: "bg-rose-500",
+      fuchsia: "bg-fuchsia-500",
+      slate: "bg-slate-500",
+    };
+    return colorMap[item.colorTone] || "bg-indigo-500";
+  }
+  // 🌑 Monochrome for locally-raised system notifications as per request
+  return "bg-slate-300";
+}
+
+function getTagColor(item) {
+  if (item?.colorTone) {
+    const colorMap = {
+      indigo: "text-indigo-600/80",
+      emerald: "text-emerald-600/80",
+      sky: "text-sky-600/80",
+      amber: "text-amber-600/80",
+      rose: "text-rose-600/80",
+      fuchsia: "text-fuchsia-600/80",
+      slate: "text-slate-600/80",
+    };
+    return colorMap[item.colorTone] || "text-indigo-600/80";
+  }
+  return "text-slate-400";
 }
 
 export default function InAppNotifications() {
@@ -92,6 +120,7 @@ export default function InAppNotifications() {
             type: notification.type || "milestone",
             title: notification.title,
             message: notification.message,
+            colorTone: notification.colorTone,
           });
           seenVersions.push(version);
         });
@@ -205,7 +234,7 @@ export default function InAppNotifications() {
   }, []);
 
   return (
-    <div className="pointer-events-none fixed bottom-6 right-4 z-[70] flex w-full max-w-[min(16rem,calc(100vw-2rem))] flex-col gap-2 sm:bottom-auto sm:top-24 sm:right-6 sm:max-w-xs">
+    <div className="pointer-events-none fixed bottom-6 right-4 z-[70] flex w-full max-w-[min(16rem,calc(100vw-2rem))] flex-col gap-2 sm:bottom-auto sm:top-[140px] sm:right-6 sm:max-w-xs">
       <AnimatePresence mode="popLayout">
         {items.map((item) => (
           <NotificationCard
@@ -220,7 +249,8 @@ export default function InAppNotifications() {
 }
 
 const NotificationCard = React.forwardRef(({ item, onClose }, ref) => {
-  const accentColor = getAccentColor(item.type);
+  const accentColor = getAccentColor(item);
+  const tagColor = getTagColor(item);
 
   return (
     <motion.div
@@ -236,7 +266,7 @@ const NotificationCard = React.forwardRef(({ item, onClose }, ref) => {
       <div className="flex items-start justify-between gap-3 pl-1 sm:gap-4">
         <div className="flex-1 min-w-0">
           <div className="mb-0.5 sm:mb-1">
-            <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.2em] text-indigo-600/80">
+            <span className={`text-[8px] sm:text-[9px] font-black uppercase tracking-[0.2em] ${tagColor}`}>
               {item.type || "Update"}
             </span>
           </div>

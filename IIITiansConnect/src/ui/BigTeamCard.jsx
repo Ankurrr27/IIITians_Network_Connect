@@ -62,17 +62,17 @@ const BigTeamCard = ({ name, role, college, image, desc, links = {} }) => {
           )}
 
           <div className="mt-4 flex flex-wrap gap-2 sm:mt-5">
-            {socialItems.map(({ key, icon: Icon, label }) =>
-              links[key] ? (
+            {socialItems.map((item) =>
+              links[item.key] ? (
                 <a
-                  key={key}
-                  href={links[key]}
+                  key={item.key}
+                  href={links[item.key]}
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-700 transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 sm:text-sm"
                 >
-                  <Icon size={14} />
-                  <span>{label}</span>
+                  <item.icon size={14} />
+                  <span>{item.label}</span>
                 </a>
               ) : null
             )}

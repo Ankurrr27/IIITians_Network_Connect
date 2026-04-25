@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ArrowRight, Search, SlidersHorizontal, Users, UserPlus } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
 import api from "../../api/axios";
-import { notifyPageEntry } from "../../utils/appNotifications";
+import { notifyPromise } from "../../utils/appNotifications";
 
 import TeamGrid from "./Components/TeamGrid.jsx";
 
@@ -37,14 +37,14 @@ export default function TeamPage() {
   const [showMobileFilters, setShowMobileFilters] = useState(false);
 
   useEffect(() => {
-    notifyPageEntry(
-      "Congratulations, team page loaded",
-      "The live team directory is ready.",
-      "page-team-loaded"
-    );
+    const promise = api.get("/team");
 
-    api
-      .get("/team")
+    notifyPromise(promise, {
+      loading: "Fetching team directory...",
+      success: "Team profiles ready",
+    });
+
+    promise
       .then((res) => {
         setMembers(Array.isArray(res.data) ? res.data : []);
         setLoadFailed(false);

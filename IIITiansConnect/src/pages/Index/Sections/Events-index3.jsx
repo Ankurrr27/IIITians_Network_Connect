@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../../api/axios";
 import EventCard from "../../Events/Sections/EventCard";
+import { notifyPromise } from "../../../utils/appNotifications";
 
 const EventsPreview = () => {
   const [events, setEvents] = useState([]);
@@ -10,9 +11,15 @@ const EventsPreview = () => {
   const LIMIT = 6;
 
   useEffect(() => {
-    api
-      .get("/events")
-      .then((res) => setEvents(res.data))
+    const promise = api.get("/events");
+
+    notifyPromise(promise, {
+      loading: "Fetching campus events...",
+      success: "Events loaded",
+    });
+
+    promise
+      .then((res) => setEvents(res.data.events || []))
       .catch((err) => console.error(err))
       .finally(() => setLoading(false));
   }, []);

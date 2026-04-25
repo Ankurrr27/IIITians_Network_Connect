@@ -194,14 +194,40 @@ export const getAlumni = async (req, res) => {
       });
     }
 
-    const [alumni, total] = await Promise.all([
+    const [alumni, total, statsMetadata] = await Promise.all([
       Alumni.find(query).sort({ graduationYear: -1, createdAt: -1 }).skip(skip).limit(limitNum),
       Alumni.countDocuments(query),
+      Alumni.aggregate([
+        { $match: { $or: [{ status: "approved" }, { status: { $exists: false } }] } },
+        {
+          $group: {
+            _id: null,
+            networkPosts: { $addToSet: "$networkPost" },
+            companies: { $addToSet: "$currentCompany" },
+            batches: { $addToSet: "$generation" },
+          },
+        },
+        {
+          $project: {
+            networkPostsCount: { $size: { $filter: { input: "$networkPosts", as: "p", cond: { $ne: ["$$p", ""] } } } },
+            companiesCount: { $size: { $filter: { input: "$companies", as: "c", cond: { $ne: ["$$c", ""] } } } },
+            batchesCount: { $size: { $filter: { input: "$batches", as: "b", cond: { $ne: ["$$b", ""] } } } },
+          },
+        },
+      ]),
     ]);
+
+    const stats = statsMetadata[0] || { networkPostsCount: 0, companiesCount: 0, batchesCount: 0 };
 
     res.json({
       alumni,
       pagination: { total, page: pageNum, limit: limitNum, totalPages: Math.ceil(total / limitNum) },
+      stats: {
+        totalProfiles: total,
+        networkPosts: stats.networkPostsCount,
+        companies: stats.companiesCount,
+        batches: stats.batchesCount,
+      },
     });
   } catch (error) {
     res.status(500).json({ message: "Failed to fetch alumni" });
@@ -227,7 +253,18 @@ export const getAlumniRequests = async (req, res) => {
 
     if (search.trim()) {
       const regex = new RegExp(escapeRegex(search.trim()), "i");
-      query.$and.push({ $or: [{ name: regex }, { email: regex }, { iiit: regex }, { branch: regex }] });
+      query.$and.push({
+        $or: [
+          { name: regex },
+          { email: regex },
+          { iiit: regex },
+          { branch: regex },
+          { networkPost: regex },
+          { currentRole: regex },
+          { currentCompany: regex },
+          { location: regex },
+        ],
+      });
     }
 
     const finalQuery = query.$and.length ? query : {};

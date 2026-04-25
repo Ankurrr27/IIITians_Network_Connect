@@ -366,7 +366,7 @@ export default function DiscussPage() {
         <div className="mb-10">
           <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
             <div className="max-w-3xl">
-                <div className="inline-flex items-center gap-2 rounded-full border border-sky-100 bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.24em] text-sky-700 shadow-sm">
+                <div className="inline-flex items-center gap-2 rounded-full border border-indigo-100 bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.24em] text-indigo-700 shadow-sm">
                   <Megaphone className="h-4 w-4" />
                   Discuss Board
                 </div>
@@ -378,7 +378,7 @@ export default function DiscussPage() {
               </p>
             </div>
 
-            <div className="rounded-[1.7rem] border border-sky-100 bg-white/70 p-4 shadow-sm xl:max-w-md">
+            <div className="rounded-[1.7rem] border border-indigo-100 bg-white/70 p-4 shadow-sm xl:max-w-md">
               {accountLoading ? (
                 <div className="text-sm text-slate-600">Restoring your discuss account...</div>
               ) : account ? (
@@ -397,7 +397,7 @@ export default function DiscussPage() {
                     <button
                       type="button"
                       onClick={openComposer}
-                      className="inline-flex items-center justify-center gap-2 rounded-full bg-sky-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-sky-700"
+                      className="inline-flex items-center justify-center gap-2 rounded-full bg-indigo-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700"
                     >
                       <Plus className="h-4 w-4" />
                       Post update
@@ -405,7 +405,7 @@ export default function DiscussPage() {
                     <button
                       type="button"
                       onClick={() => setPanelMode("auth")}
-                      className="inline-flex items-center justify-center gap-2 rounded-full border border-sky-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-sky-50"
+                      className="inline-flex items-center justify-center gap-2 rounded-full border border-indigo-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-indigo-50"
                     >
                       Manage account
                     </button>
@@ -418,7 +418,7 @@ export default function DiscussPage() {
                   </p>
                   <Link
                     to="/guide"
-                    className="inline-flex items-center gap-2 rounded-full border border-sky-100 bg-sky-50 px-4 py-2 text-sm font-semibold text-sky-700 transition hover:bg-sky-100"
+                    className="inline-flex items-center gap-2 rounded-full border border-indigo-100 bg-indigo-50 px-4 py-2 text-sm font-semibold text-indigo-700 transition hover:bg-indigo-100"
                   >
                     Need help? Open Guide
                   </Link>
@@ -426,7 +426,7 @@ export default function DiscussPage() {
                     <button
                       type="button"
                       onClick={() => setPanelMode("auth")}
-                      className="inline-flex items-center justify-center gap-2 rounded-full border border-sky-200 bg-white/90 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-sky-50"
+                      className="inline-flex items-center justify-center gap-2 rounded-full border border-indigo-200 bg-white/90 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-indigo-50"
                     >
                       <LogIn className="h-4 w-4" />
                       Club account
@@ -434,7 +434,7 @@ export default function DiscussPage() {
                     <button
                       type="button"
                       onClick={openComposer}
-                      className="inline-flex items-center justify-center gap-2 rounded-full bg-sky-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-sky-700"
+                      className="inline-flex items-center justify-center gap-2 rounded-full bg-indigo-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700"
                     >
                       <Plus className="h-4 w-4" />
                       Post update
@@ -467,7 +467,7 @@ export default function DiscussPage() {
         <button
           type="button"
           onClick={openComposer}
-          className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-sky-600 text-white shadow-lg transition hover:bg-sky-700"
+          className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-indigo-600 text-white shadow-lg transition hover:bg-indigo-700"
         >
           <Plus className="h-6 w-6" />
         </button>

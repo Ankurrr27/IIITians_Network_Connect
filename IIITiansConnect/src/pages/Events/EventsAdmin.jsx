@@ -12,32 +12,50 @@ export default function EventsPage() {
   const navigate = useNavigate();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [pagination, setPagination] = useState({ totalPages: 1 });
 
   const [showForm, setShowForm] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
 
-   const [search, setSearch] = useState("");
+  const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("newest");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
 
   useEffect(() => {
+    setLoading(true);
     api
-      .get("/events")
-      .then((res) => setEvents(res.data))
+      .get("/events", {
+        params: {
+          page: currentPage,
+          limit: itemsPerPage,
+          search: search,
+          sortBy: sortBy,
+        },
+      })
+      .then((res) => {
+        setEvents(res.data.events);
+        setPagination(res.data.pagination);
+      })
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, []);
+  }, [currentPage, search, sortBy]);
 
-  const handleSuccess = (event) => {
-    setEvents((prev) => {
-      const exists = prev.find((e) => e._id === event._id);
-      return exists
-        ? prev.map((e) => (e._id === event._id ? event : e))
-        : [event, ...prev];
-    });
+  const handleSuccess = () => {
     setEditingEvent(null);
     setShowForm(false);
+    // Reload events to get updated data
+    setLoading(true);
+    api
+      .get("/events", {
+        params: { page: currentPage, limit: itemsPerPage, search, sortBy },
+      })
+      .then((res) => {
+        setEvents(res.data.events);
+        setPagination(res.data.pagination);
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
   };
 
   const handleEdit = (event) => {
@@ -51,32 +69,7 @@ export default function EventsPage() {
     setShowForm(false);
   };
 
-  // 🔍 FILTER + SORT
-  const processedEvents = useMemo(() => {
-    return [...events]
-      .filter((e) => {
-        const q = search.toLowerCase();
-        return (
-          e.title?.toLowerCase().includes(q) ||
-          e.collegeName?.toLowerCase().includes(q) ||
-          e.clubName?.toLowerCase().includes(q)
-        );
-      })
-      .sort((a, b) => {
-        if (sortBy === "az") return a.title.localeCompare(b.title);
-        if (sortBy === "za") return b.title.localeCompare(a.title);
-        if (sortBy === "oldest") return new Date(a.date) - new Date(b.date);
-        return new Date(b.date) - new Date(a.date); // newest
-      });
-  }, [events, search, sortBy]);
-
-  // 📄 PAGINATION LOGIC
-  const totalItems = processedEvents.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const paginatedEvents = processedEvents.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  const totalPages = pagination.totalPages || 1;
 
   useEffect(() => {
     setCurrentPage(1);
@@ -131,7 +124,7 @@ export default function EventsPage() {
 
         <EventsGrid
           loading={loading}
-          events={paginatedEvents}
+          events={events}
           onEdit={handleEdit}
           onDelete={handleDelete}
         />

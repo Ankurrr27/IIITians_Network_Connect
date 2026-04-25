@@ -59,6 +59,8 @@ export default function LegacyAdminPage() {
   const [editEntryId, setEditEntryId] = useState("");
   const [teamEntryId, setTeamEntryId] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
   const itemsPerPage = 12;
   const [editForm, setEditForm] = useState({
     name: "",
@@ -96,57 +98,27 @@ export default function LegacyAdminPage() {
     ? routeStatus
     : "all";
 
-  const loadEntries = async (nextStatus = status, nextQuery = query) => {
+  const loadEntries = async (nextStatus = status, nextQuery = query, page = currentPage) => {
     setLoading(true);
     setError("");
 
     try {
-      const [adminResult, publicResult] = await Promise.allSettled([
-        api.get("/alumni/admin/requests", {
-          params: {
-            status: nextStatus,
-            search: nextQuery,
-          },
-        }),
-        api.get("/alumni", {
-          params: {
-            search: nextQuery,
-          },
-        }),
-      ]);
+      const response = await api.get("/alumni/admin/requests", {
+        params: {
+          status: nextStatus,
+          search: nextQuery,
+          page,
+          limit: itemsPerPage,
+        },
+      });
 
-      const adminEntries = adminResult.status === "fulfilled"
-        ? (adminResult.value.data?.alumni ?? adminResult.value.data ?? [])
-        : [];
-      const publicEntries = publicResult.status === "fulfilled"
-        ? (publicResult.value.data?.alumni ?? publicResult.value.data ?? [])
-        : [];
+      const data = response.data;
+      const loadedEntries = data?.alumni ?? data ?? [];
+      const pagination = data?.pagination || {};
 
-      const merged = mergeEntries(adminEntries, publicEntries);
-      const filtered =
-        nextStatus === "all"
-          ? merged
-          : merged.filter(
-              (entry) => getEffectiveStatus(entry) === nextStatus
-            );
-
-      setEntries(filtered);
-
-      if (
-        adminResult.status === "rejected" &&
-        publicResult.status === "fulfilled"
-      ) {
-        setError(
-          "Admin-only data could not be loaded, so only public Network Legacy profiles are shown."
-        );
-      } else if (
-        publicResult.status === "rejected" &&
-        adminResult.status === "fulfilled"
-      ) {
-        setError(
-          "Public fallback data could not be loaded, so only admin Network Legacy data is shown."
-        );
-      }
+      setEntries(loadedEntries);
+      setTotalPages(pagination.totalPages || 1);
+      setTotalCount(pagination.total || loadedEntries.length);
     } catch (err) {
       setError(err.response?.data?.message || "Could not load Network Legacy.");
     } finally {
@@ -156,40 +128,30 @@ export default function LegacyAdminPage() {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      loadEntries(status, query);
+      if (currentPage !== 1) {
+        setCurrentPage(1);
+      } else {
+        loadEntries(status, query, 1);
+      }
     }, 250);
 
     return () => clearTimeout(timer);
   }, [status, query]);
 
   useEffect(() => {
-    setCurrentPage(1);
-  }, [status, query]);
+    loadEntries(status, query, currentPage);
+  }, [currentPage]);
 
-  const totalPages = Math.ceil(entries.length / itemsPerPage);
-  const paginatedEntries = entries.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  const paginatedEntries = entries;
 
   const stats = useMemo(() => {
-    const pending = entries.filter(
-      (entry) => getEffectiveStatus(entry) === "pending"
-    ).length;
-    const approved = entries.filter(
-      (entry) => getEffectiveStatus(entry) === "approved"
-    ).length;
-    const rejected = entries.filter(
-      (entry) => getEffectiveStatus(entry) === "rejected"
-    ).length;
-
     return {
-      total: entries.length,
-      pending,
-      approved,
-      rejected,
+      total: totalCount,
+      pending: entries.filter((e) => getEffectiveStatus(e) === "pending").length,
+      approved: entries.filter((e) => getEffectiveStatus(e) === "approved").length,
+      rejected: entries.filter((e) => getEffectiveStatus(e) === "rejected").length,
     };
-  }, [entries]);
+  }, [entries, totalCount]);
 
   const handleStatusChange = async (id, nextStatus) => {
     setBusyId(id);

@@ -27,6 +27,9 @@ export default function AdminGallery() {
   const [uploadInProgress, setUploadInProgress] = useState(false);
   const [savingImageUrl, setSavingImageUrl] = useState("");
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 12;
+
   const loadColleges = async () => {
     try {
       setLoading(true);
@@ -44,8 +47,9 @@ export default function AdminGallery() {
   }, []);
 
   const galleryData = useMemo(() => {
+    let data = [];
     if (selectedId === "all") {
-      return colleges.flatMap((c) =>
+      data = colleges.flatMap((c) =>
         (c.gallery || []).map((img) => ({
           ...img,
           category: img.category || "",
@@ -53,15 +57,26 @@ export default function AdminGallery() {
           collegeId: c._id,
         }))
       );
+    } else {
+      const college = colleges.find((c) => c._id === selectedId);
+      data = (college?.gallery || []).map((img) => ({
+        ...img,
+        category: img.category || "",
+        collegeName: college?.name || "",
+        collegeId: college?._id || "",
+      }));
     }
-    const college = colleges.find((c) => c._id === selectedId);
-    return (college?.gallery || []).map((img) => ({
-      ...img,
-      category: img.category || "",
-      collegeName: college.name,
-      collegeId: college._id,
-    }));
+    return data.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
   }, [colleges, selectedId]);
+
+  const totalPages = Math.ceil(galleryData.length / itemsPerPage) || 1;
+  const paginatedData = useMemo(() => {
+    return galleryData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  }, [galleryData, currentPage]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedId]);
 
   const handleUpload = async () => {
     if (!uploadTargetId || !uploadPhotoFile) {
@@ -178,29 +193,16 @@ export default function AdminGallery() {
 
           <div className="w-full max-w-md rounded-[1.75rem] border border-white/80 bg-white/85 p-4 shadow-sm backdrop-blur">
              <div className="mb-2 flex items-center justify-between px-1">
-               <label className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">View Mode</label>
-               <span className="text-[11px] font-semibold text-indigo-600">{galleryData.length} items</span>
+               <label className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Total Network Items</label>
+               <span className="text-[11px] font-semibold text-indigo-600">{colleges.flatMap(c => c.gallery || []).length} items</span>
              </div>
-             <div className="group relative">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-indigo-600">
-                   {selectedId === "all" ? <LayoutGrid size={18} /> : <Building2 size={18} />}
+             <div className="flex items-center gap-3 rounded-2xl bg-white p-3 shadow-sm ring-1 ring-slate-100">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+                   <Images size={20} />
                 </div>
-                <select
-                  value={selectedId}
-                  onChange={(e) => setSelectedId(e.target.value)}
-                  className="w-full appearance-none rounded-2xl border border-slate-200 bg-white py-4 pl-12 pr-12 text-sm font-semibold text-slate-900 outline-none transition-all hover:border-indigo-300 focus:ring-2 focus:ring-indigo-600/10"
-                >
-                  <option value="all">Entire Network</option>
-                  <optgroup label="Institutes" className="bg-white text-indigo-600 font-bold">
-                    {colleges.map((c) => (
-                      <option key={c._id} value={c._id} className="text-slate-900 font-medium">
-                        {c.name}
-                      </option>
-                    ))}
-                  </optgroup>
-                </select>
-                <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">
-                   <Filter size={16} />
+                <div>
+                   <p className="text-sm font-bold text-slate-900">Gallery Database</p>
+                   <p className="text-xs font-medium text-slate-500">{colleges.length} Institutes Synced</p>
                 </div>
              </div>
           </div>
@@ -322,20 +324,45 @@ export default function AdminGallery() {
 
       {/* Grid View */}
       <section className="space-y-4">
-        <div className="flex items-center justify-between px-1">
-           <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Manage Library</h2>
-           <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-              Showing {selectedId === 'all' ? 'Entire Network' : 'Target Institute'}
-           </p>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-1">
+           <div>
+             <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Manage Library</h2>
+             <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                Showing {selectedId === 'all' ? 'Entire Network' : 'Target Institute'}
+             </p>
+           </div>
+           
+           <div className="group relative w-full sm:w-72">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-indigo-600">
+                 {selectedId === "all" ? <LayoutGrid size={16} /> : <Building2 size={16} />}
+              </div>
+              <select
+                value={selectedId}
+                onChange={(e) => setSelectedId(e.target.value)}
+                className="w-full appearance-none rounded-xl border border-slate-200 bg-white py-3 pl-11 pr-10 text-sm font-semibold text-slate-900 outline-none transition-all hover:border-indigo-300 focus:ring-2 focus:ring-indigo-600/10"
+              >
+                <option value="all">All Colleges (Entire Network)</option>
+                <optgroup label="Filter by College" className="bg-white text-indigo-600 font-bold">
+                  {colleges.map((c) => (
+                    <option key={c._id} value={c._id} className="text-slate-900 font-medium">
+                      {c.name}
+                    </option>
+                  ))}
+                </optgroup>
+              </select>
+              <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">
+                 <Filter size={14} />
+              </div>
+           </div>
         </div>
 
         {loading ? (
           <div className="flex h-64 items-center justify-center">
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent" />
           </div>
-        ) : galleryData.length > 0 ? (
+        ) : paginatedData.length > 0 ? (
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {galleryData.map((img, idx) => (
+            {paginatedData.map((img, idx) => (
               <div 
                 key={img.url + idx}
                 className="group relative overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white p-2 shadow-[0_18px_45px_-35px_rgba(15,23,42,0.35)] transition-all hover:-translate-y-1 hover:border-indigo-300 hover:shadow-[0_28px_60px_-38px_rgba(79,70,229,0.35)]"
@@ -411,6 +438,29 @@ export default function AdminGallery() {
              <Images size={32} className="text-slate-200 mb-4" />
              <h2 className="text-sm font-bold text-slate-900">No photos found</h2>
              <p className="mt-1 text-[12px] text-slate-500 font-medium">Try selecting a different institute.</p>
+          </div>
+        )}
+
+        {totalPages > 1 && (
+          <div className="mt-12 flex items-center justify-center gap-6 pb-8">
+            <button
+              onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+              className="rounded-full border border-slate-200 bg-white px-6 py-2 text-sm font-medium text-slate-600 transition-all hover:bg-slate-50 disabled:opacity-30 disabled:hover:bg-white"
+            >
+              Previous
+            </button>
+            <div className="text-sm font-medium text-slate-400">
+              Page <span className="font-bold text-slate-900">{currentPage}</span> of{" "}
+              {totalPages}
+            </div>
+            <button
+              onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages}
+              className="rounded-full border border-slate-200 bg-white px-6 py-2 text-sm font-medium text-slate-600 transition-all hover:bg-slate-50 disabled:opacity-30 disabled:hover:bg-white"
+            >
+              Next
+            </button>
           </div>
         )}
       </section>
