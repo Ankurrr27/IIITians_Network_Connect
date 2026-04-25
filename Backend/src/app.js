@@ -17,6 +17,9 @@ import siteStatsRoutes from "./routes/siteStats.routes.js";
 
 const app = express();
 
+// Set trust proxy for Render/Vercel to correctly identify client IPs
+app.set("trust proxy", 1);
+
 const allowedOrigins = [
   "https://iiitiansnetwork.in",
   "https://www.iiitiansnetwork.in",
@@ -59,9 +62,12 @@ app.use(
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: process.env.NODE_ENV === "production" ? 1000 : 5000, // limit each IP (much higher in dev)
-  message: "Too many requests from this IP, please try again after 15 minutes",
   standardHeaders: true,
   legacyHeaders: false,
+  handler: (req, res, next, options) => {
+    console.warn(`[RATE LIMIT TRIGGERED] IP: ${req.ip} path: ${req.originalUrl}`);
+    res.status(options.statusCode).json({ message: "Too many requests from this IP, please try again after 15 minutes", status: 429 });
+  }
 });
 
 app.use("/api/", limiter);
