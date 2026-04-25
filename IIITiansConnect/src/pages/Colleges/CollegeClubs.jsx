@@ -43,11 +43,11 @@ export default function CollegeClubs() {
         const [clgRes, clubRes, eventRes] = await Promise.all([
           api.get("/colleges"),
           api.get("/discuss-accounts/public"),
-          api.get("/events"),
+          api.get("/events?limit=1000"),
         ]);
         setColleges(clgRes.data || []);
         setAllClubs(clubRes.data || []);
-        setAllEvents(eventRes.data || []);
+        setAllEvents(eventRes.data?.events || (Array.isArray(eventRes.data) ? eventRes.data : []));
       } catch (err) {
         console.error("Failed to fetch college clubs data:", err);
       } finally {
