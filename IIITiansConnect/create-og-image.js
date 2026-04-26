@@ -9,7 +9,7 @@ async function createPreviewImage() {
   try {
     console.log('🎨 Creating social media preview image (1200x630)...\n');
 
-    const sourceImage = path.join(__dirname, 'public/IIITians-Network-Logo-Blue.png');
+    const sourceImage = path.join(__dirname, 'public/IIITians-Network-Logo-Light.png');
     const outputPath = path.join(__dirname, 'public/og-image.png');
 
     // Create 1200x630 preview image with blue gradient background
