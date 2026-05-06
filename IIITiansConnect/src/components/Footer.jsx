@@ -20,14 +20,15 @@ import {
 } from "lucide-react";
 import api from "../api/axios";
 
-const BASE_VIEW_COUNT = 24810;
+const LAST_VIEWS_KEY = "iiitians-network-last-views";
+const LAST_CLUBS_KEY = "iiitians-network-last-clubs";
 
 const Footer = () => {
   const [stats, setStats] = useState({
-    views: BASE_VIEW_COUNT,
+    views: parseInt(localStorage.getItem(LAST_VIEWS_KEY)) || 0,
     members: 0,
     colleges: 0,
-    clubs: 0,
+    clubs: parseInt(localStorage.getItem(LAST_CLUBS_KEY)) || 0,
     events: 0,
     photos: 0,
     alumni: 0,
@@ -35,27 +36,51 @@ const Footer = () => {
 
   const loadStats = async () => {
     try {
-      const [siteStatsRes, teamRes, clubsStatsRes, clubsRes] = await Promise.allSettled([
+      const [siteStatsRes, teamRes, clubsStatsRes, clubsRes, collegesRes] = await Promise.allSettled([
         api.get("/site-stats"),
         api.get("/team"),
         api.get("/discuss-accounts/public/stats"),
         api.get("/discuss-accounts/public"),
+        api.get("/colleges"),
       ]);
+
+      const fetchedViews = siteStatsRes.status === "fulfilled" ? siteStatsRes.value.data?.totalViews : null;
+      if (fetchedViews) {
+        localStorage.setItem(LAST_VIEWS_KEY, fetchedViews.toString());
+      }
+
+      // Calculate real club count from colleges directory
+      let calculatedClubs = 0;
+      if (collegesRes.status === "fulfilled") {
+        const colleges = collegesRes.value.data || [];
+        calculatedClubs = colleges.reduce((acc, col) => {
+          const links = col.clubLinks || [];
+          const legacyLink = !links.length && col.clubLink ? 1 : 0;
+          return acc + links.length + legacyLink;
+        }, 0);
+        
+        // Also consider unique discuss-only clubs if they aren't in directory? 
+        // For simplicity and "College Clubs" accuracy, directory count is usually what's requested.
+        // But let's check if discuss accounts count is higher.
+        const registeredClubs = clubsStatsRes.status === "fulfilled" 
+          ? clubsStatsRes.value.data?.registeredClubs || 0 
+          : clubsRes.status === "fulfilled" 
+            ? clubsRes.value.data?.length || 0 
+            : 0;
+        
+        calculatedClubs = Math.max(calculatedClubs, registeredClubs);
+        localStorage.setItem(LAST_CLUBS_KEY, calculatedClubs.toString());
+      }
 
       setStats((prev) => ({
         ...prev,
-        views: siteStatsRes.status === "fulfilled" ? siteStatsRes.value.data?.totalViews || prev.views : prev.views,
+        views: fetchedViews || prev.views,
         events: siteStatsRes.status === "fulfilled" ? siteStatsRes.value.data?.totalEvents || 0 : 0,
         photos: siteStatsRes.status === "fulfilled" ? siteStatsRes.value.data?.totalPhotos || 0 : 0,
         colleges: siteStatsRes.status === "fulfilled" ? siteStatsRes.value.data?.totalColleges || 0 : 0,
         alumni: siteStatsRes.status === "fulfilled" ? siteStatsRes.value.data?.totalAlumni || 0 : 0,
         members: teamRes.status === "fulfilled" ? teamRes.value.data?.length || 0 : 0,
-        clubs:
-          clubsStatsRes.status === "fulfilled"
-            ? clubsStatsRes.value.data?.registeredClubs || 0
-            : clubsRes.status === "fulfilled"
-              ? clubsRes.value.data?.length || 0
-              : 0,
+        clubs: calculatedClubs || prev.clubs,
       }));
     } catch (err) {
       console.error("FOOTER STATS ERROR:", err);
@@ -71,6 +96,7 @@ const Footer = () => {
         const res = await api.post("/site-stats/increment");
         if (res.data?.totalViews) {
           setStats(prev => ({ ...prev, views: res.data.totalViews }));
+          localStorage.setItem(LAST_VIEWS_KEY, res.data.totalViews.toString());
         }
       } catch (err) {
         console.error("VIEW TRACK ERROR:", err);
