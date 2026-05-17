@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   getAllPlacements,
   getPlacementByCollegeName,
@@ -11,9 +12,11 @@ import PlacementSnapshot from "./sections/PlacementSnapshot";
 import PlacementResults from "./sections/PlacementResults";
 
 export default function Placement() {
-  const [college, setCollege] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
+  
+  const [college, setCollege] = useState(searchParams.get("college") || "");
   const [data, setData] = useState(null);
-  const [year, setYear] = useState(null);
+  const [year, setYear] = useState(searchParams.get("year") ? parseInt(searchParams.get("year"), 10) : null);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
   const [collegeOptions, setCollegeOptions] = useState([]);
@@ -41,11 +44,23 @@ export default function Placement() {
       });
   }, []);
 
-  const searchCollege = async (name) => {
+  // Handle initial URL parameters on mount
+  useEffect(() => {
+    const initialCollege = searchParams.get("college");
+    const initialYear = searchParams.get("year") ? parseInt(searchParams.get("year"), 10) : null;
+    
+    if (initialCollege) {
+      searchCollege(initialCollege, initialYear);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const searchCollege = async (name, targetYear = null) => {
     if (!name?.trim()) return;
 
     setLoading(true);
     setSearched(true);
+    setCollege(name); // Ensure the input reflects the search
 
     const promise = getPlacementByCollegeName(name);
 
@@ -59,13 +74,38 @@ export default function Placement() {
       setData(res.data);
 
       const years = (res.data.yearlyPlacements || []).map((entry) => entry.year);
-      setYear(years.length ? Math.max(...years) : null);
+      
+      let nextYear = targetYear || year;
+      if (!nextYear || !years.includes(nextYear)) {
+        nextYear = years.length ? Math.max(...years) : null;
+      }
+      
+      setYear(nextYear);
+
+      // Update URL to match search
+      setSearchParams({
+        college: name,
+        ...(nextYear ? { year: nextYear.toString() } : {})
+      }, { replace: true });
+
     } catch (err) {
       console.error("Placement fetch failed:", err);
       setData(null);
       setYear(null);
+      setSearchParams({}, { replace: true });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleYearChange = (newYear) => {
+    setYear(newYear);
+    const currentCollege = data?.college?.name || college;
+    if (currentCollege) {
+      setSearchParams({
+        college: currentCollege,
+        year: newYear.toString()
+      }, { replace: true });
     }
   };
 
@@ -93,10 +133,10 @@ export default function Placement() {
           searched={searched}
           loading={loading}
           data={data}
-          onSearch={searchCollege}
+          onSearch={(name) => searchCollege(name, null)}
           onCollegeChange={setCollege}
           year={year}
-          onYearChange={setYear}
+          onYearChange={handleYearChange}
         />
 
         {!searched && <PlacementPreview />}

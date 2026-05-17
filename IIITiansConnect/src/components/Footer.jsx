@@ -152,7 +152,7 @@ const Footer = () => {
               <SocialIcon href="https://linkedin.com/company/iiitians-network" icon={Linkedin} />
               <SocialIcon href="https://instagram.com/iiitiansnetwork" icon={Instagram} />
               <SocialIcon href="https://discord.gg/88AnpuNc6E" icon={MessageCircle} />
-              <SocialIcon href="https://iiitiansnetwork.com" icon={Globe} />
+              <SocialIcon href="https://www.iiitiansnetwork.in" icon={Globe} />
             </div>
           </div>
 
@@ -188,7 +188,7 @@ const Footer = () => {
               <li><Link to="/gallery" className="transition hover:text-white">Gallery</Link></li>
               <li><Link to="/guide" className="transition hover:text-white">Documentation</Link></li>
               <li><Link to="/branding" className="transition hover:text-white">Branding Kit</Link></li>
-              <li><Link to="/" className="transition hover:text-white">Sitemap</Link></li>
+              <li><Link to="/sitemap" className="transition hover:text-white">Sitemap</Link></li>
             </ul>
           </div>
 

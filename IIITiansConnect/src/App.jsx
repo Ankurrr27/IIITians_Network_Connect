@@ -33,7 +33,8 @@ const AdminGuide = lazy(() => import("./pages/Guide/AdminGuide.jsx"));
 const AdminNotificationsPage = lazy(() => import("./pages/AdminNotificationsPage.jsx"));
 const GalleryPage = lazy(() => import("./pages/Gallery/Gallery.jsx"));
 const CollegeClubs = lazy(() => import("./pages/Colleges/CollegeClubs.jsx"));
-
+const SitemapPage = lazy(() => import("./pages/Sitemap.jsx"));
+const AdminSitemap = lazy(() => import("./pages/AdminSitemap.jsx"));
 function LegacyAdminRedirect() {
   const { status } = useParams();
 
@@ -102,6 +103,7 @@ function App() {
           <Route path="/college/:collegeName/clubs/:clubName?" element={<CollegeClubs />} />
           <Route path="/gallery" element={<Navigate to="/colleges" replace />} />
           <Route path="/contact" element={<ContactPage />} />
+          <Route path="/sitemap" element={<SitemapPage />} />
 
           {/* ADMIN LOGIN (public) */}
           <Route path="/admin" element={<AdminLogin />} />
@@ -109,6 +111,7 @@ function App() {
           {/* 🔐 ADMIN PROTECTED ROUTES */}
           <Route element={<RequireAdmin />}>
             <Route element={<AdminLayout />}>
+              <Route path="/admin/sitemap" element={<AdminSitemap />} />
               <Route path="/admin/guide" element={<AdminGuide />} />
               <Route path="/legacy/admin" element={<LegacyAdminPage />} />
               <Route path="/legacy/admin/:status" element={<LegacyAdminPage />} />

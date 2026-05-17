@@ -13,6 +13,7 @@ const adminLinks = [
   { label: "Notifications", href: "/admin/notifications" },
   { label: "Gallery", href: "/admin/gallery" },
   { label: "Guide", href: "/admin/guide" },
+  { label: "Sitemap", href: "/admin/sitemap" },
 ];
 
 export default function AdminLayout() {
