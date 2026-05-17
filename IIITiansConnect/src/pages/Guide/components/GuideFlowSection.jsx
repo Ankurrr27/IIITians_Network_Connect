@@ -1,5 +1,4 @@
 import { ArrowRight, CheckCircle2 } from "lucide-react";
-import GuideMockup from "./GuideMockup";
 
 export default function GuideFlowSection({
   eyebrow,
@@ -7,11 +6,10 @@ export default function GuideFlowSection({
   description,
   steps,
   note,
-  variant,
 }) {
   return (
-    <section className="grid gap-6 rounded-[2rem] bg-white/90 p-4 shadow-[0_24px_70px_-38px_rgba(79,70,229,0.18)] sm:p-6 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:gap-8 lg:p-7">
-      <div className="order-2 lg:order-1">
+    <section className="rounded-[2rem] bg-white/90 p-4 shadow-[0_24px_70px_-38px_rgba(79,70,229,0.18)] sm:p-6 lg:p-8 max-w-4xl mx-auto">
+      <div>
         <div className="inline-flex rounded-full bg-indigo-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-indigo-700">
           {eyebrow}
         </div>
@@ -22,7 +20,7 @@ export default function GuideFlowSection({
           {description}
         </p>
 
-        <div className="mt-5 space-y-3 sm:mt-6 sm:space-y-4">
+        <div className="mt-6 space-y-3 sm:mt-8 sm:space-y-4">
           {steps.map((step, index) => (
             <div
               key={step.title}
@@ -53,28 +51,6 @@ export default function GuideFlowSection({
           </div>
         )}
       </div>
-
-      <div className="order-1 flex items-center lg:order-2 lg:pl-1">
-        <GuideMockup variant={variant} />
-      </div>
     </section>
-  );
-}
-
-function DiagramCard({ title, items }) {
-  return (
-    <div className="rounded-[1.25rem] border border-white/10 bg-white/5 p-4">
-      <div className="text-sm font-semibold text-white">{title}</div>
-      <div className="mt-3 flex flex-wrap gap-2">
-        {items.map((item) => (
-          <span
-            key={item}
-            className="rounded-full border border-white/10 bg-white/10 px-3 py-1.5 text-[11px] font-medium tracking-[0.02em] text-slate-100"
-          >
-            {item}
-          </span>
-        ))}
-      </div>
-    </div>
   );
 }

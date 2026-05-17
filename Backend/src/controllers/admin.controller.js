@@ -1,6 +1,7 @@
 import Admin from "../models/admin.model.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { logAdminAction } from "./adminLog.controller.js";
 
 const sanitizeAdmin = (admin) => ({
   id: admin._id,
@@ -121,13 +122,23 @@ export const loginAdmin = async (req, res) => {
     const resolvedAdmin = await ensureAdminRole(admin);
 
     const token = jwt.sign(
-      { id: resolvedAdmin._id, role: resolvedAdmin.role },
+      { id: resolvedAdmin._id, email: resolvedAdmin.email, role: resolvedAdmin.role },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
 
     resolvedAdmin.lastLogin = new Date();
     await resolvedAdmin.save();
+
+    await logAdminAction({
+      adminId: resolvedAdmin._id,
+      adminEmail: resolvedAdmin.email,
+      action: "ADMIN_LOGIN",
+      targetResource: "Session",
+      targetId: resolvedAdmin._id.toString(),
+      details: `Successful login via admin portal`,
+      ipAddress: req.ip
+    });
 
     res.json({
       token,

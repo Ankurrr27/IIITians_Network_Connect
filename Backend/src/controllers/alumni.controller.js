@@ -2,6 +2,7 @@ import Alumni from "../models/alumni.model.js";
 import { ensureLegacyBackfill } from "../services/legacySync.service.js";
 import TeamMember from "../models/teamMember.model.js";
 import cloudinary from "../config/cloudinary.js";
+import { logAdminAction } from "./adminLog.controller.js";
 
 const escapeRegex = (value = "") =>
   value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -290,6 +291,19 @@ export const updateAlumniStatus = async (req, res) => {
 
     const alumni = await Alumni.findByIdAndUpdate(id, { status, reviewedAt: status === "pending" ? null : new Date() }, { new: true, runValidators: true });
     if (!alumni) return res.status(404).json({ message: "Alumni request not found" });
+
+    if (status !== "pending") {
+      await logAdminAction({
+        adminId: req.adminId,
+        adminEmail: req.adminEmail || "unknown",
+        action: status === "approved" ? "APPROVED_LEGACY" : "REJECTED_LEGACY",
+        targetResource: "Alumni",
+        targetId: id,
+        details: `Legacy profile for ${alumni.email} was ${status}`,
+        ipAddress: req.ip
+      });
+    }
+
     res.json(alumni);
   } catch (error) {
     res.status(400).json({ message: error.message });

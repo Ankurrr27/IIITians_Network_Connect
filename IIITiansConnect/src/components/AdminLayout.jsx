@@ -14,6 +14,7 @@ const adminLinks = [
   { label: "Gallery", href: "/admin/gallery" },
   { label: "Guide", href: "/admin/guide" },
   { label: "Sitemap", href: "/admin/sitemap" },
+  { label: "Audit Logs", href: "/admin/logs" },
 ];
 
 export default function AdminLayout() {
@@ -109,7 +110,7 @@ export default function AdminLayout() {
 
       <div className="relative z-10 flex min-h-screen flex-col">
         <header className="sticky top-0 z-50 border-b border-white/60 bg-white/80 shadow-[0_4px_20px_rgba(15,23,42,0.03)] backdrop-blur-md">
-          <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2 sm:px-6 sm:py-2.5">
+          <div className="mx-auto flex max-w-[100rem] items-center justify-between px-4 py-2 sm:px-6 sm:py-2.5">
             <div className="flex items-center gap-3">
               <img
                 src={logoBlue}
@@ -136,7 +137,7 @@ export default function AdminLayout() {
                     key={link.href}
                     to={link.href}
                     className={({ isActive }) =>
-                      `rounded-full px-3 py-1.5 text-[12px] font-medium transition ${
+                      `whitespace-nowrap rounded-full px-2.5 py-1.5 text-[12px] font-medium transition ${
                         isActive
                           ? "bg-slate-900 text-white shadow-sm"
                           : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"

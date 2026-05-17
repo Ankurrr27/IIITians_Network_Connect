@@ -35,6 +35,7 @@ const GalleryPage = lazy(() => import("./pages/Gallery/Gallery.jsx"));
 const CollegeClubs = lazy(() => import("./pages/Colleges/CollegeClubs.jsx"));
 const SitemapPage = lazy(() => import("./pages/Sitemap.jsx"));
 const AdminSitemap = lazy(() => import("./pages/AdminSitemap.jsx"));
+const AdminLogs = lazy(() => import("./pages/AdminLogs.jsx"));
 function LegacyAdminRedirect() {
   const { status } = useParams();
 
@@ -112,6 +113,7 @@ function App() {
           <Route element={<RequireAdmin />}>
             <Route element={<AdminLayout />}>
               <Route path="/admin/sitemap" element={<AdminSitemap />} />
+              <Route path="/admin/logs" element={<AdminLogs />} />
               <Route path="/admin/guide" element={<AdminGuide />} />
               <Route path="/legacy/admin" element={<LegacyAdminPage />} />
               <Route path="/legacy/admin/:status" element={<LegacyAdminPage />} />

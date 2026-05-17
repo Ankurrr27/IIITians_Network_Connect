@@ -3,6 +3,7 @@ import College from "../models/College.model.js";
 import DiscussAccount from "../models/discussAccount.model.js";
 import cloudinary from "../config/cloudinary.js";
 import { backfillApprovedDiscussEvents } from "../services/discussEventSync.service.js";
+import { logAdminAction } from "./adminLog.controller.js";
 
 const escapeRegex = (string) => {
   return string.replace(/[/\-\\^$*+?.()|[\]{}]/g, "\\$&");
@@ -79,6 +80,14 @@ export const createEvent = async (req, res) => {
 
     res.status(201).json(event);
     await ensureClubRegistered(collegeName, clubName, link);
+
+    if (req.adminId) {
+      await logAdminAction({
+        adminId: req.adminId, adminEmail: req.adminEmail || "unknown",
+        action: "CREATED_EVENT", targetResource: "Event", targetId: event._id,
+        details: `Created new event: ${title}`, ipAddress: req.ip
+      });
+    }
   } catch (err) {
     console.error("CREATE EVENT ERROR:", err);
     res.status(500).json({ message: err.message });
@@ -181,6 +190,14 @@ export const updateEvent = async (req, res) => {
       await ensureClubRegistered(event.collegeName, event.clubName, event.link);
     }
 
+    if (req.adminId) {
+      await logAdminAction({
+        adminId: req.adminId, adminEmail: req.adminEmail || "unknown",
+        action: "UPDATED_EVENT", targetResource: "Event", targetId: event._id,
+        details: `Updated details for event: ${event.title}`, ipAddress: req.ip
+      });
+    }
+
     res.json(event);
   } catch (err) {
     console.error("UPDATE EVENT ERROR:", err);
@@ -207,6 +224,15 @@ export const deleteEvent = async (req, res) => {
     }
 
     await event.deleteOne();
+
+    if (req.adminId) {
+      await logAdminAction({
+        adminId: req.adminId, adminEmail: req.adminEmail || "unknown",
+        action: "DELETED_EVENT", targetResource: "Event", targetId: req.params.id,
+        details: `Deleted event: ${event.title}`, ipAddress: req.ip
+      });
+    }
+
     res.json({ message: "Event deleted successfully" });
   } catch (err) {
     console.error("DELETE EVENT ERROR:", err);

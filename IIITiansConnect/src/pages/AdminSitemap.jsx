@@ -1,8 +1,27 @@
-import { FolderTree, Settings, Users2, Building2, ArrowRight } from "lucide-react";
+import { FolderTree, Settings, Users2, Building2, ArrowRight, Camera, Calendar, Briefcase, AlertCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import api from "../api/axios";
 
 const AdminSitemap = () => {
+  const [colleges, setColleges] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchColleges = async () => {
+      try {
+        const res = await api.get("/colleges");
+        setColleges(res.data || []);
+      } catch (error) {
+        console.error("Error fetching colleges for admin sitemap:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchColleges();
+  }, []);
+
   const adminSections = [
     {
       title: "Content & Assets",
@@ -85,6 +104,89 @@ const AdminSitemap = () => {
           </motion.div>
         ))}
       </div>
+
+      {/* Dynamic Colleges Section for Admins */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+        className="mt-12 rounded-[2rem] border border-white/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.9),rgba(255,255,255,0.7))] p-6 shadow-[0_20px_60px_rgba(148,163,184,0.12)] backdrop-blur-sm sm:p-8"
+      >
+        <div className="mb-10 flex flex-col gap-4 border-b border-indigo-100 pb-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-4">
+            <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 ring-1 ring-indigo-100">
+              <Building2 size={28} />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-slate-900">Detailed College Management</h2>
+              <p className="text-slate-600">Direct administrative workflows for individual IIITs</p>
+            </div>
+          </div>
+        </div>
+
+        {loading ? (
+          <div className="flex h-40 items-center justify-center">
+            <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-indigo-600"></div>
+          </div>
+        ) : colleges.length > 0 ? (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {colleges.map((college) => {
+              const encodeName = encodeURIComponent(college.name);
+              
+              return (
+                <div key={college._id} className="rounded-2xl border border-slate-200/80 bg-white/80 p-6 shadow-sm transition-all hover:border-indigo-200 hover:shadow-md">
+                  <div className="mb-5 text-lg font-bold text-slate-900">
+                    {college.name}
+                  </div>
+                  <div className="flex flex-col gap-3 border-l-2 border-indigo-100 pl-4">
+                    <Link
+                      to={`/colleges/admin?college=${encodeName}`}
+                      className="group flex items-center gap-3 text-sm font-medium text-slate-600 hover:text-indigo-700"
+                    >
+                      <div className="rounded-lg bg-indigo-50 p-2 ring-1 ring-indigo-100 transition-colors group-hover:bg-indigo-100">
+                        <Building2 size={16} className="text-indigo-600" />
+                      </div>
+                      Manage Details & Clubs
+                    </Link>
+                    <Link
+                      to={`/admin/gallery?college=${encodeName}`}
+                      className="group flex items-center gap-3 text-sm font-medium text-slate-600 hover:text-indigo-700"
+                    >
+                      <div className="rounded-lg bg-sky-50 p-2 ring-1 ring-sky-100 transition-colors group-hover:bg-sky-100">
+                        <Camera size={16} className="text-sky-600" />
+                      </div>
+                      Manage Gallery
+                    </Link>
+                    <Link
+                      to={`/events/admin?college=${encodeName}`}
+                      className="group flex items-center gap-3 text-sm font-medium text-slate-600 hover:text-indigo-700"
+                    >
+                      <div className="rounded-lg bg-amber-50 p-2 ring-1 ring-amber-100 transition-colors group-hover:bg-amber-100">
+                        <Calendar size={16} className="text-amber-600" />
+                      </div>
+                      Manage Events
+                    </Link>
+                    <Link
+                      to={`/placement/admin?college=${encodeName}`}
+                      className="group flex items-center gap-3 text-sm font-medium text-slate-600 hover:text-indigo-700"
+                    >
+                      <div className="rounded-lg bg-emerald-50 p-2 ring-1 ring-emerald-100 transition-colors group-hover:bg-emerald-100">
+                        <Briefcase size={16} className="text-emerald-600" />
+                      </div>
+                      Manage Placements
+                    </Link>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-12 text-slate-500">
+            <AlertCircle size={32} className="mb-4 opacity-50" />
+            <p>No colleges found in the system to manage.</p>
+          </div>
+        )}
+      </motion.div>
     </div>
   );
 };

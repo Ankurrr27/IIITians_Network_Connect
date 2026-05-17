@@ -1,5 +1,6 @@
 import College from "../models/College.model.js";
 import cloudinary from "../config/cloudinary.js";
+import { logAdminAction } from "./adminLog.controller.js";
 
 const GALLERY_CATEGORIES = ["infrastructure", "clubs", "events", "others"];
 
@@ -48,6 +49,13 @@ export const createCollege = async (req, res) => {
       clubLinks: normalizeClubLinks(req.body.clubLinks),
       description: req.body.description,
     });
+    
+    await logAdminAction({
+      adminId: req.adminId, adminEmail: req.adminEmail,
+      action: "CREATED_COLLEGE", targetResource: "College", targetId: college._id,
+      details: `Created new college: ${college.name}`, ipAddress: req.ip
+    });
+
     res.status(201).json(college);
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -275,6 +283,12 @@ export const deleteCollegeGalleryImage = async (req, res) => {
 
     college.gallery = college.gallery.filter((img) => img.url !== imageUrl);
     await college.save();
+
+    await logAdminAction({
+      adminId: req.adminId, adminEmail: req.adminEmail,
+      action: "DELETED_GALLERY_IMAGE", targetResource: "College", targetId: college._id,
+      details: `Deleted an image from ${college.name} gallery`, ipAddress: req.ip
+    });
 
     res.json(college);
   } catch (error) {
